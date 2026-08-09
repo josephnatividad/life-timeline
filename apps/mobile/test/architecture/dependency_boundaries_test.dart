@@ -43,6 +43,25 @@ void main() {
 
     expect(violations, isEmpty, reason: violations.join('\n'));
   });
+
+  test('design system does not depend on product feature modules', () {
+    final violations = <String>[];
+
+    for (final file in _dartFilesUnder(Directory('lib/design_system'))) {
+      final source = file.readAsStringSync();
+      for (final forbiddenImport in const [
+        'package:life_timeline/features/',
+        'package:life_timeline/shared/',
+        'package:life_timeline/app/',
+      ]) {
+        if (source.contains(forbiddenImport)) {
+          violations.add('${file.path}: $forbiddenImport');
+        }
+      }
+    }
+
+    expect(violations, isEmpty, reason: violations.join('\n'));
+  });
 }
 
 Iterable<File> _dartFilesUnder(Directory directory) => directory

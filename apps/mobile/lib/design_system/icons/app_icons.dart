@@ -71,7 +71,8 @@ final class AppSignatureIcon extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) => provider?.buildIcon(
+  Widget build(BuildContext context) =>
+      provider?.buildIcon(
         context,
         kind,
         color: color,

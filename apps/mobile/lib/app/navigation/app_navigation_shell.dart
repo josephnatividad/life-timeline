@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:life_timeline/design_system/icons/app_icons.dart';
+import 'package:life_timeline/design_system/components/navigation/app_bottom_navigation_shell.dart';
 
 final class AppNavigationShell extends StatelessWidget {
   const AppNavigationShell({
@@ -21,34 +21,10 @@ final class AppNavigationShell extends StatelessWidget {
   };
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AppBottomNavigationShell(
     body: navigationShell,
-    bottomNavigationBar: NavigationBar(
-      selectedIndex: _selectedDestination,
-      onDestinationSelected: (index) => _selectDestination(index),
-      destinations: const [
-        NavigationDestination(
-          icon: AppIcon(icon: AppIcons.timeline),
-          label: 'Timeline',
-        ),
-        NavigationDestination(
-          icon: AppIcon(icon: AppIcons.explore),
-          label: 'Explore',
-        ),
-        NavigationDestination(
-          icon: AppIcon(icon: AppIcons.capture),
-          label: 'Capture',
-        ),
-        NavigationDestination(
-          icon: AppIcon(icon: AppIcons.stories),
-          label: 'Stories',
-        ),
-        NavigationDestination(
-          icon: AppIcon(icon: AppIcons.you),
-          label: 'You',
-        ),
-      ],
-    ),
+    selectedIndex: _selectedDestination,
+    onDestinationSelected: _selectDestination,
   );
 
   void _selectDestination(int destinationIndex) {

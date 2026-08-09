@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:life_timeline/design_system/theme/app_theme.dart';
 import 'package:life_timeline/design_system/tokens/app_colors.dart';
+import 'package:life_timeline/design_system/tokens/app_elevation.dart';
+import 'package:life_timeline/design_system/tokens/app_icon_size.dart';
 import 'package:life_timeline/design_system/tokens/app_radius.dart';
 import 'package:life_timeline/design_system/tokens/app_spacing.dart';
 
@@ -39,5 +41,14 @@ void main() {
     expect(AppRadius.card, 16);
     expect(AppRadius.largeCard, 20);
     expect(AppRadius.bottomSheet, 28);
+    expect(AppRadius.pill, 999);
+    expect(AppElevation.flat, 0);
+    expect(AppElevation.raised, 1);
+    expect(AppElevation.overlay, 3);
+    expect(AppIconSize.compact, 20);
+    expect(AppIconSize.standard, 24);
+    expect(AppIconSize.feature, 28);
+    expect(AppIconSize.signature, 32);
+    expect(AppIconSize.touchTarget, 48);
   });
 }

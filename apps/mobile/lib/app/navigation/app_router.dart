@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:life_timeline/app/navigation/app_navigation_shell.dart';
 import 'package:life_timeline/app/navigation/app_routes.dart';
-import 'package:life_timeline/design_system/motion/app_motion.dart';
+import 'package:life_timeline/design_system/components/overlays/app_bottom_sheet.dart';
 import 'package:life_timeline/features/capture/presentation/capture_foundation_sheet.dart';
 import 'package:life_timeline/features/explore/presentation/explore_foundation_page.dart';
 import 'package:life_timeline/features/settings/presentation/you_foundation_page.dart';
@@ -66,11 +66,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 });
 
 Future<void> _showCaptureFoundation(BuildContext context) =>
-    showModalBottomSheet<void>(
+    AppBottomSheet.show<void>(
       context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      sheetAnimationStyle: AppMotion.bottomSheetStyle(context),
-      useSafeArea: true,
       builder: (context) => const CaptureFoundationSheet(),
     );

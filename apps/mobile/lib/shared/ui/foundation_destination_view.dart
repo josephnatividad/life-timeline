@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:life_timeline/design_system/components/layout/app_scaffold.dart';
 import 'package:life_timeline/design_system/icons/app_icons.dart';
 import 'package:life_timeline/design_system/tokens/app_spacing.dart';
 
@@ -15,10 +16,11 @@ final class FoundationDestinationView extends StatelessWidget {
   final String title;
 
   @override
-  Widget build(BuildContext context) => SafeArea(
+  Widget build(BuildContext context) => ScreenContainer(
+    alignment: Alignment.center,
+    padding: const EdgeInsets.all(AppSpacing.xl),
     child: Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.xl),
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 560),
           child: Column(

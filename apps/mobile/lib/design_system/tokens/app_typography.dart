@@ -46,13 +46,21 @@ abstract final class AppTypography {
   }) => TextTheme(
     displayLarge: display.copyWith(color: primary),
     displayMedium: hero.copyWith(color: primary),
+    displaySmall: title1.copyWith(color: primary),
     headlineLarge: title1.copyWith(color: primary),
     headlineMedium: title2.copyWith(color: primary),
+    headlineSmall: title3.copyWith(color: primary),
     titleLarge: title3.copyWith(color: primary),
+    titleMedium: bodyLarge.copyWith(
+      color: primary,
+      fontWeight: FontWeight.w500,
+    ),
+    titleSmall: label.copyWith(color: primary),
     bodyLarge: bodyLarge.copyWith(color: primary),
     bodyMedium: body.copyWith(color: primary),
     bodySmall: bodySmall.copyWith(color: secondary),
     labelLarge: label.copyWith(color: primary),
+    labelMedium: label.copyWith(color: secondary),
     labelSmall: caption.copyWith(color: secondary),
   );
 }
