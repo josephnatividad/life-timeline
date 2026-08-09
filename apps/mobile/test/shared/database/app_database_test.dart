@@ -16,7 +16,7 @@ void main() {
 
   tearDown(() => database.close());
 
-  test('schema v1 creates the complete baseline table set', () async {
+  test('schema v2 preserves the complete relational baseline', () async {
     final rows = await database
         .customSelect(
           "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name",
@@ -24,7 +24,7 @@ void main() {
         .get();
     final names = rows.map((row) => row.read<String>('name')).toSet();
 
-    expect(database.schemaVersion, 1);
+    expect(database.schemaVersion, 2);
     expect(
       names,
       containsAll(<String>{
@@ -110,10 +110,10 @@ void main() {
   test(
     'migration baseline is explicit and rejects unimplemented upgrades',
     () async {
-      await migrateSchema(database.createMigrator(), from: 1, to: 1);
+      await migrateSchema(database, database.createMigrator(), from: 2, to: 2);
 
       expect(
-        migrateSchema(database.createMigrator(), from: 1, to: 2),
+        migrateSchema(database, database.createMigrator(), from: 2, to: 3),
         throwsA(isA<StateError>()),
       );
     },
@@ -122,5 +122,41 @@ void main() {
   test('foreign keys are enabled', () async {
     final row = await database.customSelect('PRAGMA foreign_keys').getSingle();
     expect(row.read<int>('foreign_keys'), 1);
+  });
+
+  test('schema v2 creates the local FTS5 event index', () async {
+    final row = await database
+        .customSelect(
+          "SELECT sql FROM sqlite_master WHERE name = 'event_search'",
+        )
+        .getSingle();
+
+    expect(row.read<String>('sql'), contains('fts5'));
+  });
+
+  test('v1 to v2 migration adds FTS without resetting relational data', () async {
+    await database.customStatement('DROP TABLE event_search');
+    await database
+        .into(database.entities)
+        .insert(TimelineMapper.entityToCompanion(TestRecordFactory.entity()));
+    await database
+        .into(database.events)
+        .insert(TimelineMapper.eventToCompanion(TestRecordFactory.event()));
+
+    await migrateSchema(database, database.createMigrator(), from: 1, to: 2);
+
+    expect(await database.select(database.entities).get(), hasLength(1));
+    final searchTable = await database
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE name = 'event_search'",
+        )
+        .getSingle();
+    expect(searchTable.read<String>('name'), 'event_search');
+    final indexed = await database
+        .customSelect(
+          "SELECT event_id FROM event_search WHERE event_search MATCH 'started'",
+        )
+        .getSingle();
+    expect(indexed.read<String>('event_id'), 'event-1');
   });
 }

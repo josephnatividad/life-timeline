@@ -169,3 +169,28 @@ final class Category {
   final String name;
   final String? parentId;
 }
+
+/// Read/write aggregate used by the Timeline feature without exposing storage
+/// rows or flattening the underlying structured model.
+final class TimelineMemory {
+  const TimelineMemory({
+    required this.event,
+    this.category,
+    this.relatedEntity,
+    this.relatedEntityRelationship,
+  });
+
+  final Category? category;
+  final Event event;
+  final Entity? relatedEntity;
+  final Relationship? relatedEntityRelationship;
+}
+
+enum MemoryMatchField { title, description, eventType, entity, category }
+
+final class MemorySearchResult {
+  const MemorySearchResult({required this.memory, required this.matchedField});
+
+  final MemoryMatchField matchedField;
+  final TimelineMemory memory;
+}

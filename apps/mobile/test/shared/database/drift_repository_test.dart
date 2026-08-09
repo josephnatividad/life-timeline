@@ -1,10 +1,12 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:life_timeline/shared/database/app_database.dart';
+import 'package:life_timeline/shared/database/app_database.dart'
+    hide Category, Entity, Event, Relationship;
 import 'package:life_timeline/shared/database/repositories/drift_memory_candidate_repository.dart';
 import 'package:life_timeline/shared/database/repositories/drift_timeline_repository.dart';
 import 'package:life_timeline/shared/domain/model/field_provenance.dart';
 import 'package:life_timeline/shared/domain/model/record_metadata.dart';
+import 'package:life_timeline/shared/domain/model/temporal_value.dart';
 import 'package:life_timeline/shared/domain/model/timeline_models.dart';
 
 import 'test_record_factory.dart';
@@ -175,5 +177,123 @@ void main() {
         RecordLifecycle.candidate,
       );
     },
+  );
+
+  test(
+    'local FTS searches title, description, type, entity and category',
+    () async {
+      await timeline.saveMemory(_searchableMemory());
+
+      for (final query in [
+        'graduat',
+        'degree',
+        'milestone',
+        'university',
+        'education',
+      ]) {
+        final results = await timeline.searchMemories(query);
+        expect(results, hasLength(1), reason: 'query: $query');
+        expect(results.single.memory.event.metadata.id, 'search-event');
+      }
+    },
+  );
+
+  test('search follows edits and excludes archived memories', () async {
+    final memory = _searchableMemory();
+    await timeline.saveMemory(memory);
+    final edited = TimelineMemory(
+      event: Event(
+        metadata: memory.event.metadata.copyWith(
+          updatedAt: TestRecordFactory.createdAt.add(const Duration(hours: 1)),
+        ),
+        title: 'Finished university',
+        temporalValue: memory.event.temporalValue,
+        description: memory.event.description,
+        eventType: memory.event.eventType,
+      ),
+      category: memory.category,
+      relatedEntity: memory.relatedEntity,
+      relatedEntityRelationship: memory.relatedEntityRelationship,
+    );
+    await timeline.saveMemory(edited);
+
+    expect(await timeline.searchMemories('graduated'), isEmpty);
+    expect(await timeline.searchMemories('finished'), hasLength(1));
+
+    await timeline.archiveEvent(
+      'search-event',
+      TestRecordFactory.createdAt.add(const Duration(hours: 2)),
+    );
+    expect(await timeline.searchMemories('finished'), isEmpty);
+    await timeline.restoreEvent(
+      'search-event',
+      TestRecordFactory.createdAt.add(const Duration(hours: 3)),
+    );
+    expect(await timeline.searchMemories('finished'), hasLength(1));
+    await timeline.softDeleteEvent(
+      'search-event',
+      TestRecordFactory.createdAt.add(const Duration(hours: 4)),
+    );
+    expect(await timeline.searchMemories('finished'), isEmpty);
+  });
+
+  test(
+    'never-share classification remains attached to local search results',
+    () async {
+      await timeline.saveMemory(
+        _searchableMemory(privacy: PrivacyClassification.neverShare),
+      );
+
+      final result = (await timeline.searchMemories('graduated')).single;
+      expect(
+        result.memory.event.metadata.privacyClassification,
+        PrivacyClassification.neverShare,
+      );
+    },
+  );
+}
+
+TimelineMemory _searchableMemory({
+  PrivacyClassification privacy = PrivacyClassification.personal,
+}) {
+  final at = TestRecordFactory.createdAt;
+  RecordMetadata metadata(String id) => RecordMetadata(
+    id: id,
+    privacyClassification: privacy,
+    lifecycle: RecordLifecycle.confirmed,
+    createdAt: at,
+    updatedAt: at,
+  );
+  final event = Event(
+    metadata: metadata('search-event'),
+    title: 'Graduated from college',
+    temporalValue: TemporalValue.year(2020),
+    description: 'Completed a degree',
+    eventType: 'Milestone',
+  );
+  final entity = Entity(
+    metadata: metadata('search-entity'),
+    name: 'Example University',
+    entityType: 'organization',
+  );
+  return TimelineMemory(
+    event: event,
+    relatedEntity: entity,
+    relatedEntityRelationship: Relationship(
+      metadata: metadata('search-relationship'),
+      source: TimelineRecordReference(
+        type: TimelineRecordType.event,
+        id: event.metadata.id,
+      ),
+      target: TimelineRecordReference(
+        type: TimelineRecordType.entity,
+        id: entity.metadata.id,
+      ),
+      relationshipType: 'related_entity',
+    ),
+    category: Category(
+      metadata: metadata('search-category'),
+      name: 'Education',
+    ),
   );
 }

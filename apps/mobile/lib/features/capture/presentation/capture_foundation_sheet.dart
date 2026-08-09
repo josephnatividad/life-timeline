@@ -4,7 +4,9 @@ import 'package:life_timeline/design_system/icons/app_icons.dart';
 import 'package:life_timeline/design_system/tokens/app_spacing.dart';
 
 final class CaptureFoundationSheet extends StatelessWidget {
-  const CaptureFoundationSheet({super.key});
+  const CaptureFoundationSheet({required this.onAddMemory, super.key});
+
+  final VoidCallback onAddMemory;
 
   @override
   Widget build(BuildContext context) => AppBottomSheet(
@@ -18,10 +20,14 @@ final class CaptureFoundationSheet extends StatelessWidget {
           size: 32,
         ),
         const SizedBox(height: AppSpacing.md),
-        Text(
-          'Capture modes will be added in a separate feature implementation.',
-          style: Theme.of(context).textTheme.bodyLarge,
-          textAlign: TextAlign.center,
+        ListTile(
+          key: const Key('capture-manual-memory'),
+          contentPadding: EdgeInsets.zero,
+          leading: const AppIcon(icon: AppIcons.capture),
+          title: const Text('Add memory manually'),
+          subtitle: const Text('Create a confirmed timeline memory.'),
+          trailing: const AppIcon(icon: AppIcons.next),
+          onTap: onAddMemory,
         ),
       ],
     ),

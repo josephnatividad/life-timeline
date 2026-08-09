@@ -33,17 +33,16 @@ final class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 1;
-
-  // FTS is intentionally an additive migration after search privacy and
-  // soft-deletion indexing semantics are accepted. The normalized columns in
-  // v1 make that migration deterministic without indexing attachment content.
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (migrator) => migrator.createAll(),
+    onCreate: (migrator) async {
+      await migrator.createAll();
+      await createEventSearchSchema(this);
+    },
     onUpgrade: (migrator, from, to) =>
-        migrateSchema(migrator, from: from, to: to),
+        migrateSchema(this, migrator, from: from, to: to),
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },

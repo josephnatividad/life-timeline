@@ -62,6 +62,32 @@ void main() {
 
     expect(violations, isEmpty, reason: violations.join('\n'));
   });
+
+  test(
+    'feature presentation never imports Drift or database implementation',
+    () {
+      final violations = <String>[];
+
+      for (final file in _dartFilesUnder(Directory('lib/features'))) {
+        final normalizedPath = file.path.replaceAll('\\', '/');
+        if (!normalizedPath.contains('/presentation/')) {
+          continue;
+        }
+        final source = file.readAsStringSync();
+        for (final forbiddenImport in const [
+          'package:drift/',
+          'package:drift_flutter/',
+          'package:life_timeline/shared/database/',
+        ]) {
+          if (source.contains(forbiddenImport)) {
+            violations.add('${file.path}: $forbiddenImport');
+          }
+        }
+      }
+
+      expect(violations, isEmpty, reason: violations.join('\n'));
+    },
+  );
 }
 
 Iterable<File> _dartFilesUnder(Directory directory) => directory

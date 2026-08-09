@@ -1,4 +1,4 @@
-# Drift schema v1
+# Drift schema evolution
 
 Schema v1 is the Phase 1 persistence baseline. It contains the core timeline,
 provenance, candidate, attachment-metadata, and taxonomy records. Attachment
@@ -26,27 +26,34 @@ storage state, and checksum; every relationship endpoint; every provenance
 target; category parent lookup; and reverse lookup through every taxonomy join.
 SQLite also creates indexes for primary-key and unique constraints.
 
-## Full-text search deferral
+## Schema v2 local full-text search
 
-SQLite FTS remains a Phase 1 MVP requirement, but it is intentionally not part
-of schema v1. Before adding an FTS virtual table, the project must accept rules
-for all of the following:
+Schema v2 adds the additive `event_search` FTS5 virtual table for the Phase 1
+manual-memory vertical slice. It indexes only:
 
-- which fields from `sensitive` and `never_share` records may be tokenized;
-- how privacy-classification changes remove previously indexed tokens;
-- how archived and soft-deleted records are excluded and how indexes rebuild;
-- whether evidence display names are searchable without indexing local paths or
-  leaking attachment metadata into snippets.
+- event title;
+- event description;
+- event type;
+- related entity names;
+- assigned category names.
 
-Adding FTS without these rules would create a second, less-visible copy of
-private text and ambiguous deletion behavior. The v1 normalized title/name
-columns, stable IDs, lifecycle columns, and privacy classifications prepare a
-deterministic additive FTS migration. Basic local FTS must be added and tested
-before the MVP search feature is implemented; this deferral does not move local
-search out of Phase 1.
+The FTS table is local and part of the same device-owned database. Local search
+can find every privacy classification, including `never_share`, because that
+classification restricts sharing rather than the user's private on-device
+retrieval. Results retain their classification and the UI displays it. Search
+returns matched-field labels instead of raw snippets, so generic result helpers
+do not reproduce private descriptions or related names.
+
+Attachment display names, local paths, filenames, extracted document text, and
+binary content are never indexed. Active search filters to confirmed events.
+Archived records remain preserved but are excluded from normal search; restored
+records become searchable again. Soft deletion removes the derived FTS row.
+Editing a memory rebuilds its FTS row transactionally, including privacy or
+relationship/category changes. Search queries and content are never logged.
 
 ## Migration policy
 
-New installations create v1 with `createAll`. Every future schema version must
-have a reviewed, additive migration and migration tests. Production code has no
-reset-on-schema-change fallback.
+New installations create the current relational schema and FTS index. Existing
+v1 installations receive an additive v1-to-v2 migration and index backfill.
+Every future schema version must have a reviewed migration and migration tests.
+Production code has no reset-on-schema-change fallback.

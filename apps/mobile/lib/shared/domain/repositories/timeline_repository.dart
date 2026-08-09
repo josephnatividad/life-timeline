@@ -3,6 +3,16 @@ import 'package:life_timeline/shared/domain/model/memory_candidate.dart';
 import 'package:life_timeline/shared/domain/model/timeline_models.dart';
 
 abstract interface class TimelineRepository {
+  Stream<List<TimelineMemory>> watchMemories({bool archived = false});
+  Future<TimelineMemory?> memoryById(String id);
+  Future<List<MemorySearchResult>> searchMemories(String query);
+  Future<void> saveMemory(
+    TimelineMemory memory, {
+    List<FieldProvenance> provenance = const [],
+  });
+  Future<void> archiveEvent(String id, DateTime archivedAt);
+  Future<void> restoreEvent(String id, DateTime restoredAt);
+
   Future<void> saveEntity(Entity entity);
   Future<void> saveEvent(Event event);
   Future<void> saveEvidence(

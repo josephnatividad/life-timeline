@@ -6,9 +6,13 @@ import 'package:life_timeline/app/navigation/app_routes.dart';
 import 'package:life_timeline/design_system/components/overlays/app_bottom_sheet.dart';
 import 'package:life_timeline/features/capture/presentation/capture_foundation_sheet.dart';
 import 'package:life_timeline/features/explore/presentation/explore_foundation_page.dart';
+import 'package:life_timeline/features/search/presentation/memory_search_page.dart';
 import 'package:life_timeline/features/settings/presentation/you_foundation_page.dart';
 import 'package:life_timeline/features/stories/presentation/stories_foundation_page.dart';
-import 'package:life_timeline/features/timeline/presentation/timeline_foundation_page.dart';
+import 'package:life_timeline/features/timeline/presentation/archive_page.dart';
+import 'package:life_timeline/features/timeline/presentation/memory_detail_page.dart';
+import 'package:life_timeline/features/timeline/presentation/memory_editor_page.dart';
+import 'package:life_timeline/features/timeline/presentation/timeline_home_page.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
@@ -25,7 +29,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 name: AppRoute.timeline.name,
                 path: AppRoute.timeline.path,
-                builder: (context, state) => const TimelineFoundationPage(),
+                builder: (context, state) => const TimelineHomePage(),
               ),
             ],
           ),
@@ -58,6 +62,33 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+      GoRoute(
+        name: AppRoute.addMemory.name,
+        path: AppRoute.addMemory.path,
+        builder: (context, state) => const AddMemoryPage(),
+      ),
+      GoRoute(
+        name: AppRoute.memoryDetail.name,
+        path: AppRoute.memoryDetail.path,
+        builder: (context, state) =>
+            MemoryDetailPage(memoryId: state.pathParameters['memoryId']!),
+      ),
+      GoRoute(
+        name: AppRoute.editMemory.name,
+        path: AppRoute.editMemory.path,
+        builder: (context, state) =>
+            EditMemoryPage(memoryId: state.pathParameters['memoryId']!),
+      ),
+      GoRoute(
+        name: AppRoute.search.name,
+        path: AppRoute.search.path,
+        builder: (context, state) => const MemorySearchPage(),
+      ),
+      GoRoute(
+        name: AppRoute.archive.name,
+        path: AppRoute.archive.path,
+        builder: (context, state) => const ArchivePage(),
+      ),
     ],
   );
 
@@ -68,5 +99,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 Future<void> _showCaptureFoundation(BuildContext context) =>
     AppBottomSheet.show<void>(
       context: context,
-      builder: (context) => const CaptureFoundationSheet(),
+      builder: (sheetContext) => CaptureFoundationSheet(
+        onAddMemory: () {
+          Navigator.of(sheetContext).pop();
+          context.pushNamed(AppRoute.addMemory.name);
+        },
+      ),
     );
