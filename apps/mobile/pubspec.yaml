@@ -1,0 +1,26 @@
+name: life_timeline
+description: Phase 1 mobile foundation for the Life Timeline working project.
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  drift: ^2.34.3
+  drift_flutter: ^0.3.1
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.4.2
+  go_router: ^17.4.0
+  hugeicons: ^1.1.7
+
+dev_dependencies:
+  build_runner: 2.15.1
+  drift_dev: 2.34.0
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: false
