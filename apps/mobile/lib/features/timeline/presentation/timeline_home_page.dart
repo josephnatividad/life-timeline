@@ -19,6 +19,11 @@ final class TimelineHomePage extends ConsumerWidget {
         title: const Text('Timeline'),
         actions: [
           AppIconButton(
+            icon: AppIcons.intelligence,
+            label: 'Memory Inbox',
+            onPressed: () => context.pushNamed(AppRoute.memoryInbox.name),
+          ),
+          AppIconButton(
             icon: AppIcons.search,
             label: 'Search memories',
             onPressed: () => context.pushNamed(AppRoute.search.name),

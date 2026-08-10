@@ -17,6 +17,9 @@ part 'app_database.g.dart';
     Attachments,
     FieldProvenanceRows,
     MemoryCandidates,
+    CandidateExtractedFields,
+    CandidateEntityProposals,
+    FeatureUsage,
     Tags,
     Categories,
     EntityTags,
@@ -33,7 +36,7 @@ final class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:life_timeline/features/private_intelligence/domain/intelligence_models.dart';
 import 'package:life_timeline/shared/database/app_database.dart' as db;
 import 'package:life_timeline/shared/database/mappers/candidate_provenance_mapper.dart';
 import 'package:life_timeline/shared/database/mappers/timeline_mapper.dart';
@@ -16,12 +17,80 @@ final class DriftMemoryCandidateRepository
 
   @override
   Future<void> saveCandidate(MemoryCandidate candidate) async {
+    await _database.transaction(() => _saveCandidateAggregate(candidate));
+  }
+
+  Future<void> _saveCandidateAggregate(MemoryCandidate candidate) async {
     await _database
         .into(_database.memoryCandidates)
         .insertOnConflictUpdate(
           CandidateProvenanceMapper.candidateToCompanion(candidate),
         );
+    await (_database.delete(
+      _database.candidateExtractedFields,
+    )..where((row) => row.candidateId.equals(candidate.metadata.id))).go();
+    await (_database.delete(
+      _database.candidateEntityProposals,
+    )..where((row) => row.candidateId.equals(candidate.metadata.id))).go();
+    for (final field in candidate.extractedFields) {
+      await _database
+          .into(_database.candidateExtractedFields)
+          .insert(
+            db.CandidateExtractedFieldsCompanion.insert(
+              id: field.id,
+              candidateId: candidate.metadata.id,
+              key: field.key,
+              value: field.value,
+              valueType: field.valueType.name,
+              confidence: field.confidence,
+              privacyClassification: field.privacyClassification.name,
+              extractionMethod: field.extractionMethod,
+              sourceExcerpt: Value(field.sourceExcerpt),
+              reviewRecommended: Value(field.reviewRecommended),
+            ),
+          );
+    }
+    for (final proposal in candidate.entityProposals) {
+      await _database
+          .into(_database.candidateEntityProposals)
+          .insert(
+            db.CandidateEntityProposalsCompanion.insert(
+              id: proposal.id,
+              candidateId: candidate.metadata.id,
+              name: proposal.name,
+              entityType: proposal.entityType,
+              confidence: proposal.confidence,
+              brand: Value(proposal.brand),
+              model: Value(proposal.model),
+              serialNumber: Value(proposal.serialNumber),
+              suggestedEntityId: Value(proposal.suggestedEntityId),
+              matchScore: Value(proposal.matchScore),
+              matchReasons: Value(proposal.matchReasons.join('|')),
+            ),
+          );
+    }
   }
+
+  @override
+  Future<void> saveCaptureCandidate({
+    required MemoryCandidate candidate,
+    required Evidence evidence,
+    required Attachment attachment,
+    List<FieldProvenance> provenance = const [],
+  }) => _database.transaction(() async {
+    await _database
+        .into(_database.evidenceRecords)
+        .insert(TimelineMapper.evidenceToCompanion(evidence));
+    await _database
+        .into(_database.attachments)
+        .insert(TimelineMapper.attachmentToCompanion(attachment));
+    await _saveCandidateAggregate(candidate);
+    for (final field in provenance) {
+      await _database
+          .into(_database.fieldProvenanceRows)
+          .insert(CandidateProvenanceMapper.provenanceToCompanion(field));
+    }
+  });
 
   @override
   Future<MemoryCandidate?> candidateById(
@@ -37,17 +106,102 @@ final class DriftMemoryCandidateRepository
                 : row.lifecycle.isNotValue('soft_deleted')),
       );
     final row = await query.getSingleOrNull();
-    return row == null ? null : CandidateProvenanceMapper.candidateFromRow(row);
+    return row == null ? null : _hydrate(row);
   }
 
   @override
   Future<List<MemoryCandidate>> pendingCandidates() async {
     final query = _database.select(_database.memoryCandidates)
-      ..where((row) => row.lifecycle.equals('candidate'))
+      ..where(
+        (row) =>
+            row.lifecycle.equals('candidate') &
+            row.reviewStatus.isIn(['pending', 'reviewing']),
+      )
       ..orderBy([(row) => OrderingTerm.asc(row.createdAt)]);
-    return (await query.get())
-        .map(CandidateProvenanceMapper.candidateFromRow)
-        .toList();
+    return Future.wait((await query.get()).map(_hydrate));
+  }
+
+  @override
+  Stream<List<MemoryCandidate>> watchPendingCandidates() {
+    final query = _database.select(_database.memoryCandidates)
+      ..where(
+        (row) =>
+            row.lifecycle.equals('candidate') &
+            row.reviewStatus.isIn(['pending', 'reviewing']),
+      )
+      ..orderBy([(row) => OrderingTerm.desc(row.createdAt)]);
+    return query.watch().asyncMap((rows) => Future.wait(rows.map(_hydrate)));
+  }
+
+  @override
+  Future<String?> entityIdForExactSerial(String serialNumber) async {
+    final rows = await _database
+        .customSelect(
+          '''
+      SELECT p.suggested_entity_id
+      FROM candidate_entity_proposals p
+      JOIN memory_candidates c ON c.id = p.candidate_id
+      WHERE p.suggested_entity_id IS NOT NULL
+        AND p.serial_number IS NOT NULL
+        AND lower(p.serial_number) = lower(?)
+        AND c.review_status = 'confirmed'
+      ORDER BY c.updated_at DESC
+      LIMIT 1
+      ''',
+          variables: [Variable.withString(serialNumber.trim())],
+          readsFrom: {
+            _database.candidateEntityProposals,
+            _database.memoryCandidates,
+          },
+        )
+        .get();
+    return rows.isEmpty ? null : rows.first.read<String>('suggested_entity_id');
+  }
+
+  Future<MemoryCandidate> _hydrate(db.MemoryCandidate row) async {
+    final fieldsQuery = _database.select(_database.candidateExtractedFields)
+      ..where((value) => value.candidateId.equals(row.id));
+    final proposalsQuery = _database.select(_database.candidateEntityProposals)
+      ..where((value) => value.candidateId.equals(row.id));
+    final fields = await fieldsQuery.get();
+    final proposals = await proposalsQuery.get();
+    return CandidateProvenanceMapper.candidateFromRow(row).copyWith(
+      extractedFields: fields
+          .map(
+            (field) => ExtractedField(
+              id: field.id,
+              key: field.key,
+              value: field.value,
+              valueType: ExtractedValueType.values.byName(field.valueType),
+              confidence: field.confidence,
+              privacyClassification: PrivacyClassification.values.byName(
+                field.privacyClassification,
+              ),
+              extractionMethod: field.extractionMethod,
+              sourceExcerpt: field.sourceExcerpt,
+              reviewRecommended: field.reviewRecommended,
+            ),
+          )
+          .toList(),
+      entityProposals: proposals
+          .map(
+            (proposal) => EntityProposal(
+              id: proposal.id,
+              name: proposal.name,
+              entityType: proposal.entityType,
+              confidence: proposal.confidence,
+              brand: proposal.brand,
+              model: proposal.model,
+              serialNumber: proposal.serialNumber,
+              suggestedEntityId: proposal.suggestedEntityId,
+              matchScore: proposal.matchScore,
+              matchReasons: proposal.matchReasons.isEmpty
+                  ? const []
+                  : proposal.matchReasons.split('|'),
+            ),
+          )
+          .toList(),
+    );
   }
 
   @override
@@ -56,6 +210,8 @@ final class DriftMemoryCandidateRepository
     required Event confirmedEvent,
     required DateTime confirmedAt,
     List<FieldProvenance> provenance = const [],
+    List<Entity> entities = const [],
+    List<Relationship> relationships = const [],
   }) => _database.transaction(() async {
     final candidateQuery = _database.select(_database.memoryCandidates)
       ..where((row) => row.id.equals(candidateId));
@@ -76,6 +232,34 @@ final class DriftMemoryCandidateRepository
         .insertOnConflictUpdate(
           TimelineMapper.eventToCompanion(confirmedEvent),
         );
+    for (final entity in entities) {
+      await _database
+          .into(_database.entities)
+          .insertOnConflictUpdate(TimelineMapper.entityToCompanion(entity));
+    }
+    for (final relationship in relationships) {
+      await _database
+          .into(_database.relationships)
+          .insertOnConflictUpdate(
+            TimelineMapper.relationshipToCompanion(relationship),
+          );
+    }
+    String? relatedEntityId;
+    for (final relationship in relationships) {
+      if (relationship.target.type == TimelineRecordType.entity) {
+        relatedEntityId = relationship.target.id;
+        break;
+      }
+    }
+    if (relatedEntityId != null) {
+      await (_database.update(
+        _database.candidateEntityProposals,
+      )..where((row) => row.candidateId.equals(candidateId))).write(
+        db.CandidateEntityProposalsCompanion(
+          suggestedEntityId: Value(relatedEntityId),
+        ),
+      );
+    }
     await (_database.update(
       _database.memoryCandidates,
     )..where((row) => row.id.equals(candidateId))).write(
@@ -84,8 +268,28 @@ final class DriftMemoryCandidateRepository
         updatedAt: Value(confirmedAt.toUtc()),
         deletedAt: const Value(null),
         confirmedEventId: Value(confirmedEvent.metadata.id),
+        reviewStatus: const Value('confirmed'),
       ),
     );
+    if (candidate.sourceEvidenceId != null) {
+      await (_database.update(
+        _database.evidenceRecords,
+      )..where((row) => row.id.equals(candidate.sourceEvidenceId!))).write(
+        db.EvidenceRecordsCompanion(
+          lifecycle: const Value('confirmed'),
+          updatedAt: Value(confirmedAt.toUtc()),
+        ),
+      );
+      await (_database.update(
+            _database.attachments,
+          )..where((row) => row.evidenceId.equals(candidate.sourceEvidenceId!)))
+          .write(
+            db.AttachmentsCompanion(
+              lifecycle: const Value('confirmed'),
+              updatedAt: Value(confirmedAt.toUtc()),
+            ),
+          );
+    }
     for (final field in provenance) {
       await _database
           .into(_database.fieldProvenanceRows)
@@ -93,7 +297,40 @@ final class DriftMemoryCandidateRepository
             CandidateProvenanceMapper.provenanceToCompanion(field),
           );
     }
+    await _database.customStatement(
+      'DELETE FROM event_search WHERE event_id = ?',
+      [confirmedEvent.metadata.id],
+    );
+    await _database.customStatement(
+      '''
+      INSERT INTO event_search(event_id, title, description, event_type, entity_names, category_names)
+      VALUES (?, ?, ?, ?, ?, '')
+    ''',
+      [
+        confirmedEvent.metadata.id,
+        confirmedEvent.title,
+        confirmedEvent.description ?? '',
+        confirmedEvent.eventType ?? '',
+        entities.map((entity) => entity.name).join(' '),
+      ],
+    );
   });
+
+  @override
+  Future<void> setReviewStatus(
+    String id,
+    CandidateReviewStatus status,
+    DateTime updatedAt,
+  ) async {
+    await (_database.update(
+      _database.memoryCandidates,
+    )..where((row) => row.id.equals(id))).write(
+      db.MemoryCandidatesCompanion(
+        reviewStatus: Value(status.name),
+        updatedAt: Value(updatedAt.toUtc()),
+      ),
+    );
+  }
 
   @override
   Future<void> softDeleteCandidate(String id, DateTime deletedAt) async {

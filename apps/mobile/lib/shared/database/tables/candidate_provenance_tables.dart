@@ -22,8 +22,21 @@ class MemoryCandidates extends Table with RecordColumns, TemporalColumns {
     #id,
     onDelete: KeyAction.restrict,
   )();
+  @ReferenceName('confirmedCandidates')
   TextColumn get confirmedEventId =>
       text().nullable().references(Events, #id, onDelete: KeyAction.restrict)();
+  TextColumn get documentType =>
+      text().withDefault(const Constant('unknown'))();
+  TextColumn get reviewStatus =>
+      text().withDefault(const Constant('pending'))();
+  RealColumn get overallConfidence => real().nullable().check(
+    overallConfidence.isNull() |
+        (overallConfidence.isBiggerOrEqualValue(0) &
+            overallConfidence.isSmallerOrEqualValue(1)),
+  )();
+  @ReferenceName('possibleDuplicateCandidates')
+  TextColumn get possibleDuplicateEventId =>
+      text().nullable().references(Events, #id, onDelete: KeyAction.setNull)();
 
   @override
   List<String> get customConstraints => const [
@@ -45,6 +58,65 @@ class MemoryCandidates extends Table with RecordColumns, TemporalColumns {
     )''',
     "CHECK (lifecycle <> 'confirmed' OR confirmed_event_id IS NOT NULL)",
   ];
+}
+
+@TableIndex(name: 'candidate_fields_candidate_idx', columns: {#candidateId})
+@TableIndex(name: 'candidate_fields_key_idx', columns: {#key})
+class CandidateExtractedFields extends Table {
+  TextColumn get id => text()();
+  TextColumn get candidateId =>
+      text().references(MemoryCandidates, #id, onDelete: KeyAction.cascade)();
+  TextColumn get key => text()();
+  TextColumn get value => text()();
+  TextColumn get valueType => text()();
+  RealColumn get confidence => real().check(
+    confidence.isBiggerOrEqualValue(0) & confidence.isSmallerOrEqualValue(1),
+  )();
+  TextColumn get privacyClassification => text()();
+  TextColumn get extractionMethod => text()();
+  TextColumn get sourceExcerpt => text().nullable()();
+  BoolColumn get reviewRecommended =>
+      boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+@TableIndex(name: 'candidate_entities_candidate_idx', columns: {#candidateId})
+@TableIndex(
+  name: 'candidate_entities_suggested_idx',
+  columns: {#suggestedEntityId},
+)
+@TableIndex(name: 'candidate_entities_serial_idx', columns: {#serialNumber})
+class CandidateEntityProposals extends Table {
+  TextColumn get id => text()();
+  TextColumn get candidateId =>
+      text().references(MemoryCandidates, #id, onDelete: KeyAction.cascade)();
+  TextColumn get name => text()();
+  TextColumn get entityType => text()();
+  RealColumn get confidence => real()();
+  TextColumn get brand => text().nullable()();
+  TextColumn get model => text().nullable()();
+  TextColumn get serialNumber => text().nullable()();
+  TextColumn get suggestedEntityId => text().nullable().references(
+    Entities,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+  RealColumn get matchScore => real().nullable()();
+  TextColumn get matchReasons => text().withDefault(const Constant(''))();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+class FeatureUsage extends Table {
+  TextColumn get feature => text()();
+  IntColumn get usageCount => integer().withDefault(const Constant(0))();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {feature};
 }
 
 @TableIndex(name: 'provenance_entity_idx', columns: {#entityId})

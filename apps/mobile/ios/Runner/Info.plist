@@ -28,6 +28,10 @@
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Use Face ID to unlock your private timeline on this device.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Capture a document or memory for private on-device reading.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose a photo to read privately on this device.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

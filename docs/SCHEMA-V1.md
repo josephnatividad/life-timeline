@@ -51,6 +51,17 @@ records become searchable again. Soft deletion removes the derived FTS row.
 Editing a memory rebuilds its FTS row transactionally, including privacy or
 relationship/category changes. Search queries and content are never logged.
 
+## Schema v3 private-intelligence records
+
+Schema v3 adds structured extracted fields, entity proposals, document review
+state, and local feature-usage records for the on-device capture workflow.
+
+## Schema v4 attachment-path normalization
+
+Schema v4 normalizes legacy private-intelligence attachment references to be
+relative to the canonical app-managed attachment root. The migration changes
+metadata only; it does not move, delete, or rewrite attachment bytes.
+
 ## Migration policy
 
 New installations create the current relational schema and FTS index. Existing

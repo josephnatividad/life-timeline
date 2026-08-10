@@ -300,8 +300,6 @@ final class RestoreController extends Notifier<RestoreOperationState> {
         prepared: prepared,
         stage: RestoreOperationStage.complete,
       );
-      ref.invalidate(timelineRepositoryProvider);
-      ref.invalidate(memoryCandidateRepositoryProvider);
       ref.invalidate(backupHealthProvider);
     } on BackupFailure catch (error) {
       state = RestoreOperationState(

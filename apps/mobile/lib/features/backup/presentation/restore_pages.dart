@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:life_timeline/app/navigation/app_routes.dart';
+import 'package:life_timeline/app/providers/restored_data_refresh.dart';
 import 'package:life_timeline/design_system/design_system.dart';
 import 'package:life_timeline/features/backup/application/backup_providers.dart';
 import 'package:life_timeline/features/backup/domain/backup_models.dart';
@@ -349,9 +350,12 @@ final class RestoreResultPage extends ConsumerWidget {
             'The backup was authenticated, migrated where required, and restored locally.',
         icon: AppIcons.success,
         actionLabel: 'Open timeline',
-        onAction: () {
-          ref.read(restoreControllerProvider.notifier).reset();
-          context.goNamed(AppRoute.timeline.name);
+        onAction: () async {
+          await ref.read(restoreControllerProvider.notifier).reset();
+          ref.read(restoredDataRefreshCoordinatorProvider).refresh();
+          if (context.mounted) {
+            context.goNamed(AppRoute.timeline.name);
+          }
         },
       ),
     ),

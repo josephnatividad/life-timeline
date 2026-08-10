@@ -8,6 +8,8 @@ import 'package:life_timeline/features/backup/presentation/create_backup_pages.d
 import 'package:life_timeline/features/backup/presentation/restore_pages.dart';
 import 'package:life_timeline/features/capture/presentation/capture_foundation_sheet.dart';
 import 'package:life_timeline/features/explore/presentation/explore_foundation_page.dart';
+import 'package:life_timeline/features/private_intelligence/presentation/candidate_review_page.dart';
+import 'package:life_timeline/features/private_intelligence/presentation/memory_inbox_page.dart';
 import 'package:life_timeline/features/search/presentation/memory_search_page.dart';
 import 'package:life_timeline/features/security/presentation/security_settings_page.dart';
 import 'package:life_timeline/features/security/presentation/set_pin_page.dart';
@@ -94,6 +96,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const ArchivePage(),
       ),
       GoRoute(
+        name: AppRoute.memoryInbox.name,
+        path: AppRoute.memoryInbox.path,
+        builder: (context, state) => const MemoryInboxPage(),
+      ),
+      GoRoute(
+        name: AppRoute.candidateReview.name,
+        path: AppRoute.candidateReview.path,
+        builder: (context, state) => CandidateReviewPage(
+          candidateId: state.pathParameters['candidateId']!,
+        ),
+      ),
+      GoRoute(
         name: AppRoute.security.name,
         path: AppRoute.security.path,
         builder: (context, state) => const SecuritySettingsPage(),
@@ -162,6 +176,17 @@ Future<void> _showCaptureFoundation(BuildContext context) =>
         onAddMemory: () {
           Navigator.of(sheetContext).pop();
           context.pushNamed(AppRoute.addMemory.name);
+        },
+        onCandidateCreated: (candidateId) {
+          Navigator.of(sheetContext).pop();
+          context.pushNamed(
+            AppRoute.candidateReview.name,
+            pathParameters: {'candidateId': candidateId},
+          );
+        },
+        onOpenInbox: () {
+          Navigator.of(sheetContext).pop();
+          context.pushNamed(AppRoute.memoryInbox.name);
         },
       ),
     );

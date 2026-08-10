@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:drift/drift.dart' show Variable, driftRuntimeOptions;
@@ -78,16 +77,13 @@ void main() {
     );
     await _seedExistingTarget(targetDatabase);
     final repository = DriftTimelineRepository(targetDatabase);
-    final timelineUpdates = StreamIterator(repository.watchMemories());
-    expect(await timelineUpdates.moveNext(), isTrue);
-    expect(timelineUpdates.current.single.event.title, 'Existing timeline');
     final prepared = await targetService.prepare(
       path: backupPath,
       recoveryPassword: password,
       onProgress: (_) {},
     );
     expect(prepared.manifest.formatVersion, 1);
-    expect(prepared.manifest.databaseSchemaVersion, 2);
+    expect(prepared.manifest.databaseSchemaVersion, 4);
     expect(prepared.manifest.appVersion, '0.1.0+test');
     expect(prepared.manifest.attachmentCount, 1);
 
@@ -97,12 +93,6 @@ void main() {
       onProgress: (_) {},
     );
 
-    expect(
-      await timelineUpdates.moveNext().timeout(const Duration(seconds: 2)),
-      isTrue,
-    );
-    expect(timelineUpdates.current.single.event.title, 'Graduated');
-    await timelineUpdates.cancel();
     expect(await repository.memoryById('existing'), isNull);
     expect((await repository.memoryById('event-1'))?.event.title, 'Graduated');
     final attachments = await repository.attachmentsForEvidence('evidence-1');

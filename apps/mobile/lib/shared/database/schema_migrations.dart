@@ -16,6 +16,82 @@ Future<void> migrateSchema(
       case 2:
         await createEventSearchSchema(database);
         break;
+      case 3:
+        await database.customStatement(
+          "ALTER TABLE memory_candidates ADD COLUMN document_type TEXT NOT NULL DEFAULT 'unknown'",
+        );
+        await database.customStatement(
+          "ALTER TABLE memory_candidates ADD COLUMN review_status TEXT NOT NULL DEFAULT 'pending'",
+        );
+        await database.customStatement(
+          'ALTER TABLE memory_candidates ADD COLUMN overall_confidence REAL NULL CHECK (overall_confidence IS NULL OR overall_confidence BETWEEN 0 AND 1)',
+        );
+        await database.customStatement(
+          'ALTER TABLE memory_candidates ADD COLUMN possible_duplicate_event_id TEXT NULL REFERENCES events(id) ON DELETE SET NULL',
+        );
+        await database.customStatement('''
+          CREATE TABLE candidate_extracted_fields (
+            id TEXT NOT NULL PRIMARY KEY,
+            candidate_id TEXT NOT NULL REFERENCES memory_candidates(id) ON DELETE CASCADE,
+            key TEXT NOT NULL,
+            value TEXT NOT NULL,
+            value_type TEXT NOT NULL,
+            confidence REAL NOT NULL CHECK (confidence BETWEEN 0 AND 1),
+            privacy_classification TEXT NOT NULL,
+            extraction_method TEXT NOT NULL,
+            source_excerpt TEXT NULL,
+            review_recommended INTEGER NOT NULL DEFAULT 0 CHECK (review_recommended IN (0, 1))
+          )
+        ''');
+        await database.customStatement(
+          'CREATE INDEX candidate_fields_candidate_idx ON candidate_extracted_fields(candidate_id)',
+        );
+        await database.customStatement(
+          'CREATE INDEX candidate_fields_key_idx ON candidate_extracted_fields(key)',
+        );
+        await database.customStatement('''
+          CREATE TABLE candidate_entity_proposals (
+            id TEXT NOT NULL PRIMARY KEY,
+            candidate_id TEXT NOT NULL REFERENCES memory_candidates(id) ON DELETE CASCADE,
+            name TEXT NOT NULL,
+            entity_type TEXT NOT NULL,
+            confidence REAL NOT NULL CHECK (confidence BETWEEN 0 AND 1),
+            brand TEXT NULL,
+            model TEXT NULL,
+            serial_number TEXT NULL,
+            suggested_entity_id TEXT NULL REFERENCES entities(id) ON DELETE SET NULL,
+            match_score REAL NULL CHECK (match_score IS NULL OR match_score BETWEEN 0 AND 1),
+            match_reasons TEXT NOT NULL DEFAULT ''
+          )
+        ''');
+        await database.customStatement(
+          'CREATE INDEX candidate_entities_candidate_idx ON candidate_entity_proposals(candidate_id)',
+        );
+        await database.customStatement(
+          'CREATE INDEX candidate_entities_suggested_idx ON candidate_entity_proposals(suggested_entity_id)',
+        );
+        await database.customStatement(
+          'CREATE INDEX candidate_entities_serial_idx ON candidate_entity_proposals(serial_number)',
+        );
+        await database.customStatement('''
+          CREATE TABLE feature_usage (
+            feature TEXT NOT NULL PRIMARY KEY,
+            usage_count INTEGER NOT NULL DEFAULT 0 CHECK (usage_count >= 0),
+            updated_at INTEGER NOT NULL
+          )
+        ''');
+        break;
+      case 4:
+        // Schema v3 intelligence captures wrote files beneath the canonical
+        // attachment root but accidentally persisted that root segment again.
+        // Normalize only those known legacy paths; attachment bytes stay put.
+        await database.customStatement('''
+          UPDATE attachments
+          SET relative_path = substr(relative_path, 13)
+          WHERE storage_state = 'local'
+            AND relative_path LIKE 'attachments/intelligence/%'
+        ''');
+        break;
       default:
         throw StateError('Missing explicit migration to schema v$version.');
     }

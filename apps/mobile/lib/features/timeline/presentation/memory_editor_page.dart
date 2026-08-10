@@ -16,7 +16,7 @@ final class AddMemoryPage extends StatelessWidget {
     body: SingleChildScrollView(
       child: ScreenContainer(
         child: MemoryEditor(
-          onSaved: (id) => context.goNamed(
+          onSaved: (id) => context.pushReplacementNamed(
             AppRoute.memoryDetail.name,
             pathParameters: {'memoryId': id},
           ),

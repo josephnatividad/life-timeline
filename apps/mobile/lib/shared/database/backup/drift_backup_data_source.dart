@@ -1,4 +1,3 @@
-import 'package:drift/drift.dart' show TableUpdate;
 import 'package:life_timeline/features/backup/domain/backup_models.dart';
 import 'package:life_timeline/features/backup/domain/backup_ports.dart';
 import 'package:life_timeline/shared/database/app_database.dart';
@@ -16,7 +15,10 @@ final class DriftBackupDataSource implements BackupDataSource {
     'relationships',
     'attachments',
     'memory_candidates',
+    'candidate_extracted_fields',
+    'candidate_entity_proposals',
     'field_provenance',
+    'feature_usage',
     'entity_tags',
     'event_tags',
     'evidence_tags',
@@ -90,9 +92,6 @@ final class DriftBackupDataSource implements BackupDataSource {
         }
       }
       await rebuildEventSearchIndex(_database);
-    });
-    _database.notifyUpdates({
-      for (final table in _database.allTables) TableUpdate.onTable(table),
     });
   }
 

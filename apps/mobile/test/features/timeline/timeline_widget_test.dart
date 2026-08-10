@@ -110,7 +110,10 @@ void main() {
     await tester.tap(find.text('Unknown').last);
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('privacy-personal')));
-    await tester.tap(find.byKey(const Key('save-memory')));
+    final saveButton = find.byKey(const Key('save-memory'));
+    await tester.ensureVisible(saveButton);
+    await tester.pumpAndSettle();
+    await tester.tap(saveButton);
     await tester.pumpAndSettle();
 
     expect(savedId, isNotNull);
@@ -118,6 +121,56 @@ void main() {
     expect(memory?.event.title, 'First car');
     expect(memory?.event.temporalValue.precision, TemporalPrecision.unknown);
     expect(memory?.category?.name, 'Vehicles');
+  });
+
+  testWidgets('saved memory detail keeps Timeline as the back destination', (
+    tester,
+  ) async {
+    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(database.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          securityControllerProvider.overrideWith(
+            UnlockedSecurityController.new,
+          ),
+          appDatabaseProvider.overrideWithValue(database),
+          timelineMemoriesProvider.overrideWith((ref) => Stream.value([])),
+        ],
+        child: const LifeTimelineApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Add memory'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('memory-title')),
+      'First apartment',
+    );
+    await tester.enterText(find.byKey(const Key('memory-type')), 'Moved');
+    await tester.enterText(find.byKey(const Key('memory-category')), 'Home');
+    await tester.tap(find.byKey(const Key('temporal-precision')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Unknown').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('privacy-personal')));
+    final saveButton = find.byKey(const Key('save-memory'));
+    await tester.ensureVisible(saveButton);
+    await tester.pumpAndSettle();
+    await tester.tap(saveButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Memory'), findsOneWidget);
+    expect(find.text('First apartment'), findsOneWidget);
+    expect(find.byType(BackButton), findsOneWidget);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Timeline'), findsWidgets);
+    expect(find.text('Your story starts here.'), findsOneWidget);
   });
 
   testWidgets('Edit Memory persists changed controller values', (tester) async {

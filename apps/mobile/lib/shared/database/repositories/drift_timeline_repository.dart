@@ -130,6 +130,14 @@ final class DriftTimelineRepository implements TimelineRepository {
   }
 
   @override
+  Future<List<Entity>> matchableEntities() async {
+    final query = _database.select(_database.entities)
+      ..where((row) => row.lifecycle.isNotValue('soft_deleted'))
+      ..orderBy([(row) => OrderingTerm.asc(row.normalizedName)]);
+    return (await query.get()).map(TimelineMapper.entityFromRow).toList();
+  }
+
+  @override
   Future<void> saveEvent(Event event) async {
     await _database.transaction(() async {
       await _database

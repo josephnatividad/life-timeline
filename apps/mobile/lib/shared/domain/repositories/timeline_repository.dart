@@ -1,3 +1,4 @@
+import 'package:life_timeline/features/private_intelligence/domain/intelligence_models.dart';
 import 'package:life_timeline/shared/domain/model/field_provenance.dart';
 import 'package:life_timeline/shared/domain/model/memory_candidate.dart';
 import 'package:life_timeline/shared/domain/model/timeline_models.dart';
@@ -25,6 +26,7 @@ abstract interface class TimelineRepository {
   Future<void> saveCategory(Category category);
 
   Future<Entity?> entityById(String id, {bool includeDeleted = false});
+  Future<List<Entity>> matchableEntities();
   Future<Event?> eventById(String id, {bool includeDeleted = false});
   Future<Evidence?> evidenceById(String id, {bool includeDeleted = false});
   Future<List<Attachment>> attachmentsForEvidence(String evidenceId);
@@ -43,11 +45,19 @@ abstract interface class TimelineRepository {
 
 abstract interface class MemoryCandidateRepository {
   Future<void> saveCandidate(MemoryCandidate candidate);
+  Future<void> saveCaptureCandidate({
+    required MemoryCandidate candidate,
+    required Evidence evidence,
+    required Attachment attachment,
+    List<FieldProvenance> provenance = const [],
+  });
   Future<MemoryCandidate?> candidateById(
     String id, {
     bool includeDeleted = false,
   });
   Future<List<MemoryCandidate>> pendingCandidates();
+  Stream<List<MemoryCandidate>> watchPendingCandidates();
+  Future<String?> entityIdForExactSerial(String serialNumber);
 
   /// Atomically creates the confirmed event and resolves the Inbox candidate.
   Future<void> confirmCandidate({
@@ -55,7 +65,15 @@ abstract interface class MemoryCandidateRepository {
     required Event confirmedEvent,
     required DateTime confirmedAt,
     List<FieldProvenance> provenance = const [],
+    List<Entity> entities = const [],
+    List<Relationship> relationships = const [],
   });
+
+  Future<void> setReviewStatus(
+    String id,
+    CandidateReviewStatus status,
+    DateTime updatedAt,
+  );
 
   Future<void> softDeleteCandidate(String id, DateTime deletedAt);
 }

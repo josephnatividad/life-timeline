@@ -44,7 +44,7 @@ abstract final class TestRecordFactory {
     importMode: AttachmentImportMode.preserveOriginal,
     mimeType: 'image/jpeg',
     byteSize: 2048,
-    relativePath: 'attachments/evidence-1/photo.jpg',
+    relativePath: 'evidence-1/photo.jpg',
     thumbnailRelativePath: 'thumbnails/evidence-1/photo.jpg',
     checksum: 'sha256:test',
   );

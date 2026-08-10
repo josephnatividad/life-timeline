@@ -4235,6 +4235,60 @@ class $MemoryCandidatesTable extends MemoryCandidates
       'REFERENCES events (id) ON DELETE RESTRICT',
     ),
   );
+  static const VerificationMeta _documentTypeMeta = const VerificationMeta(
+    'documentType',
+  );
+  @override
+  late final GeneratedColumn<String> documentType = GeneratedColumn<String>(
+    'document_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('unknown'),
+  );
+  static const VerificationMeta _reviewStatusMeta = const VerificationMeta(
+    'reviewStatus',
+  );
+  @override
+  late final GeneratedColumn<String> reviewStatus = GeneratedColumn<String>(
+    'review_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('pending'),
+  );
+  static const VerificationMeta _overallConfidenceMeta = const VerificationMeta(
+    'overallConfidence',
+  );
+  @override
+  late final GeneratedColumn<double> overallConfidence =
+      GeneratedColumn<double>(
+        'overall_confidence',
+        aliasedName,
+        true,
+        check: () =>
+            overallConfidence.isNull() |
+            (ComparableExpr(overallConfidence).isBiggerOrEqualValue(0) &
+                ComparableExpr(overallConfidence).isSmallerOrEqualValue(1)),
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _possibleDuplicateEventIdMeta =
+      const VerificationMeta('possibleDuplicateEventId');
+  @override
+  late final GeneratedColumn<String> possibleDuplicateEventId =
+      GeneratedColumn<String>(
+        'possible_duplicate_event_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES events (id) ON DELETE SET NULL',
+        ),
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4254,6 +4308,10 @@ class $MemoryCandidatesTable extends MemoryCandidates
     description,
     sourceEvidenceId,
     confirmedEventId,
+    documentType,
+    reviewStatus,
+    overallConfidence,
+    possibleDuplicateEventId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4395,6 +4453,42 @@ class $MemoryCandidatesTable extends MemoryCandidates
         ),
       );
     }
+    if (data.containsKey('document_type')) {
+      context.handle(
+        _documentTypeMeta,
+        documentType.isAcceptableOrUnknown(
+          data['document_type']!,
+          _documentTypeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('review_status')) {
+      context.handle(
+        _reviewStatusMeta,
+        reviewStatus.isAcceptableOrUnknown(
+          data['review_status']!,
+          _reviewStatusMeta,
+        ),
+      );
+    }
+    if (data.containsKey('overall_confidence')) {
+      context.handle(
+        _overallConfidenceMeta,
+        overallConfidence.isAcceptableOrUnknown(
+          data['overall_confidence']!,
+          _overallConfidenceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('possible_duplicate_event_id')) {
+      context.handle(
+        _possibleDuplicateEventIdMeta,
+        possibleDuplicateEventId.isAcceptableOrUnknown(
+          data['possible_duplicate_event_id']!,
+          _possibleDuplicateEventIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -4472,6 +4566,22 @@ class $MemoryCandidatesTable extends MemoryCandidates
         DriftSqlType.string,
         data['${effectivePrefix}confirmed_event_id'],
       ),
+      documentType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}document_type'],
+      )!,
+      reviewStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}review_status'],
+      )!,
+      overallConfidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}overall_confidence'],
+      ),
+      possibleDuplicateEventId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}possible_duplicate_event_id'],
+      ),
     );
   }
 
@@ -4499,6 +4609,10 @@ class MemoryCandidate extends DataClass implements Insertable<MemoryCandidate> {
   final String? description;
   final String? sourceEvidenceId;
   final String? confirmedEventId;
+  final String documentType;
+  final String reviewStatus;
+  final double? overallConfidence;
+  final String? possibleDuplicateEventId;
   const MemoryCandidate({
     required this.id,
     required this.privacyClassification,
@@ -4517,6 +4631,10 @@ class MemoryCandidate extends DataClass implements Insertable<MemoryCandidate> {
     this.description,
     this.sourceEvidenceId,
     this.confirmedEventId,
+    required this.documentType,
+    required this.reviewStatus,
+    this.overallConfidence,
+    this.possibleDuplicateEventId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4557,6 +4675,16 @@ class MemoryCandidate extends DataClass implements Insertable<MemoryCandidate> {
     }
     if (!nullToAbsent || confirmedEventId != null) {
       map['confirmed_event_id'] = Variable<String>(confirmedEventId);
+    }
+    map['document_type'] = Variable<String>(documentType);
+    map['review_status'] = Variable<String>(reviewStatus);
+    if (!nullToAbsent || overallConfidence != null) {
+      map['overall_confidence'] = Variable<double>(overallConfidence);
+    }
+    if (!nullToAbsent || possibleDuplicateEventId != null) {
+      map['possible_duplicate_event_id'] = Variable<String>(
+        possibleDuplicateEventId,
+      );
     }
     return map;
   }
@@ -4600,6 +4728,14 @@ class MemoryCandidate extends DataClass implements Insertable<MemoryCandidate> {
       confirmedEventId: confirmedEventId == null && nullToAbsent
           ? const Value.absent()
           : Value(confirmedEventId),
+      documentType: Value(documentType),
+      reviewStatus: Value(reviewStatus),
+      overallConfidence: overallConfidence == null && nullToAbsent
+          ? const Value.absent()
+          : Value(overallConfidence),
+      possibleDuplicateEventId: possibleDuplicateEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(possibleDuplicateEventId),
     );
   }
 
@@ -4628,6 +4764,14 @@ class MemoryCandidate extends DataClass implements Insertable<MemoryCandidate> {
       description: serializer.fromJson<String?>(json['description']),
       sourceEvidenceId: serializer.fromJson<String?>(json['sourceEvidenceId']),
       confirmedEventId: serializer.fromJson<String?>(json['confirmedEventId']),
+      documentType: serializer.fromJson<String>(json['documentType']),
+      reviewStatus: serializer.fromJson<String>(json['reviewStatus']),
+      overallConfidence: serializer.fromJson<double?>(
+        json['overallConfidence'],
+      ),
+      possibleDuplicateEventId: serializer.fromJson<String?>(
+        json['possibleDuplicateEventId'],
+      ),
     );
   }
   @override
@@ -4651,6 +4795,12 @@ class MemoryCandidate extends DataClass implements Insertable<MemoryCandidate> {
       'description': serializer.toJson<String?>(description),
       'sourceEvidenceId': serializer.toJson<String?>(sourceEvidenceId),
       'confirmedEventId': serializer.toJson<String?>(confirmedEventId),
+      'documentType': serializer.toJson<String>(documentType),
+      'reviewStatus': serializer.toJson<String>(reviewStatus),
+      'overallConfidence': serializer.toJson<double?>(overallConfidence),
+      'possibleDuplicateEventId': serializer.toJson<String?>(
+        possibleDuplicateEventId,
+      ),
     };
   }
 
@@ -4672,6 +4822,10 @@ class MemoryCandidate extends DataClass implements Insertable<MemoryCandidate> {
     Value<String?> description = const Value.absent(),
     Value<String?> sourceEvidenceId = const Value.absent(),
     Value<String?> confirmedEventId = const Value.absent(),
+    String? documentType,
+    String? reviewStatus,
+    Value<double?> overallConfidence = const Value.absent(),
+    Value<String?> possibleDuplicateEventId = const Value.absent(),
   }) => MemoryCandidate(
     id: id ?? this.id,
     privacyClassification: privacyClassification ?? this.privacyClassification,
@@ -4694,6 +4848,14 @@ class MemoryCandidate extends DataClass implements Insertable<MemoryCandidate> {
     confirmedEventId: confirmedEventId.present
         ? confirmedEventId.value
         : this.confirmedEventId,
+    documentType: documentType ?? this.documentType,
+    reviewStatus: reviewStatus ?? this.reviewStatus,
+    overallConfidence: overallConfidence.present
+        ? overallConfidence.value
+        : this.overallConfidence,
+    possibleDuplicateEventId: possibleDuplicateEventId.present
+        ? possibleDuplicateEventId.value
+        : this.possibleDuplicateEventId,
   );
   MemoryCandidate copyWithCompanion(MemoryCandidatesCompanion data) {
     return MemoryCandidate(
@@ -4726,6 +4888,18 @@ class MemoryCandidate extends DataClass implements Insertable<MemoryCandidate> {
       confirmedEventId: data.confirmedEventId.present
           ? data.confirmedEventId.value
           : this.confirmedEventId,
+      documentType: data.documentType.present
+          ? data.documentType.value
+          : this.documentType,
+      reviewStatus: data.reviewStatus.present
+          ? data.reviewStatus.value
+          : this.reviewStatus,
+      overallConfidence: data.overallConfidence.present
+          ? data.overallConfidence.value
+          : this.overallConfidence,
+      possibleDuplicateEventId: data.possibleDuplicateEventId.present
+          ? data.possibleDuplicateEventId.value
+          : this.possibleDuplicateEventId,
     );
   }
 
@@ -4748,13 +4922,17 @@ class MemoryCandidate extends DataClass implements Insertable<MemoryCandidate> {
           ..write('title: $title, ')
           ..write('description: $description, ')
           ..write('sourceEvidenceId: $sourceEvidenceId, ')
-          ..write('confirmedEventId: $confirmedEventId')
+          ..write('confirmedEventId: $confirmedEventId, ')
+          ..write('documentType: $documentType, ')
+          ..write('reviewStatus: $reviewStatus, ')
+          ..write('overallConfidence: $overallConfidence, ')
+          ..write('possibleDuplicateEventId: $possibleDuplicateEventId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     privacyClassification,
     lifecycle,
@@ -4772,7 +4950,11 @@ class MemoryCandidate extends DataClass implements Insertable<MemoryCandidate> {
     description,
     sourceEvidenceId,
     confirmedEventId,
-  );
+    documentType,
+    reviewStatus,
+    overallConfidence,
+    possibleDuplicateEventId,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4793,7 +4975,11 @@ class MemoryCandidate extends DataClass implements Insertable<MemoryCandidate> {
           other.title == this.title &&
           other.description == this.description &&
           other.sourceEvidenceId == this.sourceEvidenceId &&
-          other.confirmedEventId == this.confirmedEventId);
+          other.confirmedEventId == this.confirmedEventId &&
+          other.documentType == this.documentType &&
+          other.reviewStatus == this.reviewStatus &&
+          other.overallConfidence == this.overallConfidence &&
+          other.possibleDuplicateEventId == this.possibleDuplicateEventId);
 }
 
 class MemoryCandidatesCompanion extends UpdateCompanion<MemoryCandidate> {
@@ -4814,6 +5000,10 @@ class MemoryCandidatesCompanion extends UpdateCompanion<MemoryCandidate> {
   final Value<String?> description;
   final Value<String?> sourceEvidenceId;
   final Value<String?> confirmedEventId;
+  final Value<String> documentType;
+  final Value<String> reviewStatus;
+  final Value<double?> overallConfidence;
+  final Value<String?> possibleDuplicateEventId;
   final Value<int> rowid;
   const MemoryCandidatesCompanion({
     this.id = const Value.absent(),
@@ -4833,6 +5023,10 @@ class MemoryCandidatesCompanion extends UpdateCompanion<MemoryCandidate> {
     this.description = const Value.absent(),
     this.sourceEvidenceId = const Value.absent(),
     this.confirmedEventId = const Value.absent(),
+    this.documentType = const Value.absent(),
+    this.reviewStatus = const Value.absent(),
+    this.overallConfidence = const Value.absent(),
+    this.possibleDuplicateEventId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   MemoryCandidatesCompanion.insert({
@@ -4853,6 +5047,10 @@ class MemoryCandidatesCompanion extends UpdateCompanion<MemoryCandidate> {
     this.description = const Value.absent(),
     this.sourceEvidenceId = const Value.absent(),
     this.confirmedEventId = const Value.absent(),
+    this.documentType = const Value.absent(),
+    this.reviewStatus = const Value.absent(),
+    this.overallConfidence = const Value.absent(),
+    this.possibleDuplicateEventId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        privacyClassification = Value(privacyClassification),
@@ -4879,6 +5077,10 @@ class MemoryCandidatesCompanion extends UpdateCompanion<MemoryCandidate> {
     Expression<String>? description,
     Expression<String>? sourceEvidenceId,
     Expression<String>? confirmedEventId,
+    Expression<String>? documentType,
+    Expression<String>? reviewStatus,
+    Expression<double>? overallConfidence,
+    Expression<String>? possibleDuplicateEventId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -4900,6 +5102,11 @@ class MemoryCandidatesCompanion extends UpdateCompanion<MemoryCandidate> {
       if (description != null) 'description': description,
       if (sourceEvidenceId != null) 'source_evidence_id': sourceEvidenceId,
       if (confirmedEventId != null) 'confirmed_event_id': confirmedEventId,
+      if (documentType != null) 'document_type': documentType,
+      if (reviewStatus != null) 'review_status': reviewStatus,
+      if (overallConfidence != null) 'overall_confidence': overallConfidence,
+      if (possibleDuplicateEventId != null)
+        'possible_duplicate_event_id': possibleDuplicateEventId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -4922,6 +5129,10 @@ class MemoryCandidatesCompanion extends UpdateCompanion<MemoryCandidate> {
     Value<String?>? description,
     Value<String?>? sourceEvidenceId,
     Value<String?>? confirmedEventId,
+    Value<String>? documentType,
+    Value<String>? reviewStatus,
+    Value<double?>? overallConfidence,
+    Value<String?>? possibleDuplicateEventId,
     Value<int>? rowid,
   }) {
     return MemoryCandidatesCompanion(
@@ -4943,6 +5154,11 @@ class MemoryCandidatesCompanion extends UpdateCompanion<MemoryCandidate> {
       description: description ?? this.description,
       sourceEvidenceId: sourceEvidenceId ?? this.sourceEvidenceId,
       confirmedEventId: confirmedEventId ?? this.confirmedEventId,
+      documentType: documentType ?? this.documentType,
+      reviewStatus: reviewStatus ?? this.reviewStatus,
+      overallConfidence: overallConfidence ?? this.overallConfidence,
+      possibleDuplicateEventId:
+          possibleDuplicateEventId ?? this.possibleDuplicateEventId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5003,6 +5219,20 @@ class MemoryCandidatesCompanion extends UpdateCompanion<MemoryCandidate> {
     if (confirmedEventId.present) {
       map['confirmed_event_id'] = Variable<String>(confirmedEventId.value);
     }
+    if (documentType.present) {
+      map['document_type'] = Variable<String>(documentType.value);
+    }
+    if (reviewStatus.present) {
+      map['review_status'] = Variable<String>(reviewStatus.value);
+    }
+    if (overallConfidence.present) {
+      map['overall_confidence'] = Variable<double>(overallConfidence.value);
+    }
+    if (possibleDuplicateEventId.present) {
+      map['possible_duplicate_event_id'] = Variable<String>(
+        possibleDuplicateEventId.value,
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5029,6 +5259,10 @@ class MemoryCandidatesCompanion extends UpdateCompanion<MemoryCandidate> {
           ..write('description: $description, ')
           ..write('sourceEvidenceId: $sourceEvidenceId, ')
           ..write('confirmedEventId: $confirmedEventId, ')
+          ..write('documentType: $documentType, ')
+          ..write('reviewStatus: $reviewStatus, ')
+          ..write('overallConfidence: $overallConfidence, ')
+          ..write('possibleDuplicateEventId: $possibleDuplicateEventId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -6024,6 +6258,1627 @@ class FieldProvenanceRowsCompanion extends UpdateCompanion<FieldProvenanceRow> {
           ..write('userConfirmed: $userConfirmed, ')
           ..write('privacyClassification: $privacyClassification, ')
           ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CandidateExtractedFieldsTable extends CandidateExtractedFields
+    with TableInfo<$CandidateExtractedFieldsTable, CandidateExtractedField> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CandidateExtractedFieldsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _candidateIdMeta = const VerificationMeta(
+    'candidateId',
+  );
+  @override
+  late final GeneratedColumn<String> candidateId = GeneratedColumn<String>(
+    'candidate_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES memory_candidates (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  @override
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+    'key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+    'value',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueTypeMeta = const VerificationMeta(
+    'valueType',
+  );
+  @override
+  late final GeneratedColumn<String> valueType = GeneratedColumn<String>(
+    'value_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _confidenceMeta = const VerificationMeta(
+    'confidence',
+  );
+  @override
+  late final GeneratedColumn<double> confidence = GeneratedColumn<double>(
+    'confidence',
+    aliasedName,
+    false,
+    check: () =>
+        ComparableExpr(confidence).isBiggerOrEqualValue(0) &
+        ComparableExpr(confidence).isSmallerOrEqualValue(1),
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _privacyClassificationMeta =
+      const VerificationMeta('privacyClassification');
+  @override
+  late final GeneratedColumn<String> privacyClassification =
+      GeneratedColumn<String>(
+        'privacy_classification',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _extractionMethodMeta = const VerificationMeta(
+    'extractionMethod',
+  );
+  @override
+  late final GeneratedColumn<String> extractionMethod = GeneratedColumn<String>(
+    'extraction_method',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceExcerptMeta = const VerificationMeta(
+    'sourceExcerpt',
+  );
+  @override
+  late final GeneratedColumn<String> sourceExcerpt = GeneratedColumn<String>(
+    'source_excerpt',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reviewRecommendedMeta = const VerificationMeta(
+    'reviewRecommended',
+  );
+  @override
+  late final GeneratedColumn<bool> reviewRecommended = GeneratedColumn<bool>(
+    'review_recommended',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("review_recommended" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    candidateId,
+    key,
+    value,
+    valueType,
+    confidence,
+    privacyClassification,
+    extractionMethod,
+    sourceExcerpt,
+    reviewRecommended,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'candidate_extracted_fields';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CandidateExtractedField> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('candidate_id')) {
+      context.handle(
+        _candidateIdMeta,
+        candidateId.isAcceptableOrUnknown(
+          data['candidate_id']!,
+          _candidateIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_candidateIdMeta);
+    }
+    if (data.containsKey('key')) {
+      context.handle(
+        _keyMeta,
+        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    if (data.containsKey('value_type')) {
+      context.handle(
+        _valueTypeMeta,
+        valueType.isAcceptableOrUnknown(data['value_type']!, _valueTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valueTypeMeta);
+    }
+    if (data.containsKey('confidence')) {
+      context.handle(
+        _confidenceMeta,
+        confidence.isAcceptableOrUnknown(data['confidence']!, _confidenceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceMeta);
+    }
+    if (data.containsKey('privacy_classification')) {
+      context.handle(
+        _privacyClassificationMeta,
+        privacyClassification.isAcceptableOrUnknown(
+          data['privacy_classification']!,
+          _privacyClassificationMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_privacyClassificationMeta);
+    }
+    if (data.containsKey('extraction_method')) {
+      context.handle(
+        _extractionMethodMeta,
+        extractionMethod.isAcceptableOrUnknown(
+          data['extraction_method']!,
+          _extractionMethodMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_extractionMethodMeta);
+    }
+    if (data.containsKey('source_excerpt')) {
+      context.handle(
+        _sourceExcerptMeta,
+        sourceExcerpt.isAcceptableOrUnknown(
+          data['source_excerpt']!,
+          _sourceExcerptMeta,
+        ),
+      );
+    }
+    if (data.containsKey('review_recommended')) {
+      context.handle(
+        _reviewRecommendedMeta,
+        reviewRecommended.isAcceptableOrUnknown(
+          data['review_recommended']!,
+          _reviewRecommendedMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CandidateExtractedField map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CandidateExtractedField(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      candidateId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}candidate_id'],
+      )!,
+      key: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}key'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value'],
+      )!,
+      valueType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value_type'],
+      )!,
+      confidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}confidence'],
+      )!,
+      privacyClassification: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}privacy_classification'],
+      )!,
+      extractionMethod: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}extraction_method'],
+      )!,
+      sourceExcerpt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_excerpt'],
+      ),
+      reviewRecommended: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}review_recommended'],
+      )!,
+    );
+  }
+
+  @override
+  $CandidateExtractedFieldsTable createAlias(String alias) {
+    return $CandidateExtractedFieldsTable(attachedDatabase, alias);
+  }
+}
+
+class CandidateExtractedField extends DataClass
+    implements Insertable<CandidateExtractedField> {
+  final String id;
+  final String candidateId;
+  final String key;
+  final String value;
+  final String valueType;
+  final double confidence;
+  final String privacyClassification;
+  final String extractionMethod;
+  final String? sourceExcerpt;
+  final bool reviewRecommended;
+  const CandidateExtractedField({
+    required this.id,
+    required this.candidateId,
+    required this.key,
+    required this.value,
+    required this.valueType,
+    required this.confidence,
+    required this.privacyClassification,
+    required this.extractionMethod,
+    this.sourceExcerpt,
+    required this.reviewRecommended,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['candidate_id'] = Variable<String>(candidateId);
+    map['key'] = Variable<String>(key);
+    map['value'] = Variable<String>(value);
+    map['value_type'] = Variable<String>(valueType);
+    map['confidence'] = Variable<double>(confidence);
+    map['privacy_classification'] = Variable<String>(privacyClassification);
+    map['extraction_method'] = Variable<String>(extractionMethod);
+    if (!nullToAbsent || sourceExcerpt != null) {
+      map['source_excerpt'] = Variable<String>(sourceExcerpt);
+    }
+    map['review_recommended'] = Variable<bool>(reviewRecommended);
+    return map;
+  }
+
+  CandidateExtractedFieldsCompanion toCompanion(bool nullToAbsent) {
+    return CandidateExtractedFieldsCompanion(
+      id: Value(id),
+      candidateId: Value(candidateId),
+      key: Value(key),
+      value: Value(value),
+      valueType: Value(valueType),
+      confidence: Value(confidence),
+      privacyClassification: Value(privacyClassification),
+      extractionMethod: Value(extractionMethod),
+      sourceExcerpt: sourceExcerpt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceExcerpt),
+      reviewRecommended: Value(reviewRecommended),
+    );
+  }
+
+  factory CandidateExtractedField.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CandidateExtractedField(
+      id: serializer.fromJson<String>(json['id']),
+      candidateId: serializer.fromJson<String>(json['candidateId']),
+      key: serializer.fromJson<String>(json['key']),
+      value: serializer.fromJson<String>(json['value']),
+      valueType: serializer.fromJson<String>(json['valueType']),
+      confidence: serializer.fromJson<double>(json['confidence']),
+      privacyClassification: serializer.fromJson<String>(
+        json['privacyClassification'],
+      ),
+      extractionMethod: serializer.fromJson<String>(json['extractionMethod']),
+      sourceExcerpt: serializer.fromJson<String?>(json['sourceExcerpt']),
+      reviewRecommended: serializer.fromJson<bool>(json['reviewRecommended']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'candidateId': serializer.toJson<String>(candidateId),
+      'key': serializer.toJson<String>(key),
+      'value': serializer.toJson<String>(value),
+      'valueType': serializer.toJson<String>(valueType),
+      'confidence': serializer.toJson<double>(confidence),
+      'privacyClassification': serializer.toJson<String>(privacyClassification),
+      'extractionMethod': serializer.toJson<String>(extractionMethod),
+      'sourceExcerpt': serializer.toJson<String?>(sourceExcerpt),
+      'reviewRecommended': serializer.toJson<bool>(reviewRecommended),
+    };
+  }
+
+  CandidateExtractedField copyWith({
+    String? id,
+    String? candidateId,
+    String? key,
+    String? value,
+    String? valueType,
+    double? confidence,
+    String? privacyClassification,
+    String? extractionMethod,
+    Value<String?> sourceExcerpt = const Value.absent(),
+    bool? reviewRecommended,
+  }) => CandidateExtractedField(
+    id: id ?? this.id,
+    candidateId: candidateId ?? this.candidateId,
+    key: key ?? this.key,
+    value: value ?? this.value,
+    valueType: valueType ?? this.valueType,
+    confidence: confidence ?? this.confidence,
+    privacyClassification: privacyClassification ?? this.privacyClassification,
+    extractionMethod: extractionMethod ?? this.extractionMethod,
+    sourceExcerpt: sourceExcerpt.present
+        ? sourceExcerpt.value
+        : this.sourceExcerpt,
+    reviewRecommended: reviewRecommended ?? this.reviewRecommended,
+  );
+  CandidateExtractedField copyWithCompanion(
+    CandidateExtractedFieldsCompanion data,
+  ) {
+    return CandidateExtractedField(
+      id: data.id.present ? data.id.value : this.id,
+      candidateId: data.candidateId.present
+          ? data.candidateId.value
+          : this.candidateId,
+      key: data.key.present ? data.key.value : this.key,
+      value: data.value.present ? data.value.value : this.value,
+      valueType: data.valueType.present ? data.valueType.value : this.valueType,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      privacyClassification: data.privacyClassification.present
+          ? data.privacyClassification.value
+          : this.privacyClassification,
+      extractionMethod: data.extractionMethod.present
+          ? data.extractionMethod.value
+          : this.extractionMethod,
+      sourceExcerpt: data.sourceExcerpt.present
+          ? data.sourceExcerpt.value
+          : this.sourceExcerpt,
+      reviewRecommended: data.reviewRecommended.present
+          ? data.reviewRecommended.value
+          : this.reviewRecommended,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CandidateExtractedField(')
+          ..write('id: $id, ')
+          ..write('candidateId: $candidateId, ')
+          ..write('key: $key, ')
+          ..write('value: $value, ')
+          ..write('valueType: $valueType, ')
+          ..write('confidence: $confidence, ')
+          ..write('privacyClassification: $privacyClassification, ')
+          ..write('extractionMethod: $extractionMethod, ')
+          ..write('sourceExcerpt: $sourceExcerpt, ')
+          ..write('reviewRecommended: $reviewRecommended')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    candidateId,
+    key,
+    value,
+    valueType,
+    confidence,
+    privacyClassification,
+    extractionMethod,
+    sourceExcerpt,
+    reviewRecommended,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CandidateExtractedField &&
+          other.id == this.id &&
+          other.candidateId == this.candidateId &&
+          other.key == this.key &&
+          other.value == this.value &&
+          other.valueType == this.valueType &&
+          other.confidence == this.confidence &&
+          other.privacyClassification == this.privacyClassification &&
+          other.extractionMethod == this.extractionMethod &&
+          other.sourceExcerpt == this.sourceExcerpt &&
+          other.reviewRecommended == this.reviewRecommended);
+}
+
+class CandidateExtractedFieldsCompanion
+    extends UpdateCompanion<CandidateExtractedField> {
+  final Value<String> id;
+  final Value<String> candidateId;
+  final Value<String> key;
+  final Value<String> value;
+  final Value<String> valueType;
+  final Value<double> confidence;
+  final Value<String> privacyClassification;
+  final Value<String> extractionMethod;
+  final Value<String?> sourceExcerpt;
+  final Value<bool> reviewRecommended;
+  final Value<int> rowid;
+  const CandidateExtractedFieldsCompanion({
+    this.id = const Value.absent(),
+    this.candidateId = const Value.absent(),
+    this.key = const Value.absent(),
+    this.value = const Value.absent(),
+    this.valueType = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.privacyClassification = const Value.absent(),
+    this.extractionMethod = const Value.absent(),
+    this.sourceExcerpt = const Value.absent(),
+    this.reviewRecommended = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CandidateExtractedFieldsCompanion.insert({
+    required String id,
+    required String candidateId,
+    required String key,
+    required String value,
+    required String valueType,
+    required double confidence,
+    required String privacyClassification,
+    required String extractionMethod,
+    this.sourceExcerpt = const Value.absent(),
+    this.reviewRecommended = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       candidateId = Value(candidateId),
+       key = Value(key),
+       value = Value(value),
+       valueType = Value(valueType),
+       confidence = Value(confidence),
+       privacyClassification = Value(privacyClassification),
+       extractionMethod = Value(extractionMethod);
+  static Insertable<CandidateExtractedField> custom({
+    Expression<String>? id,
+    Expression<String>? candidateId,
+    Expression<String>? key,
+    Expression<String>? value,
+    Expression<String>? valueType,
+    Expression<double>? confidence,
+    Expression<String>? privacyClassification,
+    Expression<String>? extractionMethod,
+    Expression<String>? sourceExcerpt,
+    Expression<bool>? reviewRecommended,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (candidateId != null) 'candidate_id': candidateId,
+      if (key != null) 'key': key,
+      if (value != null) 'value': value,
+      if (valueType != null) 'value_type': valueType,
+      if (confidence != null) 'confidence': confidence,
+      if (privacyClassification != null)
+        'privacy_classification': privacyClassification,
+      if (extractionMethod != null) 'extraction_method': extractionMethod,
+      if (sourceExcerpt != null) 'source_excerpt': sourceExcerpt,
+      if (reviewRecommended != null) 'review_recommended': reviewRecommended,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CandidateExtractedFieldsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? candidateId,
+    Value<String>? key,
+    Value<String>? value,
+    Value<String>? valueType,
+    Value<double>? confidence,
+    Value<String>? privacyClassification,
+    Value<String>? extractionMethod,
+    Value<String?>? sourceExcerpt,
+    Value<bool>? reviewRecommended,
+    Value<int>? rowid,
+  }) {
+    return CandidateExtractedFieldsCompanion(
+      id: id ?? this.id,
+      candidateId: candidateId ?? this.candidateId,
+      key: key ?? this.key,
+      value: value ?? this.value,
+      valueType: valueType ?? this.valueType,
+      confidence: confidence ?? this.confidence,
+      privacyClassification:
+          privacyClassification ?? this.privacyClassification,
+      extractionMethod: extractionMethod ?? this.extractionMethod,
+      sourceExcerpt: sourceExcerpt ?? this.sourceExcerpt,
+      reviewRecommended: reviewRecommended ?? this.reviewRecommended,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (candidateId.present) {
+      map['candidate_id'] = Variable<String>(candidateId.value);
+    }
+    if (key.present) {
+      map['key'] = Variable<String>(key.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (valueType.present) {
+      map['value_type'] = Variable<String>(valueType.value);
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<double>(confidence.value);
+    }
+    if (privacyClassification.present) {
+      map['privacy_classification'] = Variable<String>(
+        privacyClassification.value,
+      );
+    }
+    if (extractionMethod.present) {
+      map['extraction_method'] = Variable<String>(extractionMethod.value);
+    }
+    if (sourceExcerpt.present) {
+      map['source_excerpt'] = Variable<String>(sourceExcerpt.value);
+    }
+    if (reviewRecommended.present) {
+      map['review_recommended'] = Variable<bool>(reviewRecommended.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CandidateExtractedFieldsCompanion(')
+          ..write('id: $id, ')
+          ..write('candidateId: $candidateId, ')
+          ..write('key: $key, ')
+          ..write('value: $value, ')
+          ..write('valueType: $valueType, ')
+          ..write('confidence: $confidence, ')
+          ..write('privacyClassification: $privacyClassification, ')
+          ..write('extractionMethod: $extractionMethod, ')
+          ..write('sourceExcerpt: $sourceExcerpt, ')
+          ..write('reviewRecommended: $reviewRecommended, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CandidateEntityProposalsTable extends CandidateEntityProposals
+    with TableInfo<$CandidateEntityProposalsTable, CandidateEntityProposal> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CandidateEntityProposalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _candidateIdMeta = const VerificationMeta(
+    'candidateId',
+  );
+  @override
+  late final GeneratedColumn<String> candidateId = GeneratedColumn<String>(
+    'candidate_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES memory_candidates (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entityTypeMeta = const VerificationMeta(
+    'entityType',
+  );
+  @override
+  late final GeneratedColumn<String> entityType = GeneratedColumn<String>(
+    'entity_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _confidenceMeta = const VerificationMeta(
+    'confidence',
+  );
+  @override
+  late final GeneratedColumn<double> confidence = GeneratedColumn<double>(
+    'confidence',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _brandMeta = const VerificationMeta('brand');
+  @override
+  late final GeneratedColumn<String> brand = GeneratedColumn<String>(
+    'brand',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _modelMeta = const VerificationMeta('model');
+  @override
+  late final GeneratedColumn<String> model = GeneratedColumn<String>(
+    'model',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _serialNumberMeta = const VerificationMeta(
+    'serialNumber',
+  );
+  @override
+  late final GeneratedColumn<String> serialNumber = GeneratedColumn<String>(
+    'serial_number',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _suggestedEntityIdMeta = const VerificationMeta(
+    'suggestedEntityId',
+  );
+  @override
+  late final GeneratedColumn<String> suggestedEntityId =
+      GeneratedColumn<String>(
+        'suggested_entity_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES entities (id) ON DELETE SET NULL',
+        ),
+      );
+  static const VerificationMeta _matchScoreMeta = const VerificationMeta(
+    'matchScore',
+  );
+  @override
+  late final GeneratedColumn<double> matchScore = GeneratedColumn<double>(
+    'match_score',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _matchReasonsMeta = const VerificationMeta(
+    'matchReasons',
+  );
+  @override
+  late final GeneratedColumn<String> matchReasons = GeneratedColumn<String>(
+    'match_reasons',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    candidateId,
+    name,
+    entityType,
+    confidence,
+    brand,
+    model,
+    serialNumber,
+    suggestedEntityId,
+    matchScore,
+    matchReasons,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'candidate_entity_proposals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CandidateEntityProposal> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('candidate_id')) {
+      context.handle(
+        _candidateIdMeta,
+        candidateId.isAcceptableOrUnknown(
+          data['candidate_id']!,
+          _candidateIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_candidateIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('entity_type')) {
+      context.handle(
+        _entityTypeMeta,
+        entityType.isAcceptableOrUnknown(data['entity_type']!, _entityTypeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entityTypeMeta);
+    }
+    if (data.containsKey('confidence')) {
+      context.handle(
+        _confidenceMeta,
+        confidence.isAcceptableOrUnknown(data['confidence']!, _confidenceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_confidenceMeta);
+    }
+    if (data.containsKey('brand')) {
+      context.handle(
+        _brandMeta,
+        brand.isAcceptableOrUnknown(data['brand']!, _brandMeta),
+      );
+    }
+    if (data.containsKey('model')) {
+      context.handle(
+        _modelMeta,
+        model.isAcceptableOrUnknown(data['model']!, _modelMeta),
+      );
+    }
+    if (data.containsKey('serial_number')) {
+      context.handle(
+        _serialNumberMeta,
+        serialNumber.isAcceptableOrUnknown(
+          data['serial_number']!,
+          _serialNumberMeta,
+        ),
+      );
+    }
+    if (data.containsKey('suggested_entity_id')) {
+      context.handle(
+        _suggestedEntityIdMeta,
+        suggestedEntityId.isAcceptableOrUnknown(
+          data['suggested_entity_id']!,
+          _suggestedEntityIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('match_score')) {
+      context.handle(
+        _matchScoreMeta,
+        matchScore.isAcceptableOrUnknown(data['match_score']!, _matchScoreMeta),
+      );
+    }
+    if (data.containsKey('match_reasons')) {
+      context.handle(
+        _matchReasonsMeta,
+        matchReasons.isAcceptableOrUnknown(
+          data['match_reasons']!,
+          _matchReasonsMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CandidateEntityProposal map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CandidateEntityProposal(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      candidateId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}candidate_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      entityType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entity_type'],
+      )!,
+      confidence: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}confidence'],
+      )!,
+      brand: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}brand'],
+      ),
+      model: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}model'],
+      ),
+      serialNumber: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}serial_number'],
+      ),
+      suggestedEntityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}suggested_entity_id'],
+      ),
+      matchScore: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}match_score'],
+      ),
+      matchReasons: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}match_reasons'],
+      )!,
+    );
+  }
+
+  @override
+  $CandidateEntityProposalsTable createAlias(String alias) {
+    return $CandidateEntityProposalsTable(attachedDatabase, alias);
+  }
+}
+
+class CandidateEntityProposal extends DataClass
+    implements Insertable<CandidateEntityProposal> {
+  final String id;
+  final String candidateId;
+  final String name;
+  final String entityType;
+  final double confidence;
+  final String? brand;
+  final String? model;
+  final String? serialNumber;
+  final String? suggestedEntityId;
+  final double? matchScore;
+  final String matchReasons;
+  const CandidateEntityProposal({
+    required this.id,
+    required this.candidateId,
+    required this.name,
+    required this.entityType,
+    required this.confidence,
+    this.brand,
+    this.model,
+    this.serialNumber,
+    this.suggestedEntityId,
+    this.matchScore,
+    required this.matchReasons,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['candidate_id'] = Variable<String>(candidateId);
+    map['name'] = Variable<String>(name);
+    map['entity_type'] = Variable<String>(entityType);
+    map['confidence'] = Variable<double>(confidence);
+    if (!nullToAbsent || brand != null) {
+      map['brand'] = Variable<String>(brand);
+    }
+    if (!nullToAbsent || model != null) {
+      map['model'] = Variable<String>(model);
+    }
+    if (!nullToAbsent || serialNumber != null) {
+      map['serial_number'] = Variable<String>(serialNumber);
+    }
+    if (!nullToAbsent || suggestedEntityId != null) {
+      map['suggested_entity_id'] = Variable<String>(suggestedEntityId);
+    }
+    if (!nullToAbsent || matchScore != null) {
+      map['match_score'] = Variable<double>(matchScore);
+    }
+    map['match_reasons'] = Variable<String>(matchReasons);
+    return map;
+  }
+
+  CandidateEntityProposalsCompanion toCompanion(bool nullToAbsent) {
+    return CandidateEntityProposalsCompanion(
+      id: Value(id),
+      candidateId: Value(candidateId),
+      name: Value(name),
+      entityType: Value(entityType),
+      confidence: Value(confidence),
+      brand: brand == null && nullToAbsent
+          ? const Value.absent()
+          : Value(brand),
+      model: model == null && nullToAbsent
+          ? const Value.absent()
+          : Value(model),
+      serialNumber: serialNumber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serialNumber),
+      suggestedEntityId: suggestedEntityId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(suggestedEntityId),
+      matchScore: matchScore == null && nullToAbsent
+          ? const Value.absent()
+          : Value(matchScore),
+      matchReasons: Value(matchReasons),
+    );
+  }
+
+  factory CandidateEntityProposal.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CandidateEntityProposal(
+      id: serializer.fromJson<String>(json['id']),
+      candidateId: serializer.fromJson<String>(json['candidateId']),
+      name: serializer.fromJson<String>(json['name']),
+      entityType: serializer.fromJson<String>(json['entityType']),
+      confidence: serializer.fromJson<double>(json['confidence']),
+      brand: serializer.fromJson<String?>(json['brand']),
+      model: serializer.fromJson<String?>(json['model']),
+      serialNumber: serializer.fromJson<String?>(json['serialNumber']),
+      suggestedEntityId: serializer.fromJson<String?>(
+        json['suggestedEntityId'],
+      ),
+      matchScore: serializer.fromJson<double?>(json['matchScore']),
+      matchReasons: serializer.fromJson<String>(json['matchReasons']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'candidateId': serializer.toJson<String>(candidateId),
+      'name': serializer.toJson<String>(name),
+      'entityType': serializer.toJson<String>(entityType),
+      'confidence': serializer.toJson<double>(confidence),
+      'brand': serializer.toJson<String?>(brand),
+      'model': serializer.toJson<String?>(model),
+      'serialNumber': serializer.toJson<String?>(serialNumber),
+      'suggestedEntityId': serializer.toJson<String?>(suggestedEntityId),
+      'matchScore': serializer.toJson<double?>(matchScore),
+      'matchReasons': serializer.toJson<String>(matchReasons),
+    };
+  }
+
+  CandidateEntityProposal copyWith({
+    String? id,
+    String? candidateId,
+    String? name,
+    String? entityType,
+    double? confidence,
+    Value<String?> brand = const Value.absent(),
+    Value<String?> model = const Value.absent(),
+    Value<String?> serialNumber = const Value.absent(),
+    Value<String?> suggestedEntityId = const Value.absent(),
+    Value<double?> matchScore = const Value.absent(),
+    String? matchReasons,
+  }) => CandidateEntityProposal(
+    id: id ?? this.id,
+    candidateId: candidateId ?? this.candidateId,
+    name: name ?? this.name,
+    entityType: entityType ?? this.entityType,
+    confidence: confidence ?? this.confidence,
+    brand: brand.present ? brand.value : this.brand,
+    model: model.present ? model.value : this.model,
+    serialNumber: serialNumber.present ? serialNumber.value : this.serialNumber,
+    suggestedEntityId: suggestedEntityId.present
+        ? suggestedEntityId.value
+        : this.suggestedEntityId,
+    matchScore: matchScore.present ? matchScore.value : this.matchScore,
+    matchReasons: matchReasons ?? this.matchReasons,
+  );
+  CandidateEntityProposal copyWithCompanion(
+    CandidateEntityProposalsCompanion data,
+  ) {
+    return CandidateEntityProposal(
+      id: data.id.present ? data.id.value : this.id,
+      candidateId: data.candidateId.present
+          ? data.candidateId.value
+          : this.candidateId,
+      name: data.name.present ? data.name.value : this.name,
+      entityType: data.entityType.present
+          ? data.entityType.value
+          : this.entityType,
+      confidence: data.confidence.present
+          ? data.confidence.value
+          : this.confidence,
+      brand: data.brand.present ? data.brand.value : this.brand,
+      model: data.model.present ? data.model.value : this.model,
+      serialNumber: data.serialNumber.present
+          ? data.serialNumber.value
+          : this.serialNumber,
+      suggestedEntityId: data.suggestedEntityId.present
+          ? data.suggestedEntityId.value
+          : this.suggestedEntityId,
+      matchScore: data.matchScore.present
+          ? data.matchScore.value
+          : this.matchScore,
+      matchReasons: data.matchReasons.present
+          ? data.matchReasons.value
+          : this.matchReasons,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CandidateEntityProposal(')
+          ..write('id: $id, ')
+          ..write('candidateId: $candidateId, ')
+          ..write('name: $name, ')
+          ..write('entityType: $entityType, ')
+          ..write('confidence: $confidence, ')
+          ..write('brand: $brand, ')
+          ..write('model: $model, ')
+          ..write('serialNumber: $serialNumber, ')
+          ..write('suggestedEntityId: $suggestedEntityId, ')
+          ..write('matchScore: $matchScore, ')
+          ..write('matchReasons: $matchReasons')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    candidateId,
+    name,
+    entityType,
+    confidence,
+    brand,
+    model,
+    serialNumber,
+    suggestedEntityId,
+    matchScore,
+    matchReasons,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CandidateEntityProposal &&
+          other.id == this.id &&
+          other.candidateId == this.candidateId &&
+          other.name == this.name &&
+          other.entityType == this.entityType &&
+          other.confidence == this.confidence &&
+          other.brand == this.brand &&
+          other.model == this.model &&
+          other.serialNumber == this.serialNumber &&
+          other.suggestedEntityId == this.suggestedEntityId &&
+          other.matchScore == this.matchScore &&
+          other.matchReasons == this.matchReasons);
+}
+
+class CandidateEntityProposalsCompanion
+    extends UpdateCompanion<CandidateEntityProposal> {
+  final Value<String> id;
+  final Value<String> candidateId;
+  final Value<String> name;
+  final Value<String> entityType;
+  final Value<double> confidence;
+  final Value<String?> brand;
+  final Value<String?> model;
+  final Value<String?> serialNumber;
+  final Value<String?> suggestedEntityId;
+  final Value<double?> matchScore;
+  final Value<String> matchReasons;
+  final Value<int> rowid;
+  const CandidateEntityProposalsCompanion({
+    this.id = const Value.absent(),
+    this.candidateId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.entityType = const Value.absent(),
+    this.confidence = const Value.absent(),
+    this.brand = const Value.absent(),
+    this.model = const Value.absent(),
+    this.serialNumber = const Value.absent(),
+    this.suggestedEntityId = const Value.absent(),
+    this.matchScore = const Value.absent(),
+    this.matchReasons = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CandidateEntityProposalsCompanion.insert({
+    required String id,
+    required String candidateId,
+    required String name,
+    required String entityType,
+    required double confidence,
+    this.brand = const Value.absent(),
+    this.model = const Value.absent(),
+    this.serialNumber = const Value.absent(),
+    this.suggestedEntityId = const Value.absent(),
+    this.matchScore = const Value.absent(),
+    this.matchReasons = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       candidateId = Value(candidateId),
+       name = Value(name),
+       entityType = Value(entityType),
+       confidence = Value(confidence);
+  static Insertable<CandidateEntityProposal> custom({
+    Expression<String>? id,
+    Expression<String>? candidateId,
+    Expression<String>? name,
+    Expression<String>? entityType,
+    Expression<double>? confidence,
+    Expression<String>? brand,
+    Expression<String>? model,
+    Expression<String>? serialNumber,
+    Expression<String>? suggestedEntityId,
+    Expression<double>? matchScore,
+    Expression<String>? matchReasons,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (candidateId != null) 'candidate_id': candidateId,
+      if (name != null) 'name': name,
+      if (entityType != null) 'entity_type': entityType,
+      if (confidence != null) 'confidence': confidence,
+      if (brand != null) 'brand': brand,
+      if (model != null) 'model': model,
+      if (serialNumber != null) 'serial_number': serialNumber,
+      if (suggestedEntityId != null) 'suggested_entity_id': suggestedEntityId,
+      if (matchScore != null) 'match_score': matchScore,
+      if (matchReasons != null) 'match_reasons': matchReasons,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CandidateEntityProposalsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? candidateId,
+    Value<String>? name,
+    Value<String>? entityType,
+    Value<double>? confidence,
+    Value<String?>? brand,
+    Value<String?>? model,
+    Value<String?>? serialNumber,
+    Value<String?>? suggestedEntityId,
+    Value<double?>? matchScore,
+    Value<String>? matchReasons,
+    Value<int>? rowid,
+  }) {
+    return CandidateEntityProposalsCompanion(
+      id: id ?? this.id,
+      candidateId: candidateId ?? this.candidateId,
+      name: name ?? this.name,
+      entityType: entityType ?? this.entityType,
+      confidence: confidence ?? this.confidence,
+      brand: brand ?? this.brand,
+      model: model ?? this.model,
+      serialNumber: serialNumber ?? this.serialNumber,
+      suggestedEntityId: suggestedEntityId ?? this.suggestedEntityId,
+      matchScore: matchScore ?? this.matchScore,
+      matchReasons: matchReasons ?? this.matchReasons,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (candidateId.present) {
+      map['candidate_id'] = Variable<String>(candidateId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (entityType.present) {
+      map['entity_type'] = Variable<String>(entityType.value);
+    }
+    if (confidence.present) {
+      map['confidence'] = Variable<double>(confidence.value);
+    }
+    if (brand.present) {
+      map['brand'] = Variable<String>(brand.value);
+    }
+    if (model.present) {
+      map['model'] = Variable<String>(model.value);
+    }
+    if (serialNumber.present) {
+      map['serial_number'] = Variable<String>(serialNumber.value);
+    }
+    if (suggestedEntityId.present) {
+      map['suggested_entity_id'] = Variable<String>(suggestedEntityId.value);
+    }
+    if (matchScore.present) {
+      map['match_score'] = Variable<double>(matchScore.value);
+    }
+    if (matchReasons.present) {
+      map['match_reasons'] = Variable<String>(matchReasons.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CandidateEntityProposalsCompanion(')
+          ..write('id: $id, ')
+          ..write('candidateId: $candidateId, ')
+          ..write('name: $name, ')
+          ..write('entityType: $entityType, ')
+          ..write('confidence: $confidence, ')
+          ..write('brand: $brand, ')
+          ..write('model: $model, ')
+          ..write('serialNumber: $serialNumber, ')
+          ..write('suggestedEntityId: $suggestedEntityId, ')
+          ..write('matchScore: $matchScore, ')
+          ..write('matchReasons: $matchReasons, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FeatureUsageTable extends FeatureUsage
+    with TableInfo<$FeatureUsageTable, FeatureUsageData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FeatureUsageTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _featureMeta = const VerificationMeta(
+    'feature',
+  );
+  @override
+  late final GeneratedColumn<String> feature = GeneratedColumn<String>(
+    'feature',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _usageCountMeta = const VerificationMeta(
+    'usageCount',
+  );
+  @override
+  late final GeneratedColumn<int> usageCount = GeneratedColumn<int>(
+    'usage_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [feature, usageCount, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'feature_usage';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FeatureUsageData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('feature')) {
+      context.handle(
+        _featureMeta,
+        feature.isAcceptableOrUnknown(data['feature']!, _featureMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_featureMeta);
+    }
+    if (data.containsKey('usage_count')) {
+      context.handle(
+        _usageCountMeta,
+        usageCount.isAcceptableOrUnknown(data['usage_count']!, _usageCountMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {feature};
+  @override
+  FeatureUsageData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FeatureUsageData(
+      feature: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}feature'],
+      )!,
+      usageCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}usage_count'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $FeatureUsageTable createAlias(String alias) {
+    return $FeatureUsageTable(attachedDatabase, alias);
+  }
+}
+
+class FeatureUsageData extends DataClass
+    implements Insertable<FeatureUsageData> {
+  final String feature;
+  final int usageCount;
+  final DateTime updatedAt;
+  const FeatureUsageData({
+    required this.feature,
+    required this.usageCount,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['feature'] = Variable<String>(feature);
+    map['usage_count'] = Variable<int>(usageCount);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  FeatureUsageCompanion toCompanion(bool nullToAbsent) {
+    return FeatureUsageCompanion(
+      feature: Value(feature),
+      usageCount: Value(usageCount),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory FeatureUsageData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FeatureUsageData(
+      feature: serializer.fromJson<String>(json['feature']),
+      usageCount: serializer.fromJson<int>(json['usageCount']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'feature': serializer.toJson<String>(feature),
+      'usageCount': serializer.toJson<int>(usageCount),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  FeatureUsageData copyWith({
+    String? feature,
+    int? usageCount,
+    DateTime? updatedAt,
+  }) => FeatureUsageData(
+    feature: feature ?? this.feature,
+    usageCount: usageCount ?? this.usageCount,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  FeatureUsageData copyWithCompanion(FeatureUsageCompanion data) {
+    return FeatureUsageData(
+      feature: data.feature.present ? data.feature.value : this.feature,
+      usageCount: data.usageCount.present
+          ? data.usageCount.value
+          : this.usageCount,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FeatureUsageData(')
+          ..write('feature: $feature, ')
+          ..write('usageCount: $usageCount, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(feature, usageCount, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FeatureUsageData &&
+          other.feature == this.feature &&
+          other.usageCount == this.usageCount &&
+          other.updatedAt == this.updatedAt);
+}
+
+class FeatureUsageCompanion extends UpdateCompanion<FeatureUsageData> {
+  final Value<String> feature;
+  final Value<int> usageCount;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const FeatureUsageCompanion({
+    this.feature = const Value.absent(),
+    this.usageCount = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FeatureUsageCompanion.insert({
+    required String feature,
+    this.usageCount = const Value.absent(),
+    required DateTime updatedAt,
+    this.rowid = const Value.absent(),
+  }) : feature = Value(feature),
+       updatedAt = Value(updatedAt);
+  static Insertable<FeatureUsageData> custom({
+    Expression<String>? feature,
+    Expression<int>? usageCount,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (feature != null) 'feature': feature,
+      if (usageCount != null) 'usage_count': usageCount,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FeatureUsageCompanion copyWith({
+    Value<String>? feature,
+    Value<int>? usageCount,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return FeatureUsageCompanion(
+      feature: feature ?? this.feature,
+      usageCount: usageCount ?? this.usageCount,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (feature.present) {
+      map['feature'] = Variable<String>(feature.value);
+    }
+    if (usageCount.present) {
+      map['usage_count'] = Variable<int>(usageCount.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FeatureUsageCompanion(')
+          ..write('feature: $feature, ')
+          ..write('usageCount: $usageCount, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -8495,6 +10350,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $FieldProvenanceRowsTable fieldProvenanceRows =
       $FieldProvenanceRowsTable(this);
+  late final $CandidateExtractedFieldsTable candidateExtractedFields =
+      $CandidateExtractedFieldsTable(this);
+  late final $CandidateEntityProposalsTable candidateEntityProposals =
+      $CandidateEntityProposalsTable(this);
+  late final $FeatureUsageTable featureUsage = $FeatureUsageTable(this);
   late final $TagsTable tags = $TagsTable(this);
   late final $CategoriesTable categories = $CategoriesTable(this);
   late final $EntityTagsTable entityTags = $EntityTagsTable(this);
@@ -8604,6 +10464,26 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'memory_candidates_temporal_start_idx',
     'CREATE INDEX memory_candidates_temporal_start_idx ON memory_candidates (start_year, start_month, start_day)',
   );
+  late final Index candidateFieldsCandidateIdx = Index(
+    'candidate_fields_candidate_idx',
+    'CREATE INDEX candidate_fields_candidate_idx ON candidate_extracted_fields (candidate_id)',
+  );
+  late final Index candidateFieldsKeyIdx = Index(
+    'candidate_fields_key_idx',
+    'CREATE INDEX candidate_fields_key_idx ON candidate_extracted_fields ("key")',
+  );
+  late final Index candidateEntitiesCandidateIdx = Index(
+    'candidate_entities_candidate_idx',
+    'CREATE INDEX candidate_entities_candidate_idx ON candidate_entity_proposals (candidate_id)',
+  );
+  late final Index candidateEntitiesSuggestedIdx = Index(
+    'candidate_entities_suggested_idx',
+    'CREATE INDEX candidate_entities_suggested_idx ON candidate_entity_proposals (suggested_entity_id)',
+  );
+  late final Index candidateEntitiesSerialIdx = Index(
+    'candidate_entities_serial_idx',
+    'CREATE INDEX candidate_entities_serial_idx ON candidate_entity_proposals (serial_number)',
+  );
   late final Index tagsLifecycleIdx = Index(
     'tags_lifecycle_idx',
     'CREATE INDEX tags_lifecycle_idx ON tags (lifecycle)',
@@ -8652,6 +10532,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     attachments,
     memoryCandidates,
     fieldProvenanceRows,
+    candidateExtractedFields,
+    candidateEntityProposals,
+    featureUsage,
     tags,
     categories,
     entityTags,
@@ -8684,6 +10567,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     memoryCandidatesLifecycleIdx,
     memoryCandidatesSourceEvidenceIdx,
     memoryCandidatesTemporalStartIdx,
+    candidateFieldsCandidateIdx,
+    candidateFieldsKeyIdx,
+    candidateEntitiesCandidateIdx,
+    candidateEntitiesSuggestedIdx,
+    candidateEntitiesSerialIdx,
     tagsLifecycleIdx,
     categoriesLifecycleIdx,
     categoriesParentIdx,
@@ -8696,6 +10584,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'events',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('memory_candidates', kind: UpdateKind.update)],
+    ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'entities',
@@ -8737,6 +10632,33 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('field_provenance', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'memory_candidates',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('candidate_extracted_fields', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'memory_candidates',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('candidate_entity_proposals', kind: UpdateKind.delete),
+      ],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'entities',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [
+        TableUpdate('candidate_entity_proposals', kind: UpdateKind.update),
+      ],
     ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
@@ -8924,6 +10846,35 @@ final class $$EntitiesTableReferences
     );
   }
 
+  static MultiTypedResultKey<
+    $CandidateEntityProposalsTable,
+    List<CandidateEntityProposal>
+  >
+  _candidateEntityProposalsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.candidateEntityProposals,
+        aliasName:
+            'entities__id__candidate_entity_proposals__suggested_entity_id',
+      );
+
+  $$CandidateEntityProposalsTableProcessedTableManager
+  get candidateEntityProposalsRefs {
+    final manager =
+        $$CandidateEntityProposalsTableTableManager(
+          $_db,
+          $_db.candidateEntityProposals,
+        ).filter(
+          (f) => f.suggestedEntityId.id.sqlEquals($_itemColumn<String>('id')!),
+        );
+
+    final cache = $_typedResult.readTableOrNull(
+      _candidateEntityProposalsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$EntityTagsTable, List<EntityTag>>
   _entityTagsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.entityTags,
@@ -9094,6 +11045,33 @@ class $$EntitiesTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> candidateEntityProposalsRefs(
+    Expression<bool> Function($$CandidateEntityProposalsTableFilterComposer f)
+    f,
+  ) {
+    final $$CandidateEntityProposalsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.candidateEntityProposals,
+          getReferencedColumn: (t) => t.suggestedEntityId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CandidateEntityProposalsTableFilterComposer(
+                $db: $db,
+                $table: $db.candidateEntityProposals,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 
@@ -9329,6 +11307,33 @@ class $$EntitiesTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> candidateEntityProposalsRefs<T extends Object>(
+    Expression<T> Function($$CandidateEntityProposalsTableAnnotationComposer a)
+    f,
+  ) {
+    final $$CandidateEntityProposalsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.candidateEntityProposals,
+          getReferencedColumn: (t) => t.suggestedEntityId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CandidateEntityProposalsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.candidateEntityProposals,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
   Expression<T> entityTagsRefs<T extends Object>(
     Expression<T> Function($$EntityTagsTableAnnotationComposer a) f,
   ) {
@@ -9397,6 +11402,7 @@ class $$EntitiesTableTableManager
             bool sourceEntityRelationships,
             bool targetEntityRelationships,
             bool fieldProvenanceRowsRefs,
+            bool candidateEntityProposalsRefs,
             bool entityTagsRefs,
             bool entityCategoriesRefs,
           })
@@ -9477,6 +11483,7 @@ class $$EntitiesTableTableManager
                 sourceEntityRelationships = false,
                 targetEntityRelationships = false,
                 fieldProvenanceRowsRefs = false,
+                candidateEntityProposalsRefs = false,
                 entityTagsRefs = false,
                 entityCategoriesRefs = false,
               }) {
@@ -9486,6 +11493,8 @@ class $$EntitiesTableTableManager
                     if (sourceEntityRelationships) db.relationships,
                     if (targetEntityRelationships) db.relationships,
                     if (fieldProvenanceRowsRefs) db.fieldProvenanceRows,
+                    if (candidateEntityProposalsRefs)
+                      db.candidateEntityProposals,
                     if (entityTagsRefs) db.entityTags,
                     if (entityCategoriesRefs) db.entityCategories,
                   ],
@@ -9555,6 +11564,27 @@ class $$EntitiesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (candidateEntityProposalsRefs)
+                        await $_getPrefetchedData<
+                          Entity,
+                          $EntitiesTable,
+                          CandidateEntityProposal
+                        >(
+                          currentTable: table,
+                          referencedTable: $$EntitiesTableReferences
+                              ._candidateEntityProposalsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$EntitiesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).candidateEntityProposalsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.suggestedEntityId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (entityTagsRefs)
                         await $_getPrefetchedData<
                           Entity,
@@ -9621,6 +11651,7 @@ typedef $$EntitiesTableProcessedTableManager =
         bool sourceEntityRelationships,
         bool targetEntityRelationships,
         bool fieldProvenanceRowsRefs,
+        bool candidateEntityProposalsRefs,
         bool entityTagsRefs,
         bool entityCategoriesRefs,
       })
@@ -9715,19 +11746,42 @@ final class $$EventsTableReferences
   }
 
   static MultiTypedResultKey<$MemoryCandidatesTable, List<MemoryCandidate>>
-  _memoryCandidatesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+  _confirmedCandidatesTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.memoryCandidates,
     aliasName: 'events__id__memory_candidates__confirmed_event_id',
   );
 
-  $$MemoryCandidatesTableProcessedTableManager get memoryCandidatesRefs {
+  $$MemoryCandidatesTableProcessedTableManager get confirmedCandidates {
     final manager =
         $$MemoryCandidatesTableTableManager($_db, $_db.memoryCandidates).filter(
           (f) => f.confirmedEventId.id.sqlEquals($_itemColumn<String>('id')!),
         );
 
     final cache = $_typedResult.readTableOrNull(
-      _memoryCandidatesRefsTable($_db),
+      _confirmedCandidatesTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$MemoryCandidatesTable, List<MemoryCandidate>>
+  _possibleDuplicateCandidatesTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.memoryCandidates,
+        aliasName: 'events__id__memory_candidates__possible_duplicate_event_id',
+      );
+
+  $$MemoryCandidatesTableProcessedTableManager get possibleDuplicateCandidates {
+    final manager =
+        $$MemoryCandidatesTableTableManager($_db, $_db.memoryCandidates).filter(
+          (f) => f.possibleDuplicateEventId.id.sqlEquals(
+            $_itemColumn<String>('id')!,
+          ),
+        );
+
+    final cache = $_typedResult.readTableOrNull(
+      _possibleDuplicateCandidatesTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -9941,7 +11995,7 @@ class $$EventsTableFilterComposer
     return f(composer);
   }
 
-  Expression<bool> memoryCandidatesRefs(
+  Expression<bool> confirmedCandidates(
     Expression<bool> Function($$MemoryCandidatesTableFilterComposer f) f,
   ) {
     final $$MemoryCandidatesTableFilterComposer composer = $composerBuilder(
@@ -9949,6 +12003,31 @@ class $$EventsTableFilterComposer
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.memoryCandidates,
       getReferencedColumn: (t) => t.confirmedEventId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MemoryCandidatesTableFilterComposer(
+            $db: $db,
+            $table: $db.memoryCandidates,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> possibleDuplicateCandidates(
+    Expression<bool> Function($$MemoryCandidatesTableFilterComposer f) f,
+  ) {
+    final $$MemoryCandidatesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.memoryCandidates,
+      getReferencedColumn: (t) => t.possibleDuplicateEventId,
       builder:
           (
             joinBuilder, {
@@ -10257,7 +12336,7 @@ class $$EventsTableAnnotationComposer
     return f(composer);
   }
 
-  Expression<T> memoryCandidatesRefs<T extends Object>(
+  Expression<T> confirmedCandidates<T extends Object>(
     Expression<T> Function($$MemoryCandidatesTableAnnotationComposer a) f,
   ) {
     final $$MemoryCandidatesTableAnnotationComposer composer = $composerBuilder(
@@ -10265,6 +12344,31 @@ class $$EventsTableAnnotationComposer
       getCurrentColumn: (t) => t.id,
       referencedTable: $db.memoryCandidates,
       getReferencedColumn: (t) => t.confirmedEventId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MemoryCandidatesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.memoryCandidates,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> possibleDuplicateCandidates<T extends Object>(
+    Expression<T> Function($$MemoryCandidatesTableAnnotationComposer a) f,
+  ) {
+    final $$MemoryCandidatesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.memoryCandidates,
+      getReferencedColumn: (t) => t.possibleDuplicateEventId,
       builder:
           (
             joinBuilder, {
@@ -10375,7 +12479,8 @@ class $$EventsTableTableManager
           PrefetchHooks Function({
             bool sourceEventRelationships,
             bool targetEventRelationships,
-            bool memoryCandidatesRefs,
+            bool confirmedCandidates,
+            bool possibleDuplicateCandidates,
             bool fieldProvenanceRowsRefs,
             bool eventTagsRefs,
             bool eventCategoriesRefs,
@@ -10482,7 +12587,8 @@ class $$EventsTableTableManager
               ({
                 sourceEventRelationships = false,
                 targetEventRelationships = false,
-                memoryCandidatesRefs = false,
+                confirmedCandidates = false,
+                possibleDuplicateCandidates = false,
                 fieldProvenanceRowsRefs = false,
                 eventTagsRefs = false,
                 eventCategoriesRefs = false,
@@ -10492,7 +12598,8 @@ class $$EventsTableTableManager
                   explicitlyWatchedTables: [
                     if (sourceEventRelationships) db.relationships,
                     if (targetEventRelationships) db.relationships,
-                    if (memoryCandidatesRefs) db.memoryCandidates,
+                    if (confirmedCandidates) db.memoryCandidates,
+                    if (possibleDuplicateCandidates) db.memoryCandidates,
                     if (fieldProvenanceRowsRefs) db.fieldProvenanceRows,
                     if (eventTagsRefs) db.eventTags,
                     if (eventCategoriesRefs) db.eventCategories,
@@ -10542,7 +12649,7 @@ class $$EventsTableTableManager
                               ),
                           typedResults: items,
                         ),
-                      if (memoryCandidatesRefs)
+                      if (confirmedCandidates)
                         await $_getPrefetchedData<
                           Event,
                           $EventsTable,
@@ -10550,16 +12657,37 @@ class $$EventsTableTableManager
                         >(
                           currentTable: table,
                           referencedTable: $$EventsTableReferences
-                              ._memoryCandidatesRefsTable(db),
+                              ._confirmedCandidatesTable(db),
                           managerFromTypedResult: (p0) =>
                               $$EventsTableReferences(
                                 db,
                                 table,
                                 p0,
-                              ).memoryCandidatesRefs,
+                              ).confirmedCandidates,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.confirmedEventId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (possibleDuplicateCandidates)
+                        await $_getPrefetchedData<
+                          Event,
+                          $EventsTable,
+                          MemoryCandidate
+                        >(
+                          currentTable: table,
+                          referencedTable: $$EventsTableReferences
+                              ._possibleDuplicateCandidatesTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$EventsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).possibleDuplicateCandidates,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.possibleDuplicateEventId == item.id,
                               ),
                           typedResults: items,
                         ),
@@ -10649,7 +12777,8 @@ typedef $$EventsTableProcessedTableManager =
       PrefetchHooks Function({
         bool sourceEventRelationships,
         bool targetEventRelationships,
-        bool memoryCandidatesRefs,
+        bool confirmedCandidates,
+        bool possibleDuplicateCandidates,
         bool fieldProvenanceRowsRefs,
         bool eventTagsRefs,
         bool eventCategoriesRefs,
@@ -13359,6 +15488,10 @@ typedef $$MemoryCandidatesTableCreateCompanionBuilder =
       Value<String?> description,
       Value<String?> sourceEvidenceId,
       Value<String?> confirmedEventId,
+      Value<String> documentType,
+      Value<String> reviewStatus,
+      Value<double?> overallConfidence,
+      Value<String?> possibleDuplicateEventId,
       Value<int> rowid,
     });
 typedef $$MemoryCandidatesTableUpdateCompanionBuilder =
@@ -13380,6 +15513,10 @@ typedef $$MemoryCandidatesTableUpdateCompanionBuilder =
       Value<String?> description,
       Value<String?> sourceEvidenceId,
       Value<String?> confirmedEventId,
+      Value<String> documentType,
+      Value<String> reviewStatus,
+      Value<double?> overallConfidence,
+      Value<String?> possibleDuplicateEventId,
       Value<int> rowid,
     });
 
@@ -13427,6 +15564,27 @@ final class $$MemoryCandidatesTableReferences
     );
   }
 
+  static $EventsTable _possibleDuplicateEventIdTable(_$AppDatabase db) =>
+      db.events.createAlias(
+        'memory_candidates__possible_duplicate_event_id__events__id',
+      );
+
+  $$EventsTableProcessedTableManager? get possibleDuplicateEventId {
+    final $_column = $_itemColumn<String>('possible_duplicate_event_id');
+    if ($_column == null) return null;
+    final manager = $$EventsTableTableManager(
+      $_db,
+      $_db.events,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(
+      _possibleDuplicateEventIdTable($_db),
+    );
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
   static MultiTypedResultKey<
     $FieldProvenanceRowsTable,
     List<FieldProvenanceRow>
@@ -13449,6 +15607,58 @@ final class $$MemoryCandidatesTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _fieldProvenanceRowsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $CandidateExtractedFieldsTable,
+    List<CandidateExtractedField>
+  >
+  _candidateExtractedFieldsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.candidateExtractedFields,
+        aliasName:
+            'memory_candidates__id__candidate_extracted_fields__candidate_id',
+      );
+
+  $$CandidateExtractedFieldsTableProcessedTableManager
+  get candidateExtractedFieldsRefs {
+    final manager = $$CandidateExtractedFieldsTableTableManager(
+      $_db,
+      $_db.candidateExtractedFields,
+    ).filter((f) => f.candidateId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _candidateExtractedFieldsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<
+    $CandidateEntityProposalsTable,
+    List<CandidateEntityProposal>
+  >
+  _candidateEntityProposalsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.candidateEntityProposals,
+        aliasName:
+            'memory_candidates__id__candidate_entity_proposals__candidate_id',
+      );
+
+  $$CandidateEntityProposalsTableProcessedTableManager
+  get candidateEntityProposalsRefs {
+    final manager = $$CandidateEntityProposalsTableTableManager(
+      $_db,
+      $_db.candidateEntityProposals,
+    ).filter((f) => f.candidateId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _candidateEntityProposalsRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -13540,6 +15750,21 @@ class $$MemoryCandidatesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get documentType => $composableBuilder(
+    column: $table.documentType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reviewStatus => $composableBuilder(
+    column: $table.reviewStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get overallConfidence => $composableBuilder(
+    column: $table.overallConfidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$EvidenceRecordsTableFilterComposer get sourceEvidenceId {
     final $$EvidenceRecordsTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -13586,6 +15811,29 @@ class $$MemoryCandidatesTableFilterComposer
     return composer;
   }
 
+  $$EventsTableFilterComposer get possibleDuplicateEventId {
+    final $$EventsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.possibleDuplicateEventId,
+      referencedTable: $db.events,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EventsTableFilterComposer(
+            $db: $db,
+            $table: $db.events,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   Expression<bool> fieldProvenanceRowsRefs(
     Expression<bool> Function($$FieldProvenanceRowsTableFilterComposer f) f,
   ) {
@@ -13608,6 +15856,60 @@ class $$MemoryCandidatesTableFilterComposer
                 $removeJoinBuilderFromRootComposer,
           ),
     );
+    return f(composer);
+  }
+
+  Expression<bool> candidateExtractedFieldsRefs(
+    Expression<bool> Function($$CandidateExtractedFieldsTableFilterComposer f)
+    f,
+  ) {
+    final $$CandidateExtractedFieldsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.candidateExtractedFields,
+          getReferencedColumn: (t) => t.candidateId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CandidateExtractedFieldsTableFilterComposer(
+                $db: $db,
+                $table: $db.candidateExtractedFields,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<bool> candidateEntityProposalsRefs(
+    Expression<bool> Function($$CandidateEntityProposalsTableFilterComposer f)
+    f,
+  ) {
+    final $$CandidateEntityProposalsTableFilterComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.candidateEntityProposals,
+          getReferencedColumn: (t) => t.candidateId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CandidateEntityProposalsTableFilterComposer(
+                $db: $db,
+                $table: $db.candidateEntityProposals,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
     return f(composer);
   }
 }
@@ -13696,6 +15998,21 @@ class $$MemoryCandidatesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get documentType => $composableBuilder(
+    column: $table.documentType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reviewStatus => $composableBuilder(
+    column: $table.reviewStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get overallConfidence => $composableBuilder(
+    column: $table.overallConfidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$EvidenceRecordsTableOrderingComposer get sourceEvidenceId {
     final $$EvidenceRecordsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -13723,6 +16040,29 @@ class $$MemoryCandidatesTableOrderingComposer
     final $$EventsTableOrderingComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.confirmedEventId,
+      referencedTable: $db.events,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EventsTableOrderingComposer(
+            $db: $db,
+            $table: $db.events,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EventsTableOrderingComposer get possibleDuplicateEventId {
+    final $$EventsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.possibleDuplicateEventId,
       referencedTable: $db.events,
       getReferencedColumn: (t) => t.id,
       builder:
@@ -13805,6 +16145,21 @@ class $$MemoryCandidatesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get documentType => $composableBuilder(
+    column: $table.documentType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reviewStatus => $composableBuilder(
+    column: $table.reviewStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get overallConfidence => $composableBuilder(
+    column: $table.overallConfidence,
+    builder: (column) => column,
+  );
+
   $$EvidenceRecordsTableAnnotationComposer get sourceEvidenceId {
     final $$EvidenceRecordsTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -13851,6 +16206,29 @@ class $$MemoryCandidatesTableAnnotationComposer
     return composer;
   }
 
+  $$EventsTableAnnotationComposer get possibleDuplicateEventId {
+    final $$EventsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.possibleDuplicateEventId,
+      referencedTable: $db.events,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EventsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.events,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
   Expression<T> fieldProvenanceRowsRefs<T extends Object>(
     Expression<T> Function($$FieldProvenanceRowsTableAnnotationComposer a) f,
   ) {
@@ -13868,6 +16246,60 @@ class $$MemoryCandidatesTableAnnotationComposer
               }) => $$FieldProvenanceRowsTableAnnotationComposer(
                 $db: $db,
                 $table: $db.fieldProvenanceRows,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> candidateExtractedFieldsRefs<T extends Object>(
+    Expression<T> Function($$CandidateExtractedFieldsTableAnnotationComposer a)
+    f,
+  ) {
+    final $$CandidateExtractedFieldsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.candidateExtractedFields,
+          getReferencedColumn: (t) => t.candidateId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CandidateExtractedFieldsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.candidateExtractedFields,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+
+  Expression<T> candidateEntityProposalsRefs<T extends Object>(
+    Expression<T> Function($$CandidateEntityProposalsTableAnnotationComposer a)
+    f,
+  ) {
+    final $$CandidateEntityProposalsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.candidateEntityProposals,
+          getReferencedColumn: (t) => t.candidateId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$CandidateEntityProposalsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.candidateEntityProposals,
                 $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
                 joinBuilder: joinBuilder,
                 $removeJoinBuilderFromRootComposer:
@@ -13894,7 +16326,10 @@ class $$MemoryCandidatesTableTableManager
           PrefetchHooks Function({
             bool sourceEvidenceId,
             bool confirmedEventId,
+            bool possibleDuplicateEventId,
             bool fieldProvenanceRowsRefs,
+            bool candidateExtractedFieldsRefs,
+            bool candidateEntityProposalsRefs,
           })
         > {
   $$MemoryCandidatesTableTableManager(
@@ -13929,6 +16364,10 @@ class $$MemoryCandidatesTableTableManager
                 Value<String?> description = const Value.absent(),
                 Value<String?> sourceEvidenceId = const Value.absent(),
                 Value<String?> confirmedEventId = const Value.absent(),
+                Value<String> documentType = const Value.absent(),
+                Value<String> reviewStatus = const Value.absent(),
+                Value<double?> overallConfidence = const Value.absent(),
+                Value<String?> possibleDuplicateEventId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MemoryCandidatesCompanion(
                 id: id,
@@ -13948,6 +16387,10 @@ class $$MemoryCandidatesTableTableManager
                 description: description,
                 sourceEvidenceId: sourceEvidenceId,
                 confirmedEventId: confirmedEventId,
+                documentType: documentType,
+                reviewStatus: reviewStatus,
+                overallConfidence: overallConfidence,
+                possibleDuplicateEventId: possibleDuplicateEventId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -13969,6 +16412,10 @@ class $$MemoryCandidatesTableTableManager
                 Value<String?> description = const Value.absent(),
                 Value<String?> sourceEvidenceId = const Value.absent(),
                 Value<String?> confirmedEventId = const Value.absent(),
+                Value<String> documentType = const Value.absent(),
+                Value<String> reviewStatus = const Value.absent(),
+                Value<double?> overallConfidence = const Value.absent(),
+                Value<String?> possibleDuplicateEventId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => MemoryCandidatesCompanion.insert(
                 id: id,
@@ -13988,6 +16435,10 @@ class $$MemoryCandidatesTableTableManager
                 description: description,
                 sourceEvidenceId: sourceEvidenceId,
                 confirmedEventId: confirmedEventId,
+                documentType: documentType,
+                reviewStatus: reviewStatus,
+                overallConfidence: overallConfidence,
+                possibleDuplicateEventId: possibleDuplicateEventId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -14002,12 +16453,19 @@ class $$MemoryCandidatesTableTableManager
               ({
                 sourceEvidenceId = false,
                 confirmedEventId = false,
+                possibleDuplicateEventId = false,
                 fieldProvenanceRowsRefs = false,
+                candidateExtractedFieldsRefs = false,
+                candidateEntityProposalsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (fieldProvenanceRowsRefs) db.fieldProvenanceRows,
+                    if (candidateExtractedFieldsRefs)
+                      db.candidateExtractedFields,
+                    if (candidateEntityProposalsRefs)
+                      db.candidateEntityProposals,
                   ],
                   addJoins:
                       <
@@ -14055,6 +16513,22 @@ class $$MemoryCandidatesTableTableManager
                                   )
                                   as T;
                         }
+                        if (possibleDuplicateEventId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn:
+                                        table.possibleDuplicateEventId,
+                                    referencedTable:
+                                        $$MemoryCandidatesTableReferences
+                                            ._possibleDuplicateEventIdTable(db),
+                                    referencedColumn:
+                                        $$MemoryCandidatesTableReferences
+                                            ._possibleDuplicateEventIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
 
                         return state;
                       },
@@ -14081,6 +16555,48 @@ class $$MemoryCandidatesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (candidateExtractedFieldsRefs)
+                        await $_getPrefetchedData<
+                          MemoryCandidate,
+                          $MemoryCandidatesTable,
+                          CandidateExtractedField
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MemoryCandidatesTableReferences
+                              ._candidateExtractedFieldsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MemoryCandidatesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).candidateExtractedFieldsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.candidateId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (candidateEntityProposalsRefs)
+                        await $_getPrefetchedData<
+                          MemoryCandidate,
+                          $MemoryCandidatesTable,
+                          CandidateEntityProposal
+                        >(
+                          currentTable: table,
+                          referencedTable: $$MemoryCandidatesTableReferences
+                              ._candidateEntityProposalsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$MemoryCandidatesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).candidateEntityProposalsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.candidateId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -14104,7 +16620,10 @@ typedef $$MemoryCandidatesTableProcessedTableManager =
       PrefetchHooks Function({
         bool sourceEvidenceId,
         bool confirmedEventId,
+        bool possibleDuplicateEventId,
         bool fieldProvenanceRowsRefs,
+        bool candidateExtractedFieldsRefs,
+        bool candidateEntityProposalsRefs,
       })
     >;
 typedef $$FieldProvenanceRowsTableCreateCompanionBuilder =
@@ -15128,6 +17647,1172 @@ typedef $$FieldProvenanceRowsTableProcessedTableManager =
         bool attachmentId,
         bool memoryCandidateId,
       })
+    >;
+typedef $$CandidateExtractedFieldsTableCreateCompanionBuilder =
+    CandidateExtractedFieldsCompanion Function({
+      required String id,
+      required String candidateId,
+      required String key,
+      required String value,
+      required String valueType,
+      required double confidence,
+      required String privacyClassification,
+      required String extractionMethod,
+      Value<String?> sourceExcerpt,
+      Value<bool> reviewRecommended,
+      Value<int> rowid,
+    });
+typedef $$CandidateExtractedFieldsTableUpdateCompanionBuilder =
+    CandidateExtractedFieldsCompanion Function({
+      Value<String> id,
+      Value<String> candidateId,
+      Value<String> key,
+      Value<String> value,
+      Value<String> valueType,
+      Value<double> confidence,
+      Value<String> privacyClassification,
+      Value<String> extractionMethod,
+      Value<String?> sourceExcerpt,
+      Value<bool> reviewRecommended,
+      Value<int> rowid,
+    });
+
+final class $$CandidateExtractedFieldsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CandidateExtractedFieldsTable,
+          CandidateExtractedField
+        > {
+  $$CandidateExtractedFieldsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $MemoryCandidatesTable _candidateIdTable(_$AppDatabase db) =>
+      db.memoryCandidates.createAlias(
+        'candidate_extracted_fields__candidate_id__memory_candidates__id',
+      );
+
+  $$MemoryCandidatesTableProcessedTableManager get candidateId {
+    final $_column = $_itemColumn<String>('candidate_id')!;
+
+    final manager = $$MemoryCandidatesTableTableManager(
+      $_db,
+      $_db.memoryCandidates,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_candidateIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CandidateExtractedFieldsTableFilterComposer
+    extends Composer<_$AppDatabase, $CandidateExtractedFieldsTable> {
+  $$CandidateExtractedFieldsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get valueType => $composableBuilder(
+    column: $table.valueType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get privacyClassification => $composableBuilder(
+    column: $table.privacyClassification,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get extractionMethod => $composableBuilder(
+    column: $table.extractionMethod,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceExcerpt => $composableBuilder(
+    column: $table.sourceExcerpt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get reviewRecommended => $composableBuilder(
+    column: $table.reviewRecommended,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$MemoryCandidatesTableFilterComposer get candidateId {
+    final $$MemoryCandidatesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.candidateId,
+      referencedTable: $db.memoryCandidates,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MemoryCandidatesTableFilterComposer(
+            $db: $db,
+            $table: $db.memoryCandidates,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CandidateExtractedFieldsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CandidateExtractedFieldsTable> {
+  $$CandidateExtractedFieldsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get valueType => $composableBuilder(
+    column: $table.valueType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get privacyClassification => $composableBuilder(
+    column: $table.privacyClassification,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get extractionMethod => $composableBuilder(
+    column: $table.extractionMethod,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sourceExcerpt => $composableBuilder(
+    column: $table.sourceExcerpt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get reviewRecommended => $composableBuilder(
+    column: $table.reviewRecommended,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$MemoryCandidatesTableOrderingComposer get candidateId {
+    final $$MemoryCandidatesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.candidateId,
+      referencedTable: $db.memoryCandidates,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MemoryCandidatesTableOrderingComposer(
+            $db: $db,
+            $table: $db.memoryCandidates,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CandidateExtractedFieldsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CandidateExtractedFieldsTable> {
+  $$CandidateExtractedFieldsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<String> get valueType =>
+      $composableBuilder(column: $table.valueType, builder: (column) => column);
+
+  GeneratedColumn<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get privacyClassification => $composableBuilder(
+    column: $table.privacyClassification,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get extractionMethod => $composableBuilder(
+    column: $table.extractionMethod,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get sourceExcerpt => $composableBuilder(
+    column: $table.sourceExcerpt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get reviewRecommended => $composableBuilder(
+    column: $table.reviewRecommended,
+    builder: (column) => column,
+  );
+
+  $$MemoryCandidatesTableAnnotationComposer get candidateId {
+    final $$MemoryCandidatesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.candidateId,
+      referencedTable: $db.memoryCandidates,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MemoryCandidatesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.memoryCandidates,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CandidateExtractedFieldsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CandidateExtractedFieldsTable,
+          CandidateExtractedField,
+          $$CandidateExtractedFieldsTableFilterComposer,
+          $$CandidateExtractedFieldsTableOrderingComposer,
+          $$CandidateExtractedFieldsTableAnnotationComposer,
+          $$CandidateExtractedFieldsTableCreateCompanionBuilder,
+          $$CandidateExtractedFieldsTableUpdateCompanionBuilder,
+          (CandidateExtractedField, $$CandidateExtractedFieldsTableReferences),
+          CandidateExtractedField,
+          PrefetchHooks Function({bool candidateId})
+        > {
+  $$CandidateExtractedFieldsTableTableManager(
+    _$AppDatabase db,
+    $CandidateExtractedFieldsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CandidateExtractedFieldsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CandidateExtractedFieldsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CandidateExtractedFieldsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> candidateId = const Value.absent(),
+                Value<String> key = const Value.absent(),
+                Value<String> value = const Value.absent(),
+                Value<String> valueType = const Value.absent(),
+                Value<double> confidence = const Value.absent(),
+                Value<String> privacyClassification = const Value.absent(),
+                Value<String> extractionMethod = const Value.absent(),
+                Value<String?> sourceExcerpt = const Value.absent(),
+                Value<bool> reviewRecommended = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CandidateExtractedFieldsCompanion(
+                id: id,
+                candidateId: candidateId,
+                key: key,
+                value: value,
+                valueType: valueType,
+                confidence: confidence,
+                privacyClassification: privacyClassification,
+                extractionMethod: extractionMethod,
+                sourceExcerpt: sourceExcerpt,
+                reviewRecommended: reviewRecommended,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String candidateId,
+                required String key,
+                required String value,
+                required String valueType,
+                required double confidence,
+                required String privacyClassification,
+                required String extractionMethod,
+                Value<String?> sourceExcerpt = const Value.absent(),
+                Value<bool> reviewRecommended = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CandidateExtractedFieldsCompanion.insert(
+                id: id,
+                candidateId: candidateId,
+                key: key,
+                value: value,
+                valueType: valueType,
+                confidence: confidence,
+                privacyClassification: privacyClassification,
+                extractionMethod: extractionMethod,
+                sourceExcerpt: sourceExcerpt,
+                reviewRecommended: reviewRecommended,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CandidateExtractedFieldsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({candidateId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (candidateId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.candidateId,
+                                referencedTable:
+                                    $$CandidateExtractedFieldsTableReferences
+                                        ._candidateIdTable(db),
+                                referencedColumn:
+                                    $$CandidateExtractedFieldsTableReferences
+                                        ._candidateIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$CandidateExtractedFieldsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CandidateExtractedFieldsTable,
+      CandidateExtractedField,
+      $$CandidateExtractedFieldsTableFilterComposer,
+      $$CandidateExtractedFieldsTableOrderingComposer,
+      $$CandidateExtractedFieldsTableAnnotationComposer,
+      $$CandidateExtractedFieldsTableCreateCompanionBuilder,
+      $$CandidateExtractedFieldsTableUpdateCompanionBuilder,
+      (CandidateExtractedField, $$CandidateExtractedFieldsTableReferences),
+      CandidateExtractedField,
+      PrefetchHooks Function({bool candidateId})
+    >;
+typedef $$CandidateEntityProposalsTableCreateCompanionBuilder =
+    CandidateEntityProposalsCompanion Function({
+      required String id,
+      required String candidateId,
+      required String name,
+      required String entityType,
+      required double confidence,
+      Value<String?> brand,
+      Value<String?> model,
+      Value<String?> serialNumber,
+      Value<String?> suggestedEntityId,
+      Value<double?> matchScore,
+      Value<String> matchReasons,
+      Value<int> rowid,
+    });
+typedef $$CandidateEntityProposalsTableUpdateCompanionBuilder =
+    CandidateEntityProposalsCompanion Function({
+      Value<String> id,
+      Value<String> candidateId,
+      Value<String> name,
+      Value<String> entityType,
+      Value<double> confidence,
+      Value<String?> brand,
+      Value<String?> model,
+      Value<String?> serialNumber,
+      Value<String?> suggestedEntityId,
+      Value<double?> matchScore,
+      Value<String> matchReasons,
+      Value<int> rowid,
+    });
+
+final class $$CandidateEntityProposalsTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $CandidateEntityProposalsTable,
+          CandidateEntityProposal
+        > {
+  $$CandidateEntityProposalsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $MemoryCandidatesTable _candidateIdTable(_$AppDatabase db) =>
+      db.memoryCandidates.createAlias(
+        'candidate_entity_proposals__candidate_id__memory_candidates__id',
+      );
+
+  $$MemoryCandidatesTableProcessedTableManager get candidateId {
+    final $_column = $_itemColumn<String>('candidate_id')!;
+
+    final manager = $$MemoryCandidatesTableTableManager(
+      $_db,
+      $_db.memoryCandidates,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_candidateIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $EntitiesTable _suggestedEntityIdTable(_$AppDatabase db) =>
+      db.entities.createAlias(
+        'candidate_entity_proposals__suggested_entity_id__entities__id',
+      );
+
+  $$EntitiesTableProcessedTableManager? get suggestedEntityId {
+    final $_column = $_itemColumn<String>('suggested_entity_id');
+    if ($_column == null) return null;
+    final manager = $$EntitiesTableTableManager(
+      $_db,
+      $_db.entities,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_suggestedEntityIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$CandidateEntityProposalsTableFilterComposer
+    extends Composer<_$AppDatabase, $CandidateEntityProposalsTable> {
+  $$CandidateEntityProposalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get brand => $composableBuilder(
+    column: $table.brand,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get model => $composableBuilder(
+    column: $table.model,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serialNumber => $composableBuilder(
+    column: $table.serialNumber,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get matchScore => $composableBuilder(
+    column: $table.matchScore,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get matchReasons => $composableBuilder(
+    column: $table.matchReasons,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$MemoryCandidatesTableFilterComposer get candidateId {
+    final $$MemoryCandidatesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.candidateId,
+      referencedTable: $db.memoryCandidates,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MemoryCandidatesTableFilterComposer(
+            $db: $db,
+            $table: $db.memoryCandidates,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EntitiesTableFilterComposer get suggestedEntityId {
+    final $$EntitiesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.suggestedEntityId,
+      referencedTable: $db.entities,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EntitiesTableFilterComposer(
+            $db: $db,
+            $table: $db.entities,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CandidateEntityProposalsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CandidateEntityProposalsTable> {
+  $$CandidateEntityProposalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get brand => $composableBuilder(
+    column: $table.brand,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get model => $composableBuilder(
+    column: $table.model,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serialNumber => $composableBuilder(
+    column: $table.serialNumber,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get matchScore => $composableBuilder(
+    column: $table.matchScore,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get matchReasons => $composableBuilder(
+    column: $table.matchReasons,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$MemoryCandidatesTableOrderingComposer get candidateId {
+    final $$MemoryCandidatesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.candidateId,
+      referencedTable: $db.memoryCandidates,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MemoryCandidatesTableOrderingComposer(
+            $db: $db,
+            $table: $db.memoryCandidates,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EntitiesTableOrderingComposer get suggestedEntityId {
+    final $$EntitiesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.suggestedEntityId,
+      referencedTable: $db.entities,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EntitiesTableOrderingComposer(
+            $db: $db,
+            $table: $db.entities,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CandidateEntityProposalsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CandidateEntityProposalsTable> {
+  $$CandidateEntityProposalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get entityType => $composableBuilder(
+    column: $table.entityType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get confidence => $composableBuilder(
+    column: $table.confidence,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get brand =>
+      $composableBuilder(column: $table.brand, builder: (column) => column);
+
+  GeneratedColumn<String> get model =>
+      $composableBuilder(column: $table.model, builder: (column) => column);
+
+  GeneratedColumn<String> get serialNumber => $composableBuilder(
+    column: $table.serialNumber,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<double> get matchScore => $composableBuilder(
+    column: $table.matchScore,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get matchReasons => $composableBuilder(
+    column: $table.matchReasons,
+    builder: (column) => column,
+  );
+
+  $$MemoryCandidatesTableAnnotationComposer get candidateId {
+    final $$MemoryCandidatesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.candidateId,
+      referencedTable: $db.memoryCandidates,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$MemoryCandidatesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.memoryCandidates,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EntitiesTableAnnotationComposer get suggestedEntityId {
+    final $$EntitiesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.suggestedEntityId,
+      referencedTable: $db.entities,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EntitiesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.entities,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$CandidateEntityProposalsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CandidateEntityProposalsTable,
+          CandidateEntityProposal,
+          $$CandidateEntityProposalsTableFilterComposer,
+          $$CandidateEntityProposalsTableOrderingComposer,
+          $$CandidateEntityProposalsTableAnnotationComposer,
+          $$CandidateEntityProposalsTableCreateCompanionBuilder,
+          $$CandidateEntityProposalsTableUpdateCompanionBuilder,
+          (CandidateEntityProposal, $$CandidateEntityProposalsTableReferences),
+          CandidateEntityProposal,
+          PrefetchHooks Function({bool candidateId, bool suggestedEntityId})
+        > {
+  $$CandidateEntityProposalsTableTableManager(
+    _$AppDatabase db,
+    $CandidateEntityProposalsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CandidateEntityProposalsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CandidateEntityProposalsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CandidateEntityProposalsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> candidateId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String> entityType = const Value.absent(),
+                Value<double> confidence = const Value.absent(),
+                Value<String?> brand = const Value.absent(),
+                Value<String?> model = const Value.absent(),
+                Value<String?> serialNumber = const Value.absent(),
+                Value<String?> suggestedEntityId = const Value.absent(),
+                Value<double?> matchScore = const Value.absent(),
+                Value<String> matchReasons = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CandidateEntityProposalsCompanion(
+                id: id,
+                candidateId: candidateId,
+                name: name,
+                entityType: entityType,
+                confidence: confidence,
+                brand: brand,
+                model: model,
+                serialNumber: serialNumber,
+                suggestedEntityId: suggestedEntityId,
+                matchScore: matchScore,
+                matchReasons: matchReasons,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String candidateId,
+                required String name,
+                required String entityType,
+                required double confidence,
+                Value<String?> brand = const Value.absent(),
+                Value<String?> model = const Value.absent(),
+                Value<String?> serialNumber = const Value.absent(),
+                Value<String?> suggestedEntityId = const Value.absent(),
+                Value<double?> matchScore = const Value.absent(),
+                Value<String> matchReasons = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CandidateEntityProposalsCompanion.insert(
+                id: id,
+                candidateId: candidateId,
+                name: name,
+                entityType: entityType,
+                confidence: confidence,
+                brand: brand,
+                model: model,
+                serialNumber: serialNumber,
+                suggestedEntityId: suggestedEntityId,
+                matchScore: matchScore,
+                matchReasons: matchReasons,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$CandidateEntityProposalsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({candidateId = false, suggestedEntityId = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (candidateId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.candidateId,
+                                    referencedTable:
+                                        $$CandidateEntityProposalsTableReferences
+                                            ._candidateIdTable(db),
+                                    referencedColumn:
+                                        $$CandidateEntityProposalsTableReferences
+                                            ._candidateIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (suggestedEntityId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.suggestedEntityId,
+                                    referencedTable:
+                                        $$CandidateEntityProposalsTableReferences
+                                            ._suggestedEntityIdTable(db),
+                                    referencedColumn:
+                                        $$CandidateEntityProposalsTableReferences
+                                            ._suggestedEntityIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$CandidateEntityProposalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CandidateEntityProposalsTable,
+      CandidateEntityProposal,
+      $$CandidateEntityProposalsTableFilterComposer,
+      $$CandidateEntityProposalsTableOrderingComposer,
+      $$CandidateEntityProposalsTableAnnotationComposer,
+      $$CandidateEntityProposalsTableCreateCompanionBuilder,
+      $$CandidateEntityProposalsTableUpdateCompanionBuilder,
+      (CandidateEntityProposal, $$CandidateEntityProposalsTableReferences),
+      CandidateEntityProposal,
+      PrefetchHooks Function({bool candidateId, bool suggestedEntityId})
+    >;
+typedef $$FeatureUsageTableCreateCompanionBuilder =
+    FeatureUsageCompanion Function({
+      required String feature,
+      Value<int> usageCount,
+      required DateTime updatedAt,
+      Value<int> rowid,
+    });
+typedef $$FeatureUsageTableUpdateCompanionBuilder =
+    FeatureUsageCompanion Function({
+      Value<String> feature,
+      Value<int> usageCount,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$FeatureUsageTableFilterComposer
+    extends Composer<_$AppDatabase, $FeatureUsageTable> {
+  $$FeatureUsageTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get feature => $composableBuilder(
+    column: $table.feature,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get usageCount => $composableBuilder(
+    column: $table.usageCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$FeatureUsageTableOrderingComposer
+    extends Composer<_$AppDatabase, $FeatureUsageTable> {
+  $$FeatureUsageTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get feature => $composableBuilder(
+    column: $table.feature,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get usageCount => $composableBuilder(
+    column: $table.usageCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$FeatureUsageTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FeatureUsageTable> {
+  $$FeatureUsageTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get feature =>
+      $composableBuilder(column: $table.feature, builder: (column) => column);
+
+  GeneratedColumn<int> get usageCount => $composableBuilder(
+    column: $table.usageCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$FeatureUsageTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FeatureUsageTable,
+          FeatureUsageData,
+          $$FeatureUsageTableFilterComposer,
+          $$FeatureUsageTableOrderingComposer,
+          $$FeatureUsageTableAnnotationComposer,
+          $$FeatureUsageTableCreateCompanionBuilder,
+          $$FeatureUsageTableUpdateCompanionBuilder,
+          (
+            FeatureUsageData,
+            BaseReferences<_$AppDatabase, $FeatureUsageTable, FeatureUsageData>,
+          ),
+          FeatureUsageData,
+          PrefetchHooks Function()
+        > {
+  $$FeatureUsageTableTableManager(_$AppDatabase db, $FeatureUsageTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FeatureUsageTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FeatureUsageTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FeatureUsageTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> feature = const Value.absent(),
+                Value<int> usageCount = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FeatureUsageCompanion(
+                feature: feature,
+                usageCount: usageCount,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String feature,
+                Value<int> usageCount = const Value.absent(),
+                required DateTime updatedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => FeatureUsageCompanion.insert(
+                feature: feature,
+                usageCount: usageCount,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$FeatureUsageTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FeatureUsageTable,
+      FeatureUsageData,
+      $$FeatureUsageTableFilterComposer,
+      $$FeatureUsageTableOrderingComposer,
+      $$FeatureUsageTableAnnotationComposer,
+      $$FeatureUsageTableCreateCompanionBuilder,
+      $$FeatureUsageTableUpdateCompanionBuilder,
+      (
+        FeatureUsageData,
+        BaseReferences<_$AppDatabase, $FeatureUsageTable, FeatureUsageData>,
+      ),
+      FeatureUsageData,
+      PrefetchHooks Function()
     >;
 typedef $$TagsTableCreateCompanionBuilder =
     TagsCompanion Function({
@@ -18499,6 +22184,18 @@ class $AppDatabaseManager {
       $$MemoryCandidatesTableTableManager(_db, _db.memoryCandidates);
   $$FieldProvenanceRowsTableTableManager get fieldProvenanceRows =>
       $$FieldProvenanceRowsTableTableManager(_db, _db.fieldProvenanceRows);
+  $$CandidateExtractedFieldsTableTableManager get candidateExtractedFields =>
+      $$CandidateExtractedFieldsTableTableManager(
+        _db,
+        _db.candidateExtractedFields,
+      );
+  $$CandidateEntityProposalsTableTableManager get candidateEntityProposals =>
+      $$CandidateEntityProposalsTableTableManager(
+        _db,
+        _db.candidateEntityProposals,
+      );
+  $$FeatureUsageTableTableManager get featureUsage =>
+      $$FeatureUsageTableTableManager(_db, _db.featureUsage);
   $$TagsTableTableManager get tags => $$TagsTableTableManager(_db, _db.tags);
   $$CategoriesTableTableManager get categories =>
       $$CategoriesTableTableManager(_db, _db.categories);

@@ -1,4 +1,6 @@
 import 'package:drift/drift.dart';
+import 'package:life_timeline/features/private_intelligence/domain/intelligence_models.dart'
+    as intelligence;
 import 'package:life_timeline/shared/database/app_database.dart' as db;
 import 'package:life_timeline/shared/database/mappers/persistence_value_codec.dart';
 import 'package:life_timeline/shared/domain/model/field_provenance.dart'
@@ -37,6 +39,10 @@ abstract final class CandidateProvenanceMapper {
       description: Value(value.description),
       sourceEvidenceId: Value(value.sourceEvidenceId),
       confirmedEventId: Value(value.confirmedEventId),
+      documentType: Value(value.documentType.name),
+      reviewStatus: Value(value.reviewStatus.name),
+      overallConfidence: Value(value.overallConfidence),
+      possibleDuplicateEventId: Value(value.possibleDuplicateEventId),
     );
   }
 
@@ -63,6 +69,12 @@ abstract final class CandidateProvenanceMapper {
         description: row.description,
         sourceEvidenceId: row.sourceEvidenceId,
         confirmedEventId: row.confirmedEventId,
+        documentType: intelligence.DocumentType.values.byName(row.documentType),
+        reviewStatus: intelligence.CandidateReviewStatus.values.byName(
+          row.reviewStatus,
+        ),
+        overallConfidence: row.overallConfidence,
+        possibleDuplicateEventId: row.possibleDuplicateEventId,
       );
 
   static db.FieldProvenanceRowsCompanion provenanceToCompanion(
