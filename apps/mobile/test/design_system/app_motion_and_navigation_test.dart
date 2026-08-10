@@ -48,6 +48,43 @@ void main() {
     expect(selected, 2);
   });
 
+  testWidgets('nested app bars use the tokenized AppIcons back affordance', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        home: Builder(
+          builder: (context) => AppButton(
+            label: 'Open detail',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (context) => AppScaffold(
+                  appBar: AppBar(title: const Text('Detail')),
+                  body: const Text('Nested content'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open detail'));
+    await tester.pumpAndSettle();
+
+    final backButton = find.byType(BackButton);
+    expect(backButton, findsOneWidget);
+    final appIcon = tester.widget<AppIcon>(
+      find.descendant(of: backButton, matching: find.byType(AppIcon)),
+    );
+    expect(appIcon.icon, same(AppIcons.back));
+
+    await tester.tap(backButton);
+    await tester.pumpAndSettle();
+    expect(find.text('Open detail'), findsOneWidget);
+  });
+
   testWidgets('AppBottomSheet supplies explicit accessible close control', (
     tester,
   ) async {

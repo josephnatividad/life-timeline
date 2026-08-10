@@ -43,19 +43,41 @@ final class TimelineHomePage extends ConsumerWidget {
           ),
         ),
         data: (values) => values.isEmpty
-            ? Center(
-                child: AppEmptyState(
-                  title: 'Your story starts here.',
-                  message: 'Add a memory from any time in your life.',
-                  actionLabel: 'Add memory',
-                  icon: AppIcons.timeline,
-                  onAction: () => context.pushNamed(AppRoute.addMemory.name),
-                ),
-              )
+            ? const _EmptyTimeline()
             : _TimelineList(memories: values),
       ),
     );
   }
+}
+
+final class _EmptyTimeline extends StatelessWidget {
+  const _EmptyTimeline();
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppEmptyState(
+            title: 'Your story starts here.',
+            message: 'Add a memory from any time in your life.',
+            actionLabel: 'Add memory',
+            icon: AppIcons.timeline,
+            onAction: () => context.pushNamed(AppRoute.addMemory.name),
+          ),
+          AppButton(
+            key: const Key('restore-existing-timeline'),
+            label: 'Restore existing timeline',
+            icon: AppIcons.database,
+            variant: AppButtonVariant.tertiary,
+            onPressed: () => context.pushNamed(AppRoute.restoreEntry.name),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+        ],
+      ),
+    ),
+  );
 }
 
 final class _TimelineList extends StatelessWidget {

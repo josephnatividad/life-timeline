@@ -4,9 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:life_timeline/app/navigation/app_navigation_shell.dart';
 import 'package:life_timeline/app/navigation/app_routes.dart';
 import 'package:life_timeline/design_system/components/overlays/app_bottom_sheet.dart';
+import 'package:life_timeline/features/backup/presentation/create_backup_pages.dart';
+import 'package:life_timeline/features/backup/presentation/restore_pages.dart';
 import 'package:life_timeline/features/capture/presentation/capture_foundation_sheet.dart';
 import 'package:life_timeline/features/explore/presentation/explore_foundation_page.dart';
 import 'package:life_timeline/features/search/presentation/memory_search_page.dart';
+import 'package:life_timeline/features/security/presentation/security_settings_page.dart';
+import 'package:life_timeline/features/security/presentation/set_pin_page.dart';
 import 'package:life_timeline/features/settings/presentation/you_foundation_page.dart';
 import 'package:life_timeline/features/stories/presentation/stories_foundation_page.dart';
 import 'package:life_timeline/features/timeline/presentation/archive_page.dart';
@@ -88,6 +92,61 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoute.archive.name,
         path: AppRoute.archive.path,
         builder: (context, state) => const ArchivePage(),
+      ),
+      GoRoute(
+        name: AppRoute.security.name,
+        path: AppRoute.security.path,
+        builder: (context, state) => const SecuritySettingsPage(),
+      ),
+      GoRoute(
+        name: AppRoute.setPin.name,
+        path: AppRoute.setPin.path,
+        builder: (context, state) => const SetPinPage(),
+      ),
+      GoRoute(
+        name: AppRoute.createBackup.name,
+        path: AppRoute.createBackup.path,
+        builder: (context, state) => const CreateBackupPage(),
+      ),
+      GoRoute(
+        name: AppRoute.backupProgress.name,
+        path: AppRoute.backupProgress.path,
+        builder: (context, state) => const BackupProgressPage(),
+      ),
+      GoRoute(
+        name: AppRoute.backupComplete.name,
+        path: AppRoute.backupComplete.path,
+        builder: (context, state) => const BackupCompletePage(),
+      ),
+      GoRoute(
+        name: AppRoute.restoreEntry.name,
+        path: AppRoute.restoreEntry.path,
+        builder: (context, state) => const RestoreEntryPage(),
+      ),
+      GoRoute(
+        name: AppRoute.chooseBackup.name,
+        path: AppRoute.chooseBackup.path,
+        builder: (context, state) => const ChooseBackupPage(),
+      ),
+      GoRoute(
+        name: AppRoute.enterRecoveryPassword.name,
+        path: AppRoute.enterRecoveryPassword.path,
+        builder: (context, state) => const EnterRecoveryPasswordPage(),
+      ),
+      GoRoute(
+        name: AppRoute.restorePreview.name,
+        path: AppRoute.restorePreview.path,
+        builder: (context, state) => const RestorePreviewPage(),
+      ),
+      GoRoute(
+        name: AppRoute.restoreProgress.name,
+        path: AppRoute.restoreProgress.path,
+        builder: (context, state) => const RestoreProgressPage(),
+      ),
+      GoRoute(
+        name: AppRoute.restoreResult.name,
+        path: AppRoute.restoreResult.path,
+        builder: (context, state) => const RestoreResultPage(),
       ),
     ],
   );

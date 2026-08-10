@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:life_timeline/design_system/icons/app_icons.dart';
 import 'package:life_timeline/design_system/motion/app_page_transitions.dart';
 import 'package:life_timeline/design_system/tokens/app_colors.dart';
 import 'package:life_timeline/design_system/tokens/app_elevation.dart';
@@ -87,6 +88,15 @@ abstract final class AppTheme {
     );
 
     return ThemeData(
+      actionIconTheme: ActionIconThemeData(
+        backButtonIconBuilder: (context) => AppIcon(
+          icon: Directionality.of(context) == TextDirection.rtl
+              ? AppIcons.next
+              : AppIcons.back,
+        ),
+        closeButtonIconBuilder: (context) =>
+            const AppIcon(icon: AppIcons.close),
+      ),
       brightness: brightness,
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: surface,

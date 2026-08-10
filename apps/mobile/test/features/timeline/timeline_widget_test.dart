@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:life_timeline/app/life_timeline_app.dart';
 import 'package:life_timeline/design_system/design_system.dart';
+import 'package:life_timeline/features/security/application/security_providers.dart';
 import 'package:life_timeline/features/timeline/application/memory_editor_draft.dart';
 import 'package:life_timeline/features/timeline/application/timeline_providers.dart';
 import 'package:life_timeline/features/timeline/presentation/memory_detail_page.dart';
@@ -18,6 +19,8 @@ import 'package:life_timeline/shared/domain/model/record_metadata.dart';
 import 'package:life_timeline/shared/domain/model/temporal_value.dart';
 import 'package:life_timeline/shared/domain/model/timeline_models.dart';
 
+import '../../helpers/security_test_controller.dart';
+
 void main() {
   testWidgets('empty timeline explains the next action', (tester) async {
     final database = AppDatabase.forTesting(NativeDatabase.memory());
@@ -26,6 +29,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          securityControllerProvider.overrideWith(
+            UnlockedSecurityController.new,
+          ),
           appDatabaseProvider.overrideWithValue(database),
           timelineMemoriesProvider.overrideWith((ref) => Stream.value([])),
         ],
@@ -182,6 +188,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          securityControllerProvider.overrideWith(
+            UnlockedSecurityController.new,
+          ),
           appDatabaseProvider.overrideWithValue(database),
           timelineMemoriesProvider.overrideWith(
             (ref) => Stream.value([_memory()]),

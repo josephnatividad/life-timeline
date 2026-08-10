@@ -1,13 +1,19 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:life_timeline/app/life_timeline_app.dart';
+import 'package:life_timeline/features/security/application/security_providers.dart';
 import 'package:life_timeline/features/timeline/application/timeline_providers.dart';
+
+import '../helpers/security_test_controller.dart';
 
 void main() {
   testWidgets('boots the navigation foundation', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          securityControllerProvider.overrideWith(
+            UnlockedSecurityController.new,
+          ),
           timelineMemoriesProvider.overrideWith((ref) => Stream.value([])),
         ],
         child: const LifeTimelineApp(),
@@ -29,6 +35,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          securityControllerProvider.overrideWith(
+            UnlockedSecurityController.new,
+          ),
           timelineMemoriesProvider.overrideWith((ref) => Stream.value([])),
         ],
         child: const LifeTimelineApp(),
