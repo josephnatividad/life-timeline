@@ -5,6 +5,7 @@ enum AppRoute {
   editMemory(name: 'edit-memory', path: '/memory/:memoryId/edit'),
   search(name: 'search', path: '/search'),
   archive(name: 'archive', path: '/archive'),
+  trash(name: 'trash', path: '/trash'),
   memoryInbox(name: 'memory-inbox', path: '/inbox'),
   candidateReview(name: 'candidate-review', path: '/inbox/:candidateId'),
   security(name: 'security', path: '/security'),

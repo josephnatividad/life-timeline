@@ -22,6 +22,7 @@ final class RestoredDataRefreshCoordinator {
     _ref
       ..invalidate(timelineMemoriesProvider)
       ..invalidate(archivedMemoriesProvider)
+      ..invalidate(trashedMemoriesProvider)
       ..invalidate(memoryDetailProvider)
       ..invalidate(memorySearchProvider)
       ..invalidate(pendingCandidatesProvider)

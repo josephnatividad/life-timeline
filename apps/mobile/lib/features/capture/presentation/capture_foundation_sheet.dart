@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:life_timeline/design_system/components/feedback/app_badge.dart';
 import 'package:life_timeline/design_system/components/overlays/app_bottom_sheet.dart';
 import 'package:life_timeline/design_system/icons/app_icons.dart';
+import 'package:life_timeline/design_system/tokens/app_icon_size.dart';
 import 'package:life_timeline/design_system/tokens/app_spacing.dart';
 import 'package:life_timeline/features/private_intelligence/application/capture_intelligence_use_case.dart';
 import 'package:life_timeline/features/private_intelligence/application/intelligence_providers.dart';
@@ -40,7 +41,7 @@ final class _CaptureFoundationSheetState
           const AppIcon(
             icon: AppIcons.capture,
             semanticLabel: 'Capture',
-            size: 32,
+            size: AppIconSize.signature,
           ),
           const SizedBox(height: AppSpacing.sm),
           const Text(

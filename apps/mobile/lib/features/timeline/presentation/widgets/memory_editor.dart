@@ -125,6 +125,9 @@ final class _MemoryEditorState extends ConsumerState<MemoryEditor> {
       const SizedBox(height: AppSpacing.md),
       ExpansionTile(
         key: const Key('memory-more-details'),
+        initiallyExpanded:
+            _description.text.trim().isNotEmpty ||
+            _relatedEntity.text.trim().isNotEmpty,
         tilePadding: EdgeInsets.zero,
         childrenPadding: const EdgeInsets.only(bottom: AppSpacing.sm),
         title: const Text('More details'),

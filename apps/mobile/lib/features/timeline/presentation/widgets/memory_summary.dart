@@ -74,7 +74,7 @@ final class MemorySummary extends StatelessWidget {
         const SizedBox(height: AppSpacing.sm),
         const AppEmptyState(
           title: 'No evidence attached',
-          message: 'Attachment support will arrive in a later Phase 1 slice.',
+          message: 'Supporting photos and documents will appear here.',
           icon: AppIcons.image,
         ),
         const SizedBox(height: AppSpacing.xl),

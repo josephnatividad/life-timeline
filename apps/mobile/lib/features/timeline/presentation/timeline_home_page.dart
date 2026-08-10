@@ -28,11 +28,6 @@ final class TimelineHomePage extends ConsumerWidget {
             label: 'Search memories',
             onPressed: () => context.pushNamed(AppRoute.search.name),
           ),
-          AppIconButton(
-            icon: AppIcons.database,
-            label: 'Archived memories',
-            onPressed: () => context.pushNamed(AppRoute.archive.name),
-          ),
         ],
       ),
       body: memories.when(

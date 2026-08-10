@@ -241,7 +241,7 @@ final class _CandidateReviewFormState
           );
       ref.invalidate(pendingCandidatesProvider);
       if (!mounted) return;
-      context.goNamed(
+      context.pushReplacementNamed(
         AppRoute.memoryDetail.name,
         pathParameters: {'memoryId': eventId},
       );

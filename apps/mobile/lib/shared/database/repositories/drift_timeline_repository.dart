@@ -20,6 +20,12 @@ final class DriftTimelineRepository implements TimelineRepository {
       ).watch().map((rows) => rows.map(_memoryFromRow).toList());
 
   @override
+  Stream<List<TimelineMemory>> watchTrashedMemories() => _memoryQuery(
+    whereSql: 'e.lifecycle = ?',
+    variables: [const Variable<String>('soft_deleted')],
+  ).watch().map((rows) => rows.map(_memoryFromRow).toList());
+
+  @override
   Future<TimelineMemory?> memoryById(String id) async {
     final rows = await _memoryQuery(
       whereSql: "e.id = ? AND e.lifecycle IN ('confirmed', 'archived')",
@@ -368,6 +374,138 @@ final class DriftTimelineRepository implements TimelineRepository {
       await _refreshEventSearchIndex(id);
     });
   }
+
+  @override
+  Future<void> restoreSoftDeletedEvent(String id, DateTime restoredAt) async {
+    final at = restoredAt.toUtc();
+    await _database.transaction(() async {
+      await (_database.update(_database.events)..where(
+            (row) => row.id.equals(id) & row.lifecycle.equals('soft_deleted'),
+          ))
+          .write(
+            db.EventsCompanion(
+              lifecycle: const Value('confirmed'),
+              updatedAt: Value(at),
+              deletedAt: const Value(null),
+            ),
+          );
+      await _refreshEventSearchIndex(id);
+    });
+  }
+
+  @override
+  Future<PermanentMemoryDeletion> permanentlyDeleteEvent(
+    String id,
+  ) => _database.transaction(() async {
+    final event = await (_database.select(
+      _database.events,
+    )..where((row) => row.id.equals(id))).getSingleOrNull();
+    if (event == null || event.lifecycle != 'soft_deleted') {
+      throw StateError(
+        'Only a memory currently in Trash can be permanently deleted.',
+      );
+    }
+
+    final relationships =
+        await (_database.select(_database.relationships)..where(
+              (row) =>
+                  row.sourceEventId.equals(id) | row.targetEventId.equals(id),
+            ))
+            .get();
+    final candidateRows = await (_database.select(
+      _database.memoryCandidates,
+    )..where((row) => row.confirmedEventId.equals(id))).get();
+    final associatedEvidenceIds = <String>{
+      for (final relationship in relationships) ?relationship.sourceEvidenceId,
+      for (final relationship in relationships) ?relationship.targetEvidenceId,
+      for (final candidate in candidateRows) ?candidate.sourceEvidenceId,
+    };
+
+    await (_database.delete(
+      _database.memoryCandidates,
+    )..where((row) => row.confirmedEventId.equals(id))).go();
+    await (_database.delete(_database.relationships)..where(
+          (row) => row.sourceEventId.equals(id) | row.targetEventId.equals(id),
+        ))
+        .go();
+
+    final managedPaths = <String>{};
+    for (final evidenceId in associatedEvidenceIds) {
+      final relationshipReference =
+          await (_database.selectOnly(_database.relationships)
+                ..addColumns([_database.relationships.id.count()])
+                ..where(
+                  _database.relationships.sourceEvidenceId.equals(evidenceId) |
+                      _database.relationships.targetEvidenceId.equals(
+                        evidenceId,
+                      ),
+                ))
+              .map((row) => row.read(_database.relationships.id.count()) ?? 0)
+              .getSingle();
+      final candidateReference =
+          await (_database.selectOnly(_database.memoryCandidates)
+                ..addColumns([_database.memoryCandidates.id.count()])
+                ..where(
+                  _database.memoryCandidates.sourceEvidenceId.equals(
+                    evidenceId,
+                  ),
+                ))
+              .map(
+                (row) => row.read(_database.memoryCandidates.id.count()) ?? 0,
+              )
+              .getSingle();
+      final provenanceReference =
+          await (_database.selectOnly(_database.fieldProvenanceRows)
+                ..addColumns([_database.fieldProvenanceRows.id.count()])
+                ..where(
+                  _database.fieldProvenanceRows.sourceId.equals(evidenceId) &
+                      (_database.fieldProvenanceRows.eventId.isNull() |
+                          _database.fieldProvenanceRows.eventId
+                              .equals(id)
+                              .not()),
+                ))
+              .map(
+                (row) =>
+                    row.read(_database.fieldProvenanceRows.id.count()) ?? 0,
+              )
+              .getSingle();
+      if (relationshipReference != 0 ||
+          candidateReference != 0 ||
+          provenanceReference != 0) {
+        continue;
+      }
+
+      final attachments = await (_database.select(
+        _database.attachments,
+      )..where((row) => row.evidenceId.equals(evidenceId))).get();
+      for (final attachment in attachments) {
+        if (attachment.storageState == 'local' &&
+            attachment.relativePath != null) {
+          managedPaths.add(attachment.relativePath!);
+        }
+        if (attachment.thumbnailRelativePath != null) {
+          managedPaths.add(attachment.thumbnailRelativePath!);
+        }
+      }
+      await (_database.delete(
+        _database.attachments,
+      )..where((row) => row.evidenceId.equals(evidenceId))).go();
+      await (_database.delete(
+        _database.evidenceRecords,
+      )..where((row) => row.id.equals(evidenceId))).go();
+    }
+
+    await (_database.delete(
+      _database.events,
+    )..where((row) => row.id.equals(id))).go();
+    await _database.customStatement(
+      'DELETE FROM event_search WHERE event_id = ?',
+      [id],
+    );
+    return PermanentMemoryDeletion(
+      managedRelativePaths: List.unmodifiable(managedPaths),
+    );
+  });
 
   @override
   Future<void> softDeleteEvidence(String id, DateTime deletedAt) async {

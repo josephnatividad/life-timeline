@@ -30,41 +30,54 @@ final class MemoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final content = Padding(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (image case final image?) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(AppRadius.smallControl),
-              child: image,
-            ),
-            const SizedBox(width: AppSpacing.md),
-          ],
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: Theme.of(context).textTheme.titleLarge),
-                if (metadata case final metadata?) ...[
-                  const SizedBox(height: AppSpacing.xxs),
-                  Text(metadata, style: Theme.of(context).textTheme.labelSmall),
-                ],
-                if (subtitle case final subtitle?) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
-                ],
-                if (badge case final badge?) ...[
-                  const SizedBox(height: AppSpacing.sm),
-                  Align(alignment: Alignment.centerLeft, child: badge),
-                ],
-              ],
-            ),
+    final useStackedActions =
+        trailing != null && MediaQuery.textScalerOf(context).scale(1) >= 1.3;
+    final summary = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (image case final image?) ...[
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.smallControl),
+            child: image,
           ),
+          const SizedBox(width: AppSpacing.md),
+        ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: Theme.of(context).textTheme.titleLarge),
+              if (metadata case final metadata?) ...[
+                const SizedBox(height: AppSpacing.xxs),
+                Text(metadata, style: Theme.of(context).textTheme.labelSmall),
+              ],
+              if (subtitle case final subtitle?) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(subtitle, style: Theme.of(context).textTheme.bodyMedium),
+              ],
+              if (badge case final badge?) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Align(alignment: Alignment.centerLeft, child: badge),
+              ],
+            ],
+          ),
+        ),
+        if (!useStackedActions)
           if (trailing case final trailing?) ...[
             const SizedBox(width: AppSpacing.sm),
             trailing,
+          ],
+      ],
+    );
+    final content = Padding(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          summary,
+          if (useStackedActions) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Align(alignment: Alignment.centerRight, child: trailing),
           ],
         ],
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:life_timeline/design_system/components/layout/app_scaffold.dart';
 import 'package:life_timeline/design_system/icons/app_icons.dart';
+import 'package:life_timeline/design_system/tokens/app_icon_size.dart';
 import 'package:life_timeline/design_system/tokens/app_spacing.dart';
 
 final class FoundationDestinationView extends StatelessWidget {
@@ -29,7 +30,7 @@ final class FoundationDestinationView extends StatelessWidget {
               AppIcon(
                 icon: icon,
                 semanticLabel: '$title destination',
-                size: 32,
+                size: AppIconSize.signature,
               ),
               const SizedBox(height: AppSpacing.md),
               Semantics(

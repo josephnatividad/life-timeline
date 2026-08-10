@@ -133,6 +133,43 @@ void main() {
     expect(find.text('Loading local records'), findsOneWidget);
     expect(find.text('Try again'), findsOneWidget);
   });
+
+  testWidgets('MemoryCard stacks lifecycle actions at large text scale', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _TestApp(
+        textScaler: const TextScaler.linear(2),
+        child: SizedBox(
+          width: 320,
+          child: MemoryCard(
+            title: 'A meaningful memory with a descriptive title',
+            metadata: 'Approximately 2024',
+            subtitle: 'Personal milestone',
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppIconButton(
+                  icon: AppIcons.restore,
+                  label: 'Restore memory',
+                  onPressed: () {},
+                ),
+                AppIconButton(
+                  icon: AppIcons.trash,
+                  label: 'Move memory to Trash',
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.byTooltip('Restore memory'), findsOneWidget);
+    expect(find.byTooltip('Move memory to Trash'), findsOneWidget);
+  });
 }
 
 final class _TestApp extends StatelessWidget {

@@ -189,3 +189,42 @@ final class SetMemoryArchiveStateUseCase {
   Future<void> restore(String id) =>
       _repository.restoreEvent(id, _now().toUtc());
 }
+
+abstract interface class ManagedAttachmentCleanup {
+  Future<void> deleteManagedFiles(Iterable<String> relativePaths);
+}
+
+final class DeleteMemoryUseCase {
+  const DeleteMemoryUseCase(
+    this._repository,
+    this._attachmentCleanup, {
+    DateTime Function()? now,
+  }) : _now = now ?? DateTime.now;
+
+  final ManagedAttachmentCleanup _attachmentCleanup;
+  final DateTime Function() _now;
+  final TimelineRepository _repository;
+
+  Future<void> moveToTrash(String id) =>
+      _repository.softDeleteEvent(id, _now().toUtc());
+
+  Future<void> restoreFromTrash(String id) =>
+      _repository.restoreSoftDeletedEvent(id, _now().toUtc());
+
+  /// Returns whether every app-managed attachment copy was removed.
+  ///
+  /// The database deletion remains authoritative. Cleanup is deliberately
+  /// best-effort because a filesystem failure must not make the UI claim that
+  /// a database transaction was rolled back after it already committed.
+  Future<bool> permanentlyDelete(String id) async {
+    final deletion = await _repository.permanentlyDeleteEvent(id);
+    try {
+      await _attachmentCleanup.deleteManagedFiles(
+        deletion.managedRelativePaths,
+      );
+      return true;
+    } on Object {
+      return false;
+    }
+  }
+}

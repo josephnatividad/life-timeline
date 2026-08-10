@@ -19,6 +19,7 @@ import 'package:life_timeline/features/timeline/presentation/archive_page.dart';
 import 'package:life_timeline/features/timeline/presentation/memory_detail_page.dart';
 import 'package:life_timeline/features/timeline/presentation/memory_editor_page.dart';
 import 'package:life_timeline/features/timeline/presentation/timeline_home_page.dart';
+import 'package:life_timeline/features/timeline/presentation/trash_page.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
@@ -94,6 +95,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoute.archive.name,
         path: AppRoute.archive.path,
         builder: (context, state) => const ArchivePage(),
+      ),
+      GoRoute(
+        name: AppRoute.trash.name,
+        path: AppRoute.trash.path,
+        builder: (context, state) => const TrashPage(),
       ),
       GoRoute(
         name: AppRoute.memoryInbox.name,

@@ -20,12 +20,17 @@ final class MemoryDetailPage extends ConsumerWidget {
         title: const Text('Memory'),
         actions: [
           AppIconButton(
-            icon: AppIcons.settings,
+            icon: AppIcons.edit,
             label: 'Edit memory',
             onPressed: () => context.pushNamed(
               AppRoute.editMemory.name,
               pathParameters: {'memoryId': memoryId},
             ),
+          ),
+          AppIconButton(
+            icon: AppIcons.more,
+            label: 'Memory options',
+            onPressed: () => _showActions(context, ref),
           ),
         ],
       ),
@@ -51,29 +56,7 @@ final class MemoryDetailPage extends ConsumerWidget {
                 child: ScreenContainer(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      MemorySummary(memory: value),
-                      const SizedBox(height: AppSpacing.xl),
-                      if (value.event.metadata.lifecycle ==
-                          RecordLifecycle.archived)
-                        AppButton(
-                          key: const Key('restore-memory'),
-                          label: 'Restore to timeline',
-                          icon: AppIcons.success,
-                          variant: AppButtonVariant.secondary,
-                          expanded: true,
-                          onPressed: () => _restore(context, ref),
-                        )
-                      else
-                        AppButton(
-                          key: const Key('archive-memory'),
-                          label: 'Archive memory',
-                          icon: AppIcons.database,
-                          variant: AppButtonVariant.secondary,
-                          expanded: true,
-                          onPressed: () => _archive(context, ref),
-                        ),
-                    ],
+                    children: [MemorySummary(memory: value)],
                   ),
                 ),
               ),
@@ -81,13 +64,81 @@ final class MemoryDetailPage extends ConsumerWidget {
     );
   }
 
+  Future<void> _showActions(BuildContext context, WidgetRef ref) async {
+    final memory = ref.read(memoryDetailProvider(memoryId)).value;
+    if (memory == null) return;
+    await AppBottomSheet.show<void>(
+      context: context,
+      builder: (sheetContext) => AppBottomSheet(
+        title: 'Memory options',
+        description:
+            'Archive keeps history preserved. Trash is for mistakes or records you no longer want.',
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (memory.event.metadata.lifecycle == RecordLifecycle.archived)
+              ListTile(
+                key: const Key('restore-memory'),
+                contentPadding: EdgeInsets.zero,
+                leading: const AppIcon(icon: AppIcons.restore),
+                title: const Text('Restore to timeline'),
+                subtitle: const Text('Make this memory active again'),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _restore(context, ref);
+                },
+              )
+            else
+              ListTile(
+                key: const Key('archive-memory'),
+                contentPadding: EdgeInsets.zero,
+                leading: const AppIcon(icon: AppIcons.archive),
+                title: const Text('Archive memory'),
+                subtitle: const Text('Preserve it outside the active timeline'),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _archive(context, ref);
+                },
+              ),
+            ListTile(
+              key: const Key('trash-memory'),
+              contentPadding: EdgeInsets.zero,
+              leading: AppIcon(
+                icon: AppIcons.trash,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              title: Text(
+                'Move to Trash',
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              subtitle: const Text('You can restore it before deleting it'),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _trash(context, ref);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _archive(BuildContext context, WidgetRef ref) async {
     await ref.read(setMemoryArchiveStateUseCaseProvider).archive(memoryId);
     if (context.mounted) {
+      final messenger = ScaffoldMessenger.of(context);
       context.goNamed(AppRoute.timeline.name);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Memory archived.')));
+      messenger.showSnackBar(
+        SnackBar(
+          content: const Text('Memory archived.'),
+          action: SnackBarAction(
+            label: 'Undo',
+            onPressed: () => ref
+                .read(setMemoryArchiveStateUseCaseProvider)
+                .restore(memoryId),
+          ),
+        ),
+      );
     }
   }
 
@@ -99,5 +150,22 @@ final class MemoryDetailPage extends ConsumerWidget {
         const SnackBar(content: Text('Memory restored to your timeline.')),
       );
     }
+  }
+
+  Future<void> _trash(BuildContext context, WidgetRef ref) async {
+    await ref.read(deleteMemoryUseCaseProvider).moveToTrash(memoryId);
+    if (!context.mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    context.goNamed(AppRoute.timeline.name);
+    messenger.showSnackBar(
+      SnackBar(
+        content: const Text('Memory moved to Trash.'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () =>
+              ref.read(deleteMemoryUseCaseProvider).restoreFromTrash(memoryId),
+        ),
+      ),
+    );
   }
 }

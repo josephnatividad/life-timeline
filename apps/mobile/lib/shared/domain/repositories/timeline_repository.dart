@@ -5,6 +5,7 @@ import 'package:life_timeline/shared/domain/model/timeline_models.dart';
 
 abstract interface class TimelineRepository {
   Stream<List<TimelineMemory>> watchMemories({bool archived = false});
+  Stream<List<TimelineMemory>> watchTrashedMemories();
   Future<TimelineMemory?> memoryById(String id);
   Future<List<MemorySearchResult>> searchMemories(String query);
   Future<void> saveMemory(
@@ -40,7 +41,15 @@ abstract interface class TimelineRepository {
   );
   Future<void> softDeleteEntity(String id, DateTime deletedAt);
   Future<void> softDeleteEvent(String id, DateTime deletedAt);
+  Future<void> restoreSoftDeletedEvent(String id, DateTime restoredAt);
+  Future<PermanentMemoryDeletion> permanentlyDeleteEvent(String id);
   Future<void> softDeleteEvidence(String id, DateTime deletedAt);
+}
+
+final class PermanentMemoryDeletion {
+  const PermanentMemoryDeletion({this.managedRelativePaths = const []});
+
+  final List<String> managedRelativePaths;
 }
 
 abstract interface class MemoryCandidateRepository {
