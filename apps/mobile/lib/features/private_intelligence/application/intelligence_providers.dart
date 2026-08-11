@@ -8,15 +8,12 @@ import 'package:life_timeline/features/private_intelligence/domain/document_inte
 import 'package:life_timeline/features/private_intelligence/domain/intelligence_models.dart';
 import 'package:life_timeline/features/private_intelligence/infrastructure/drift_intelligence_services.dart';
 import 'package:life_timeline/features/private_intelligence/infrastructure/mobile_intelligence_adapters.dart';
+import 'package:life_timeline/shared/application/entitlement_providers.dart';
 import 'package:life_timeline/shared/database/app_database_provider.dart';
 import 'package:life_timeline/shared/domain/model/memory_candidate.dart';
 
 final complimentaryUsagePolicyProvider = Provider(
   (ref) => const ComplimentaryUsagePolicy(aiCaptureActions: 10),
-);
-
-final entitlementServiceProvider = Provider<EntitlementService>(
-  (ref) => const LocalEntitlementService(),
 );
 
 final featureUsageRepositoryProvider = Provider<FeatureUsageRepository>(

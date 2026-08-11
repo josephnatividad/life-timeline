@@ -35,6 +35,8 @@ abstract final class AppIcons {
   static const time = HugeIcons.strokeRoundedClock01;
   static const image = HugeIcons.strokeRoundedImage01;
   static const lock = HugeIcons.strokeRoundedLock;
+  static const share = HugeIcons.strokeRoundedShare08;
+  static const preview = HugeIcons.strokeRoundedView;
 }
 
 enum AppSignatureIconKind {

@@ -15,7 +15,11 @@ import 'package:life_timeline/features/search/presentation/memory_search_page.da
 import 'package:life_timeline/features/security/presentation/security_settings_page.dart';
 import 'package:life_timeline/features/security/presentation/set_pin_page.dart';
 import 'package:life_timeline/features/settings/presentation/you_foundation_page.dart';
-import 'package:life_timeline/features/stories/presentation/stories_foundation_page.dart';
+import 'package:life_timeline/features/stories/domain/story_models.dart';
+import 'package:life_timeline/features/stories/presentation/stories_home_page.dart';
+import 'package:life_timeline/features/stories/presentation/story_editor_page.dart';
+import 'package:life_timeline/features/stories/presentation/story_preview_page.dart';
+import 'package:life_timeline/features/stories/presentation/then_now_selection_page.dart';
 import 'package:life_timeline/features/timeline/presentation/archive_page.dart';
 import 'package:life_timeline/features/timeline/presentation/memory_detail_page.dart';
 import 'package:life_timeline/features/timeline/presentation/memory_editor_page.dart';
@@ -55,7 +59,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 name: AppRoute.stories.name,
                 path: AppRoute.stories.path,
-                builder: (context, state) => const StoriesFoundationPage(),
+                builder: (context, state) => const StoriesHomePage(),
               ),
             ],
           ),
@@ -97,6 +101,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoute.askMyLife.path,
         builder: (context, state) =>
             AskMyLifePage(initialQuestion: state.extra as String?),
+      ),
+      GoRoute(
+        name: AppRoute.storyEditor.name,
+        path: AppRoute.storyEditor.path,
+        redirect: (context, state) =>
+            state.extra is StorySource ? null : AppRoute.stories.path,
+        builder: (context, state) =>
+            StoryEditorPage(source: state.extra! as StorySource),
+      ),
+      GoRoute(
+        name: AppRoute.storyPreview.name,
+        path: AppRoute.storyPreview.path,
+        redirect: (context, state) =>
+            state.extra is StoryComposition ? null : AppRoute.stories.path,
+        builder: (context, state) =>
+            StoryPreviewPage(composition: state.extra! as StoryComposition),
+      ),
+      GoRoute(
+        name: AppRoute.thenNowSelection.name,
+        path: AppRoute.thenNowSelection.path,
+        builder: (context, state) => const ThenNowSelectionPage(),
       ),
       GoRoute(
         name: AppRoute.archive.name,

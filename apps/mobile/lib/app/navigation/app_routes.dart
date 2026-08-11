@@ -25,6 +25,9 @@ enum AppRoute {
   restoreResult(name: 'restore-result', path: '/restore/result'),
   explore(name: 'explore', path: '/explore'),
   stories(name: 'stories', path: '/stories'),
+  storyEditor(name: 'story-editor', path: '/stories/editor'),
+  storyPreview(name: 'story-preview', path: '/stories/preview'),
+  thenNowSelection(name: 'then-now-selection', path: '/stories/then-now'),
   you(name: 'you', path: '/you');
 
   const AppRoute({required this.name, required this.path});

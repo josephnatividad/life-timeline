@@ -1,4 +1,7 @@
 import 'package:life_timeline/shared/domain/model/record_metadata.dart';
+import 'package:life_timeline/shared/domain/services/entitlement_service.dart';
+
+export 'package:life_timeline/shared/domain/services/entitlement_service.dart';
 
 enum CaptureSource { scan, camera, photoLibrary, manual }
 
@@ -121,12 +124,6 @@ final class ExtractionResult {
   final List<ExtractedField> fields;
   final double overallConfidence;
   final String title;
-}
-
-enum ProFeature { aiCapture }
-
-abstract interface class EntitlementService {
-  Future<bool> hasAccess(ProFeature feature);
 }
 
 abstract interface class FeatureUsageRepository {

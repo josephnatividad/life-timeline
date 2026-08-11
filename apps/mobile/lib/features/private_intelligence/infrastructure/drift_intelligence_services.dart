@@ -30,11 +30,3 @@ final class DriftFeatureUsageRepository implements FeatureUsageRepository {
             );
       });
 }
-
-final class LocalEntitlementService implements EntitlementService {
-  const LocalEntitlementService({this.proEnabled = false});
-  final bool proEnabled;
-
-  @override
-  Future<bool> hasAccess(ProFeature feature) async => proEnabled;
-}

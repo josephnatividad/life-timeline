@@ -97,6 +97,7 @@ void main() {
         "package:http/",
         "package:dio/",
         "package:firebase_",
+        "package:life_timeline/features/private_intelligence/",
       ]) {
         if (source.contains(forbidden)) {
           violations.add('${file.path}: $forbidden');
@@ -105,6 +106,49 @@ void main() {
       final logging = RegExp(r'\b(?:debugPrint|print|developer\.log)\s*\(');
       if (logging.hasMatch(source)) {
         violations.add('${file.path}: personal-content logging API');
+      }
+    }
+    expect(violations, isEmpty, reason: violations.join('\n'));
+  });
+
+  test('Stories has no network client or personal-content logging', () {
+    final violations = <String>[];
+    for (final file in _dartFilesUnder(Directory('lib/features/stories'))) {
+      final source = file.readAsStringSync();
+      for (final forbidden in const [
+        "package:http/",
+        "package:dio/",
+        "package:firebase_",
+      ]) {
+        if (source.contains(forbidden)) {
+          violations.add('${file.path}: $forbidden');
+        }
+      }
+      final logging = RegExp(r'\b(?:debugPrint|print|developer\.log)\s*\(');
+      if (logging.hasMatch(source)) {
+        violations.add('${file.path}: personal-content logging API');
+      }
+    }
+    expect(violations, isEmpty, reason: violations.join('\n'));
+  });
+
+  test('platform sharing and image picking stay behind Story adapters', () {
+    final violations = <String>[];
+    for (final file in _dartFilesUnder(Directory('lib/features/stories'))) {
+      final normalized = file.path.replaceAll('\\', '/');
+      if (normalized.endsWith(
+        '/stories/infrastructure/platform_story_services.dart',
+      )) {
+        continue;
+      }
+      final source = file.readAsStringSync();
+      for (final forbidden in const [
+        'package:share_plus/',
+        'package:image_picker/',
+      ]) {
+        if (source.contains(forbidden)) {
+          violations.add('${file.path}: $forbidden');
+        }
       }
     }
     expect(violations, isEmpty, reason: violations.join('\n'));

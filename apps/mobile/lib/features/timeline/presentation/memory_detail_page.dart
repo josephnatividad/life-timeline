@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:life_timeline/app/navigation/app_routes.dart';
 import 'package:life_timeline/design_system/design_system.dart';
+import 'package:life_timeline/features/stories/application/story_providers.dart';
 import 'package:life_timeline/features/timeline/application/timeline_providers.dart';
 import 'package:life_timeline/features/timeline/presentation/widgets/memory_summary.dart';
 import 'package:life_timeline/shared/domain/model/record_metadata.dart';
@@ -76,6 +77,20 @@ final class MemoryDetailPage extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            if (memory.event.metadata.lifecycle == RecordLifecycle.confirmed)
+              ListTile(
+                key: const Key('create-memory-story'),
+                contentPadding: EdgeInsets.zero,
+                leading: const AppIcon(icon: AppIcons.stories),
+                title: const Text('Create Story'),
+                subtitle: const Text(
+                  'Review fields before a local share image is made',
+                ),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _createStory(context, ref);
+                },
+              ),
             if (memory.event.metadata.lifecycle == RecordLifecycle.archived)
               ListTile(
                 key: const Key('restore-memory'),
@@ -121,6 +136,20 @@ final class MemoryDetailPage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _createStory(BuildContext context, WidgetRef ref) async {
+    final source = await ref
+        .read(storySourceFactoryProvider)
+        .fromEvent(memoryId);
+    if (!context.mounted) return;
+    if (source == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('This memory cannot create a Story.')),
+      );
+      return;
+    }
+    await context.pushNamed(AppRoute.storyEditor.name, extra: source);
   }
 
   Future<void> _archive(BuildContext context, WidgetRef ref) async {
