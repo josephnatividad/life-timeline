@@ -5,6 +5,7 @@ import 'package:life_timeline/shared/database/tables/record_columns.dart';
 
 @TableIndex(name: 'entities_lifecycle_idx', columns: {#lifecycle})
 @TableIndex(name: 'entities_normalized_name_idx', columns: {#normalizedName})
+@TableIndex(name: 'entities_type_idx', columns: {#entityType})
 class Entities extends Table with RecordColumns {
   TextColumn get name => text()();
   TextColumn get normalizedName => text()();
@@ -19,6 +20,7 @@ class Entities extends Table with RecordColumns {
 }
 
 @TableIndex(name: 'events_lifecycle_idx', columns: {#lifecycle})
+@TableIndex(name: 'events_type_idx', columns: {#eventType})
 @TableIndex(
   name: 'events_temporal_start_idx',
   columns: {#startYear, #startMonth, #startDay},
@@ -110,6 +112,7 @@ class Attachments extends Table with RecordColumns {
   name: 'relationships_target_evidence_idx',
   columns: {#targetEvidenceId},
 )
+@TableIndex(name: 'relationships_type_idx', columns: {#relationshipType})
 class Relationships extends Table with RecordColumns {
   @ReferenceName('sourceEntityRelationships')
   TextColumn get sourceEntityId => text().nullable().references(

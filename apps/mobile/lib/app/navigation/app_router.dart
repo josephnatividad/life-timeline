@@ -8,6 +8,7 @@ import 'package:life_timeline/features/backup/presentation/create_backup_pages.d
 import 'package:life_timeline/features/backup/presentation/restore_pages.dart';
 import 'package:life_timeline/features/capture/presentation/capture_foundation_sheet.dart';
 import 'package:life_timeline/features/explore/presentation/explore_foundation_page.dart';
+import 'package:life_timeline/features/insights/presentation/ask_my_life_page.dart';
 import 'package:life_timeline/features/private_intelligence/presentation/candidate_review_page.dart';
 import 'package:life_timeline/features/private_intelligence/presentation/memory_inbox_page.dart';
 import 'package:life_timeline/features/search/presentation/memory_search_page.dart';
@@ -90,6 +91,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoute.search.name,
         path: AppRoute.search.path,
         builder: (context, state) => const MemorySearchPage(),
+      ),
+      GoRoute(
+        name: AppRoute.askMyLife.name,
+        path: AppRoute.askMyLife.path,
+        builder: (context, state) =>
+            AskMyLifePage(initialQuestion: state.extra as String?),
       ),
       GoRoute(
         name: AppRoute.archive.name,

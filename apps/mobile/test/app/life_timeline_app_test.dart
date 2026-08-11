@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:life_timeline/app/life_timeline_app.dart';
+import 'package:life_timeline/features/insights/application/explore_overview.dart';
+import 'package:life_timeline/features/insights/application/insights_providers.dart';
 import 'package:life_timeline/features/security/application/security_providers.dart';
 import 'package:life_timeline/features/timeline/application/timeline_providers.dart';
 
@@ -13,6 +15,9 @@ void main() {
         overrides: [
           securityControllerProvider.overrideWith(
             UnlockedSecurityController.new,
+          ),
+          exploreOverviewProvider.overrideWith(
+            (ref) async => _emptyExploreOverview(),
           ),
           timelineMemoriesProvider.overrideWith((ref) => Stream.value([])),
         ],
@@ -38,6 +43,9 @@ void main() {
           securityControllerProvider.overrideWith(
             UnlockedSecurityController.new,
           ),
+          exploreOverviewProvider.overrideWith(
+            (ref) async => _emptyExploreOverview(),
+          ),
           timelineMemoriesProvider.overrideWith((ref) => Stream.value([])),
         ],
         child: const LifeTimelineApp(),
@@ -47,10 +55,7 @@ void main() {
 
     await tester.tap(find.text('Explore'));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Explore feature implementation is intentionally deferred.'),
-      findsOneWidget,
-    );
+    expect(find.text('Patterns in your life'), findsOneWidget);
 
     await tester.tap(find.text('Capture'));
     await tester.pumpAndSettle();
@@ -58,9 +63,14 @@ void main() {
 
     await tester.tapAt(const Offset(8, 8));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Explore feature implementation is intentionally deferred.'),
-      findsOneWidget,
-    );
+    expect(find.text('Patterns in your life'), findsOneWidget);
   });
 }
+
+ExploreOverview _emptyExploreOverview() => ExploreOverview(
+  categories: const [],
+  insights: const [],
+  places: const [],
+  things: const [],
+  years: const [],
+);

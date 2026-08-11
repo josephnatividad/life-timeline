@@ -4,6 +4,7 @@ enum AppRoute {
   memoryDetail(name: 'memory-detail', path: '/memory/:memoryId'),
   editMemory(name: 'edit-memory', path: '/memory/:memoryId/edit'),
   search(name: 'search', path: '/search'),
+  askMyLife(name: 'ask-my-life', path: '/ask'),
   archive(name: 'archive', path: '/archive'),
   trash(name: 'trash', path: '/trash'),
   memoryInbox(name: 'memory-inbox', path: '/inbox'),

@@ -10335,6 +10335,347 @@ class EvidenceCategoriesCompanion extends UpdateCompanion<EvidenceCategory> {
   }
 }
 
+class $InsightDismissalsTable extends InsightDismissals
+    with TableInfo<$InsightDismissalsTable, InsightDismissal> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $InsightDismissalsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _insightTypeMeta = const VerificationMeta(
+    'insightType',
+  );
+  @override
+  late final GeneratedColumn<String> insightType = GeneratedColumn<String>(
+    'insight_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _subjectKeyMeta = const VerificationMeta(
+    'subjectKey',
+  );
+  @override
+  late final GeneratedColumn<String> subjectKey = GeneratedColumn<String>(
+    'subject_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _dataFingerprintMeta = const VerificationMeta(
+    'dataFingerprint',
+  );
+  @override
+  late final GeneratedColumn<String> dataFingerprint = GeneratedColumn<String>(
+    'data_fingerprint',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dismissedAtMeta = const VerificationMeta(
+    'dismissedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> dismissedAt = GeneratedColumn<DateTime>(
+    'dismissed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    insightType,
+    subjectKey,
+    dataFingerprint,
+    dismissedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'insight_dismissals';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<InsightDismissal> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('insight_type')) {
+      context.handle(
+        _insightTypeMeta,
+        insightType.isAcceptableOrUnknown(
+          data['insight_type']!,
+          _insightTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_insightTypeMeta);
+    }
+    if (data.containsKey('subject_key')) {
+      context.handle(
+        _subjectKeyMeta,
+        subjectKey.isAcceptableOrUnknown(data['subject_key']!, _subjectKeyMeta),
+      );
+    }
+    if (data.containsKey('data_fingerprint')) {
+      context.handle(
+        _dataFingerprintMeta,
+        dataFingerprint.isAcceptableOrUnknown(
+          data['data_fingerprint']!,
+          _dataFingerprintMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_dataFingerprintMeta);
+    }
+    if (data.containsKey('dismissed_at')) {
+      context.handle(
+        _dismissedAtMeta,
+        dismissedAt.isAcceptableOrUnknown(
+          data['dismissed_at']!,
+          _dismissedAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_dismissedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {
+    insightType,
+    subjectKey,
+    dataFingerprint,
+  };
+  @override
+  InsightDismissal map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return InsightDismissal(
+      insightType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}insight_type'],
+      )!,
+      subjectKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}subject_key'],
+      )!,
+      dataFingerprint: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}data_fingerprint'],
+      )!,
+      dismissedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}dismissed_at'],
+      )!,
+    );
+  }
+
+  @override
+  $InsightDismissalsTable createAlias(String alias) {
+    return $InsightDismissalsTable(attachedDatabase, alias);
+  }
+}
+
+class InsightDismissal extends DataClass
+    implements Insertable<InsightDismissal> {
+  final String insightType;
+  final String subjectKey;
+  final String dataFingerprint;
+  final DateTime dismissedAt;
+  const InsightDismissal({
+    required this.insightType,
+    required this.subjectKey,
+    required this.dataFingerprint,
+    required this.dismissedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['insight_type'] = Variable<String>(insightType);
+    map['subject_key'] = Variable<String>(subjectKey);
+    map['data_fingerprint'] = Variable<String>(dataFingerprint);
+    map['dismissed_at'] = Variable<DateTime>(dismissedAt);
+    return map;
+  }
+
+  InsightDismissalsCompanion toCompanion(bool nullToAbsent) {
+    return InsightDismissalsCompanion(
+      insightType: Value(insightType),
+      subjectKey: Value(subjectKey),
+      dataFingerprint: Value(dataFingerprint),
+      dismissedAt: Value(dismissedAt),
+    );
+  }
+
+  factory InsightDismissal.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return InsightDismissal(
+      insightType: serializer.fromJson<String>(json['insightType']),
+      subjectKey: serializer.fromJson<String>(json['subjectKey']),
+      dataFingerprint: serializer.fromJson<String>(json['dataFingerprint']),
+      dismissedAt: serializer.fromJson<DateTime>(json['dismissedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'insightType': serializer.toJson<String>(insightType),
+      'subjectKey': serializer.toJson<String>(subjectKey),
+      'dataFingerprint': serializer.toJson<String>(dataFingerprint),
+      'dismissedAt': serializer.toJson<DateTime>(dismissedAt),
+    };
+  }
+
+  InsightDismissal copyWith({
+    String? insightType,
+    String? subjectKey,
+    String? dataFingerprint,
+    DateTime? dismissedAt,
+  }) => InsightDismissal(
+    insightType: insightType ?? this.insightType,
+    subjectKey: subjectKey ?? this.subjectKey,
+    dataFingerprint: dataFingerprint ?? this.dataFingerprint,
+    dismissedAt: dismissedAt ?? this.dismissedAt,
+  );
+  InsightDismissal copyWithCompanion(InsightDismissalsCompanion data) {
+    return InsightDismissal(
+      insightType: data.insightType.present
+          ? data.insightType.value
+          : this.insightType,
+      subjectKey: data.subjectKey.present
+          ? data.subjectKey.value
+          : this.subjectKey,
+      dataFingerprint: data.dataFingerprint.present
+          ? data.dataFingerprint.value
+          : this.dataFingerprint,
+      dismissedAt: data.dismissedAt.present
+          ? data.dismissedAt.value
+          : this.dismissedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('InsightDismissal(')
+          ..write('insightType: $insightType, ')
+          ..write('subjectKey: $subjectKey, ')
+          ..write('dataFingerprint: $dataFingerprint, ')
+          ..write('dismissedAt: $dismissedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(insightType, subjectKey, dataFingerprint, dismissedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is InsightDismissal &&
+          other.insightType == this.insightType &&
+          other.subjectKey == this.subjectKey &&
+          other.dataFingerprint == this.dataFingerprint &&
+          other.dismissedAt == this.dismissedAt);
+}
+
+class InsightDismissalsCompanion extends UpdateCompanion<InsightDismissal> {
+  final Value<String> insightType;
+  final Value<String> subjectKey;
+  final Value<String> dataFingerprint;
+  final Value<DateTime> dismissedAt;
+  final Value<int> rowid;
+  const InsightDismissalsCompanion({
+    this.insightType = const Value.absent(),
+    this.subjectKey = const Value.absent(),
+    this.dataFingerprint = const Value.absent(),
+    this.dismissedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  InsightDismissalsCompanion.insert({
+    required String insightType,
+    this.subjectKey = const Value.absent(),
+    required String dataFingerprint,
+    required DateTime dismissedAt,
+    this.rowid = const Value.absent(),
+  }) : insightType = Value(insightType),
+       dataFingerprint = Value(dataFingerprint),
+       dismissedAt = Value(dismissedAt);
+  static Insertable<InsightDismissal> custom({
+    Expression<String>? insightType,
+    Expression<String>? subjectKey,
+    Expression<String>? dataFingerprint,
+    Expression<DateTime>? dismissedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (insightType != null) 'insight_type': insightType,
+      if (subjectKey != null) 'subject_key': subjectKey,
+      if (dataFingerprint != null) 'data_fingerprint': dataFingerprint,
+      if (dismissedAt != null) 'dismissed_at': dismissedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  InsightDismissalsCompanion copyWith({
+    Value<String>? insightType,
+    Value<String>? subjectKey,
+    Value<String>? dataFingerprint,
+    Value<DateTime>? dismissedAt,
+    Value<int>? rowid,
+  }) {
+    return InsightDismissalsCompanion(
+      insightType: insightType ?? this.insightType,
+      subjectKey: subjectKey ?? this.subjectKey,
+      dataFingerprint: dataFingerprint ?? this.dataFingerprint,
+      dismissedAt: dismissedAt ?? this.dismissedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (insightType.present) {
+      map['insight_type'] = Variable<String>(insightType.value);
+    }
+    if (subjectKey.present) {
+      map['subject_key'] = Variable<String>(subjectKey.value);
+    }
+    if (dataFingerprint.present) {
+      map['data_fingerprint'] = Variable<String>(dataFingerprint.value);
+    }
+    if (dismissedAt.present) {
+      map['dismissed_at'] = Variable<DateTime>(dismissedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('InsightDismissalsCompanion(')
+          ..write('insightType: $insightType, ')
+          ..write('subjectKey: $subjectKey, ')
+          ..write('dataFingerprint: $dataFingerprint, ')
+          ..write('dismissedAt: $dismissedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -10368,6 +10709,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $EvidenceCategoriesTable evidenceCategories =
       $EvidenceCategoriesTable(this);
+  late final $InsightDismissalsTable insightDismissals =
+      $InsightDismissalsTable(this);
   late final Index entitiesLifecycleIdx = Index(
     'entities_lifecycle_idx',
     'CREATE INDEX entities_lifecycle_idx ON entities (lifecycle)',
@@ -10376,9 +10719,17 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'entities_normalized_name_idx',
     'CREATE INDEX entities_normalized_name_idx ON entities (normalized_name)',
   );
+  late final Index entitiesTypeIdx = Index(
+    'entities_type_idx',
+    'CREATE INDEX entities_type_idx ON entities (entity_type)',
+  );
   late final Index eventsLifecycleIdx = Index(
     'events_lifecycle_idx',
     'CREATE INDEX events_lifecycle_idx ON events (lifecycle)',
+  );
+  late final Index eventsTypeIdx = Index(
+    'events_type_idx',
+    'CREATE INDEX events_type_idx ON events (event_type)',
   );
   late final Index eventsTemporalStartIdx = Index(
     'events_temporal_start_idx',
@@ -10415,6 +10766,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Index relationshipsTargetEvidenceIdx = Index(
     'relationships_target_evidence_idx',
     'CREATE INDEX relationships_target_evidence_idx ON relationships (target_evidence_id)',
+  );
+  late final Index relationshipsTypeIdx = Index(
+    'relationships_type_idx',
+    'CREATE INDEX relationships_type_idx ON relationships (relationship_type)',
   );
   late final Index attachmentsEvidenceIdx = Index(
     'attachments_evidence_idx',
@@ -10520,6 +10875,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'evidence_categories_category_idx',
     'CREATE INDEX evidence_categories_category_idx ON evidence_categories (category_id)',
   );
+  late final Index insightDismissalsDismissedAtIdx = Index(
+    'insight_dismissals_dismissed_at_idx',
+    'CREATE INDEX insight_dismissals_dismissed_at_idx ON insight_dismissals (dismissed_at)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -10543,9 +10902,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     entityCategories,
     eventCategories,
     evidenceCategories,
+    insightDismissals,
     entitiesLifecycleIdx,
     entitiesNormalizedNameIdx,
+    entitiesTypeIdx,
     eventsLifecycleIdx,
+    eventsTypeIdx,
     eventsTemporalStartIdx,
     evidenceLifecycleIdx,
     evidenceTypeIdx,
@@ -10555,6 +10917,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     relationshipsTargetEntityIdx,
     relationshipsTargetEventIdx,
     relationshipsTargetEvidenceIdx,
+    relationshipsTypeIdx,
     attachmentsEvidenceIdx,
     attachmentsStorageStateIdx,
     attachmentsChecksumIdx,
@@ -10581,6 +10944,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     entityCategoriesCategoryIdx,
     eventCategoriesCategoryIdx,
     evidenceCategoriesCategoryIdx,
+    insightDismissalsDismissedAtIdx,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -22166,6 +22530,208 @@ typedef $$EvidenceCategoriesTableProcessedTableManager =
       EvidenceCategory,
       PrefetchHooks Function({bool evidenceId, bool categoryId})
     >;
+typedef $$InsightDismissalsTableCreateCompanionBuilder =
+    InsightDismissalsCompanion Function({
+      required String insightType,
+      Value<String> subjectKey,
+      required String dataFingerprint,
+      required DateTime dismissedAt,
+      Value<int> rowid,
+    });
+typedef $$InsightDismissalsTableUpdateCompanionBuilder =
+    InsightDismissalsCompanion Function({
+      Value<String> insightType,
+      Value<String> subjectKey,
+      Value<String> dataFingerprint,
+      Value<DateTime> dismissedAt,
+      Value<int> rowid,
+    });
+
+class $$InsightDismissalsTableFilterComposer
+    extends Composer<_$AppDatabase, $InsightDismissalsTable> {
+  $$InsightDismissalsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get insightType => $composableBuilder(
+    column: $table.insightType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get subjectKey => $composableBuilder(
+    column: $table.subjectKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get dataFingerprint => $composableBuilder(
+    column: $table.dataFingerprint,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get dismissedAt => $composableBuilder(
+    column: $table.dismissedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$InsightDismissalsTableOrderingComposer
+    extends Composer<_$AppDatabase, $InsightDismissalsTable> {
+  $$InsightDismissalsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get insightType => $composableBuilder(
+    column: $table.insightType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get subjectKey => $composableBuilder(
+    column: $table.subjectKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get dataFingerprint => $composableBuilder(
+    column: $table.dataFingerprint,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dismissedAt => $composableBuilder(
+    column: $table.dismissedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$InsightDismissalsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $InsightDismissalsTable> {
+  $$InsightDismissalsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get insightType => $composableBuilder(
+    column: $table.insightType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get subjectKey => $composableBuilder(
+    column: $table.subjectKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get dataFingerprint => $composableBuilder(
+    column: $table.dataFingerprint,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get dismissedAt => $composableBuilder(
+    column: $table.dismissedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$InsightDismissalsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $InsightDismissalsTable,
+          InsightDismissal,
+          $$InsightDismissalsTableFilterComposer,
+          $$InsightDismissalsTableOrderingComposer,
+          $$InsightDismissalsTableAnnotationComposer,
+          $$InsightDismissalsTableCreateCompanionBuilder,
+          $$InsightDismissalsTableUpdateCompanionBuilder,
+          (
+            InsightDismissal,
+            BaseReferences<
+              _$AppDatabase,
+              $InsightDismissalsTable,
+              InsightDismissal
+            >,
+          ),
+          InsightDismissal,
+          PrefetchHooks Function()
+        > {
+  $$InsightDismissalsTableTableManager(
+    _$AppDatabase db,
+    $InsightDismissalsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$InsightDismissalsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$InsightDismissalsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$InsightDismissalsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> insightType = const Value.absent(),
+                Value<String> subjectKey = const Value.absent(),
+                Value<String> dataFingerprint = const Value.absent(),
+                Value<DateTime> dismissedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => InsightDismissalsCompanion(
+                insightType: insightType,
+                subjectKey: subjectKey,
+                dataFingerprint: dataFingerprint,
+                dismissedAt: dismissedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String insightType,
+                Value<String> subjectKey = const Value.absent(),
+                required String dataFingerprint,
+                required DateTime dismissedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => InsightDismissalsCompanion.insert(
+                insightType: insightType,
+                subjectKey: subjectKey,
+                dataFingerprint: dataFingerprint,
+                dismissedAt: dismissedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$InsightDismissalsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $InsightDismissalsTable,
+      InsightDismissal,
+      $$InsightDismissalsTableFilterComposer,
+      $$InsightDismissalsTableOrderingComposer,
+      $$InsightDismissalsTableAnnotationComposer,
+      $$InsightDismissalsTableCreateCompanionBuilder,
+      $$InsightDismissalsTableUpdateCompanionBuilder,
+      (
+        InsightDismissal,
+        BaseReferences<
+          _$AppDatabase,
+          $InsightDismissalsTable,
+          InsightDismissal
+        >,
+      ),
+      InsightDismissal,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -22211,4 +22777,6 @@ class $AppDatabaseManager {
       $$EventCategoriesTableTableManager(_db, _db.eventCategories);
   $$EvidenceCategoriesTableTableManager get evidenceCategories =>
       $$EvidenceCategoriesTableTableManager(_db, _db.evidenceCategories);
+  $$InsightDismissalsTableTableManager get insightDismissals =>
+      $$InsightDismissalsTableTableManager(_db, _db.insightDismissals);
 }

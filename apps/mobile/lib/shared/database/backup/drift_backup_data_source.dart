@@ -19,6 +19,7 @@ final class DriftBackupDataSource implements BackupDataSource {
     'candidate_entity_proposals',
     'field_provenance',
     'feature_usage',
+    'insight_dismissals',
     'entity_tags',
     'event_tags',
     'evidence_tags',

@@ -83,7 +83,7 @@ void main() {
       onProgress: (_) {},
     );
     expect(prepared.manifest.formatVersion, 1);
-    expect(prepared.manifest.databaseSchemaVersion, 4);
+    expect(prepared.manifest.databaseSchemaVersion, 5);
     expect(prepared.manifest.appVersion, '0.1.0+test');
     expect(prepared.manifest.attachmentCount, 1);
 

@@ -88,6 +88,27 @@ void main() {
       expect(violations, isEmpty, reason: violations.join('\n'));
     },
   );
+
+  test('Insights has no network client or personal-query logging', () {
+    final violations = <String>[];
+    for (final file in _dartFilesUnder(Directory('lib/features/insights'))) {
+      final source = file.readAsStringSync();
+      for (final forbidden in const [
+        "package:http/",
+        "package:dio/",
+        "package:firebase_",
+      ]) {
+        if (source.contains(forbidden)) {
+          violations.add('${file.path}: $forbidden');
+        }
+      }
+      final logging = RegExp(r'\b(?:debugPrint|print|developer\.log)\s*\(');
+      if (logging.hasMatch(source)) {
+        violations.add('${file.path}: personal-content logging API');
+      }
+    }
+    expect(violations, isEmpty, reason: violations.join('\n'));
+  });
 }
 
 Iterable<File> _dartFilesUnder(Directory directory) => directory

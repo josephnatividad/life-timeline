@@ -92,6 +92,29 @@ Future<void> migrateSchema(
             AND relative_path LIKE 'attachments/intelligence/%'
         ''');
         break;
+      case 5:
+        await database.customStatement('''
+          CREATE TABLE insight_dismissals (
+            insight_type TEXT NOT NULL,
+            subject_key TEXT NOT NULL DEFAULT '',
+            data_fingerprint TEXT NOT NULL,
+            dismissed_at INTEGER NOT NULL,
+            PRIMARY KEY (insight_type, subject_key, data_fingerprint)
+          )
+        ''');
+        await database.customStatement(
+          'CREATE INDEX insight_dismissals_dismissed_at_idx ON insight_dismissals(dismissed_at)',
+        );
+        await database.customStatement(
+          'CREATE INDEX entities_type_idx ON entities(entity_type)',
+        );
+        await database.customStatement(
+          'CREATE INDEX events_type_idx ON events(event_type)',
+        );
+        await database.customStatement(
+          'CREATE INDEX relationships_type_idx ON relationships(relationship_type)',
+        );
+        break;
       default:
         throw StateError('Missing explicit migration to schema v$version.');
     }

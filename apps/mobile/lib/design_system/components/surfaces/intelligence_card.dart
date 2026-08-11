@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:life_timeline/design_system/components/actions/app_button.dart';
+import 'package:life_timeline/design_system/components/actions/app_icon_button.dart';
 import 'package:life_timeline/design_system/icons/app_icons.dart';
 import 'package:life_timeline/design_system/tokens/app_radius.dart';
 import 'package:life_timeline/design_system/tokens/app_spacing.dart';
@@ -9,14 +10,22 @@ final class IntelligenceCard extends StatelessWidget {
     required this.body,
     required this.title,
     this.actionLabel,
+    this.supportingText,
+    this.dismissLabel,
+    this.metric,
     this.onAction,
+    this.onDismiss,
     this.signatureIconProvider,
     super.key,
   });
 
   final String? actionLabel;
   final String body;
+  final String? supportingText;
+  final String? dismissLabel;
+  final String? metric;
   final VoidCallback? onAction;
+  final VoidCallback? onDismiss;
   final AppSignatureIconProvider? signatureIconProvider;
   final String title;
 
@@ -54,8 +63,34 @@ final class IntelligenceCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (dismissLabel != null && onDismiss != null) ...[
+                    const SizedBox(width: AppSpacing.xs),
+                    AppIconButton(
+                      icon: AppIcons.close,
+                      label: dismissLabel!,
+                      onPressed: onDismiss,
+                    ),
+                  ],
                 ],
               ),
+              if (supportingText case final contextText?) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  contextText,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelLarge?.copyWith(color: colors.primary),
+                ),
+              ],
+              if (metric case final metric?) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  metric,
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    color: colors.onPrimaryContainer,
+                  ),
+                ),
+              ],
               const SizedBox(height: AppSpacing.sm),
               Text(
                 body,

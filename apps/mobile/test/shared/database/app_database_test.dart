@@ -18,7 +18,7 @@ void main() {
 
   tearDown(() => database.close());
 
-  test('schema v4 preserves the complete relational baseline', () async {
+  test('schema v5 preserves the complete relational baseline', () async {
     final rows = await database
         .customSelect(
           "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name",
@@ -26,7 +26,7 @@ void main() {
         .get();
     final names = rows.map((row) => row.read<String>('name')).toSet();
 
-    expect(database.schemaVersion, 4);
+    expect(database.schemaVersion, 5);
     expect(
       names,
       containsAll(<String>{
@@ -48,6 +48,7 @@ void main() {
         'entity_categories',
         'event_categories',
         'evidence_categories',
+        'insight_dismissals',
       }),
     );
   });
@@ -72,6 +73,10 @@ void main() {
         'candidate_fields_candidate_idx',
         'candidate_entities_candidate_idx',
         'entity_tags_tag_idx',
+        'entities_type_idx',
+        'events_type_idx',
+        'relationships_type_idx',
+        'insight_dismissals_dismissed_at_idx',
       }),
     );
   });
@@ -117,10 +122,10 @@ void main() {
   test(
     'migration baseline is explicit and rejects unimplemented upgrades',
     () async {
-      await migrateSchema(database, database.createMigrator(), from: 4, to: 4);
+      await migrateSchema(database, database.createMigrator(), from: 5, to: 5);
 
       expect(
-        migrateSchema(database, database.createMigrator(), from: 4, to: 5),
+        migrateSchema(database, database.createMigrator(), from: 5, to: 6),
         throwsA(isA<StateError>()),
       );
     },
@@ -131,7 +136,7 @@ void main() {
     expect(row.read<int>('foreign_keys'), 1);
   });
 
-  test('schema v4 retains the local FTS5 event index', () async {
+  test('schema v5 retains the local FTS5 event index', () async {
     final row = await database
         .customSelect(
           "SELECT sql FROM sqlite_master WHERE name = 'event_search'",
@@ -175,8 +180,15 @@ void main() {
     final migrated = AppDatabase.forTesting(
       NativeDatabase.memory(
         setup: (raw) {
-          raw.execute('CREATE TABLE entities (id TEXT NOT NULL PRIMARY KEY)');
-          raw.execute('CREATE TABLE events (id TEXT NOT NULL PRIMARY KEY)');
+          raw.execute(
+            'CREATE TABLE entities (id TEXT NOT NULL PRIMARY KEY, entity_type TEXT)',
+          );
+          raw.execute(
+            'CREATE TABLE events (id TEXT NOT NULL PRIMARY KEY, event_type TEXT)',
+          );
+          raw.execute(
+            'CREATE TABLE relationships (id TEXT NOT NULL PRIMARY KEY, relationship_type TEXT)',
+          );
           raw.execute(
             'CREATE TABLE attachments (storage_state TEXT, relative_path TEXT)',
           );
@@ -259,5 +271,50 @@ void main() {
       'documents/already-canonical.jpg',
     );
     expect(paths[1].read<String>('relative_path'), 'intelligence/legacy.jpg');
+  });
+
+  test('v4 to v5 migration adds insight dismissal and query indexes', () async {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+    addTearDown(
+      () => driftRuntimeOptions.dontWarnAboutMultipleDatabases = false,
+    );
+    final migrated = AppDatabase.forTesting(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw.execute(
+            'CREATE TABLE entities (id TEXT NOT NULL PRIMARY KEY, entity_type TEXT)',
+          );
+          raw.execute(
+            'CREATE TABLE events (id TEXT NOT NULL PRIMARY KEY, event_type TEXT)',
+          );
+          raw.execute(
+            'CREATE TABLE relationships (id TEXT NOT NULL PRIMARY KEY, relationship_type TEXT)',
+          );
+          raw.execute(
+            "INSERT INTO entities(id, entity_type) VALUES ('kept', 'phone')",
+          );
+          raw.execute('PRAGMA user_version = 4');
+        },
+      ),
+    );
+    addTearDown(migrated.close);
+
+    final kept = await migrated
+        .customSelect('SELECT id FROM entities')
+        .getSingle();
+    final table = await migrated
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'insight_dismissals'",
+        )
+        .getSingle();
+    final indexes = await migrated
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'index' AND name IN ('entities_type_idx', 'events_type_idx', 'relationships_type_idx')",
+        )
+        .get();
+
+    expect(kept.read<String>('id'), 'kept');
+    expect(table.read<String>('name'), 'insight_dismissals');
+    expect(indexes, hasLength(3));
   });
 }
