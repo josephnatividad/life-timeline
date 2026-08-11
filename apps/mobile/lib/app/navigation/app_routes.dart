@@ -28,6 +28,7 @@ enum AppRoute {
   storyEditor(name: 'story-editor', path: '/stories/editor'),
   storyPreview(name: 'story-preview', path: '/stories/preview'),
   thenNowSelection(name: 'then-now-selection', path: '/stories/then-now'),
+  storageManager(name: 'storage-manager', path: '/storage'),
   you(name: 'you', path: '/you');
 
   const AppRoute({required this.name, required this.path});

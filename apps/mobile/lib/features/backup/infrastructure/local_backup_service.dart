@@ -248,35 +248,82 @@ final class LocalBackupService implements BackupBuilder, BackupRestoreService {
         in snapshot.tables['attachments'] ?? const <Map<String, Object?>>[]) {
       final state = row['storage_state'] as String?;
       final relative = row['relative_path'] as String?;
-      if (state != 'local' || relative == null) {
-        continue;
-      }
-      final sourcePath = _safeResolve(root, relative);
-      final source = File(sourcePath);
-      if (!await source.exists()) {
-        throw const BackupFailure('managed_attachment_missing');
-      }
+      final thumbnail = row['thumbnail_relative_path'] as String?;
+      final preserved = row['preserved_original_relative_path'] as String?;
       final id = row['id'] as String;
-      final archiveRelative = p.posix.join(
-        'attachments',
-        _safeSegment(id),
-        _safeSegment(p.basename(relative)),
-      );
-      final target = File(p.join(payload.path, p.fromUri(archiveRelative)));
-      await target.parent.create(recursive: true);
-      await source.copy(target.path);
-      entries.add(
-        BackupFileEntry(
-          path: archiveRelative,
-          byteSize: await target.length(),
-          sha256: await _encryption.sha256File(target.path),
-          type: BackupEntryType.attachment,
+      if (state == 'local' && relative != null) {
+        await _copyManagedFile(
+          root: root,
+          payload: payload,
+          entries: entries,
           attachmentId: id,
-          storageState: state,
-          originalRelativePath: relative,
-        ),
-      );
+          relativePath: relative,
+          state: state,
+          type: BackupEntryType.attachment,
+          archiveRoot: 'attachments',
+        );
+      }
+      if (thumbnail != null) {
+        await _copyManagedFile(
+          root: root,
+          payload: payload,
+          entries: entries,
+          attachmentId: id,
+          relativePath: thumbnail,
+          state: state,
+          type: BackupEntryType.thumbnail,
+          archiveRoot: 'thumbnails',
+        );
+      }
+      if (preserved != null) {
+        await _copyManagedFile(
+          root: root,
+          payload: payload,
+          entries: entries,
+          attachmentId: id,
+          relativePath: preserved,
+          state: state,
+          type: BackupEntryType.preservedOriginal,
+          archiveRoot: 'preserved-originals',
+        );
+      }
     }
+  }
+
+  Future<void> _copyManagedFile({
+    required String root,
+    required Directory payload,
+    required List<BackupFileEntry> entries,
+    required String attachmentId,
+    required String relativePath,
+    required String? state,
+    required BackupEntryType type,
+    required String archiveRoot,
+  }) async {
+    final sourcePath = _safeResolve(root, relativePath);
+    final source = File(sourcePath);
+    if (!await source.exists()) {
+      throw const BackupFailure('managed_attachment_missing');
+    }
+    final archiveRelative = p.posix.join(
+      archiveRoot,
+      _safeSegment(attachmentId),
+      _safeSegment(p.basename(relativePath)),
+    );
+    final target = File(p.join(payload.path, p.fromUri(archiveRelative)));
+    await target.parent.create(recursive: true);
+    await source.copy(target.path);
+    entries.add(
+      BackupFileEntry(
+        path: archiveRelative,
+        byteSize: await target.length(),
+        sha256: await _encryption.sha256File(target.path),
+        type: type,
+        attachmentId: attachmentId,
+        storageState: state,
+        originalRelativePath: relativePath,
+      ),
+    );
   }
 
   Future<BackupManifest> _readManifest(Directory payload) async {
@@ -356,22 +403,37 @@ final class LocalBackupService implements BackupBuilder, BackupRestoreService {
       }
       rows[id] = row;
     }
-    final archivedIds = <String>{};
+    final mainIds = <String>{};
+    final thumbnailIds = <String>{};
+    final preservedIds = <String>{};
     for (final entry in manifest.files.where(
-      (entry) => entry.type == BackupEntryType.attachment,
+      (entry) => entry.type != BackupEntryType.database,
     )) {
       final id = entry.attachmentId;
       final row = id == null ? null : rows[id];
-      if (id == null ||
-          row == null ||
-          !archivedIds.add(id) ||
-          row['storage_state'] != 'local') {
+      if (id == null || row == null) {
         throw const BackupFailure('attachment_manifest_invalid');
       }
+      final accepted = switch (entry.type) {
+        BackupEntryType.attachment =>
+          row['storage_state'] == 'local' && mainIds.add(id),
+        BackupEntryType.thumbnail => thumbnailIds.add(id),
+        BackupEntryType.preservedOriginal => preservedIds.add(id),
+        BackupEntryType.database => false,
+      };
+      if (!accepted) throw const BackupFailure('attachment_manifest_invalid');
     }
     for (final entry in rows.entries) {
       if (entry.value['storage_state'] == 'local' &&
-          !archivedIds.contains(entry.key)) {
+          !mainIds.contains(entry.key)) {
+        throw const BackupFailure('managed_attachment_missing');
+      }
+      if (entry.value['thumbnail_relative_path'] != null &&
+          !thumbnailIds.contains(entry.key)) {
+        throw const BackupFailure('managed_attachment_missing');
+      }
+      if (entry.value['preserved_original_relative_path'] != null &&
+          !preservedIds.contains(entry.key)) {
         throw const BackupFailure('managed_attachment_missing');
       }
     }
@@ -434,15 +496,30 @@ final class LocalBackupService implements BackupBuilder, BackupRestoreService {
   ) async {
     final payload = Directory(p.join(prepared.stagingDirectory, 'payload'));
     final restoredPaths = <String, String>{};
+    final restoredThumbnails = <String, String>{};
+    final restoredPreservedOriginals = <String, String>{};
     for (final entry in prepared.manifest.files.where(
-      (entry) => entry.type == BackupEntryType.attachment,
+      (entry) => entry.type != BackupEntryType.database,
     )) {
       final id = entry.attachmentId;
       if (id == null) {
         throw const BackupFailure('attachment_manifest_invalid');
       }
       final fileName = _safeSegment(p.basename(entry.path));
-      final relative = p.join(generationRelative, _safeSegment(id), fileName);
+      final role = switch (entry.type) {
+        BackupEntryType.attachment => 'content',
+        BackupEntryType.thumbnail => 'thumbnail',
+        BackupEntryType.preservedOriginal => 'preserved',
+        BackupEntryType.database => throw const BackupFailure(
+          'attachment_manifest_invalid',
+        ),
+      };
+      final relative = p.join(
+        generationRelative,
+        _safeSegment(id),
+        role,
+        fileName,
+      );
       final target = File(
         p.join(await _attachmentStorage.rootPath(), relative),
       );
@@ -451,7 +528,16 @@ final class LocalBackupService implements BackupBuilder, BackupRestoreService {
       if (await _encryption.sha256File(target.path) != entry.sha256) {
         throw const BackupFailure('attachment_restore_checksum_failed');
       }
-      restoredPaths[id] = relative;
+      switch (entry.type) {
+        case BackupEntryType.attachment:
+          restoredPaths[id] = relative;
+        case BackupEntryType.thumbnail:
+          restoredThumbnails[id] = relative;
+        case BackupEntryType.preservedOriginal:
+          restoredPreservedOriginals[id] = relative;
+        case BackupEntryType.database:
+          throw const BackupFailure('attachment_manifest_invalid');
+      }
     }
     final tables = <String, List<Map<String, Object?>>>{
       for (final table in prepared.snapshot.tables.entries)
@@ -466,6 +552,12 @@ final class LocalBackupService implements BackupBuilder, BackupRestoreService {
         row['relative_path'] = relative;
         row['storage_state'] = 'local';
       }
+      row['thumbnail_relative_path'] = id == null
+          ? null
+          : restoredThumbnails[id];
+      row['preserved_original_relative_path'] = id == null
+          ? null
+          : restoredPreservedOriginals[id];
     }
     return DatabaseSnapshot(
       schemaVersion: prepared.snapshot.schemaVersion,
@@ -494,7 +586,12 @@ final class LocalBackupService implements BackupBuilder, BackupRestoreService {
       }
       if (state == 'referenced') {
         attachment['relative_path'] = null;
-        attachment['thumbnail_relative_path'] = null;
+      }
+      if (state == 'archived') {
+        // An archive destination is external and is represented only by its
+        // portable archive reference. A transient retained local path is not
+        // a backup payload identifier.
+        attachment['relative_path'] = null;
       }
     }
     return DatabaseSnapshot(

@@ -15,6 +15,7 @@ import 'package:life_timeline/features/search/presentation/memory_search_page.da
 import 'package:life_timeline/features/security/presentation/security_settings_page.dart';
 import 'package:life_timeline/features/security/presentation/set_pin_page.dart';
 import 'package:life_timeline/features/settings/presentation/you_foundation_page.dart';
+import 'package:life_timeline/features/storage/presentation/storage_manager_page.dart';
 import 'package:life_timeline/features/stories/domain/story_models.dart';
 import 'package:life_timeline/features/stories/presentation/stories_home_page.dart';
 import 'package:life_timeline/features/stories/presentation/story_editor_page.dart';
@@ -127,6 +128,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoute.archive.name,
         path: AppRoute.archive.path,
         builder: (context, state) => const ArchivePage(),
+      ),
+      GoRoute(
+        name: AppRoute.storageManager.name,
+        path: AppRoute.storageManager.path,
+        builder: (context, state) => const StorageManagerPage(),
       ),
       GoRoute(
         name: AppRoute.trash.name,

@@ -83,7 +83,7 @@ void main() {
       onProgress: (_) {},
     );
     expect(prepared.manifest.formatVersion, 1);
-    expect(prepared.manifest.databaseSchemaVersion, 5);
+    expect(prepared.manifest.databaseSchemaVersion, 6);
     expect(prepared.manifest.appVersion, '0.1.0+test');
     expect(prepared.manifest.attachmentCount, 1);
 
@@ -96,7 +96,7 @@ void main() {
     expect(await repository.memoryById('existing'), isNull);
     expect((await repository.memoryById('event-1'))?.event.title, 'Graduated');
     final attachments = await repository.attachmentsForEvidence('evidence-1');
-    expect(attachments, hasLength(2));
+    expect(attachments, hasLength(3));
     final local = attachments.singleWhere(
       (item) => item.storageState == AttachmentStorageState.local,
     );
@@ -107,10 +107,31 @@ void main() {
       ).readAsString(),
       'certificate bytes',
     );
+    expect(
+      await File(
+        p.join(targetAttachments.path, local.thumbnailRelativePath),
+      ).readAsString(),
+      'certificate preview',
+    );
     final referenced = attachments.singleWhere(
       (item) => item.storageState == AttachmentStorageState.referenced,
     );
     expect(referenced.relativePath, isNull);
+    final archived = attachments.singleWhere(
+      (item) => item.storageState == AttachmentStorageState.archived,
+    );
+    expect(archived.relativePath, isNull);
+    expect(
+      await File(
+        p.join(targetAttachments.path, archived.thumbnailRelativePath),
+      ).readAsString(),
+      'archived preview',
+    );
+    final archiveReference = await targetDatabase
+        .select(targetDatabase.archiveReferences)
+        .getSingle();
+    expect(archiveReference.attachmentId, 'attachment-archived');
+    expect(archiveReference.logicalKey, 'safe-location.timelinearchive');
     final restoredCandidate = await DriftMemoryCandidateRepository(
       targetDatabase,
     ).candidateById('candidate-1');
@@ -378,6 +399,15 @@ Future<void> _seedTimeline(
   final localFile = File(p.join(attachmentRoot.path, localPath));
   await localFile.parent.create(recursive: true);
   await localFile.writeAsString('certificate bytes', flush: true);
+  final thumbnailPath = p.join('thumbnails', 'certificate-preview.txt');
+  final thumbnailFile = File(p.join(attachmentRoot.path, thumbnailPath));
+  await thumbnailFile.parent.create(recursive: true);
+  await thumbnailFile.writeAsString('certificate preview', flush: true);
+  final archivedThumbnailPath = p.join('thumbnails', 'archived-preview.txt');
+  final archivedThumbnail = File(
+    p.join(attachmentRoot.path, archivedThumbnailPath),
+  );
+  await archivedThumbnail.writeAsString('archived preview', flush: true);
   await repository.saveEvidence(
     Evidence(
       metadata: metadata('evidence-1'),
@@ -393,6 +423,7 @@ Future<void> _seedTimeline(
         mimeType: 'text/plain',
         byteSize: await localFile.length(),
         relativePath: localPath,
+        thumbnailRelativePath: thumbnailPath,
       ),
       Attachment(
         metadata: metadata('attachment-referenced'),
@@ -403,8 +434,35 @@ Future<void> _seedTimeline(
         byteSize: 10,
         relativePath: p.join(Directory.systemTemp.path, 'external.pdf'),
       ),
+      Attachment(
+        metadata: metadata('attachment-archived'),
+        evidenceId: 'evidence-1',
+        storageState: AttachmentStorageState.archived,
+        importMode: AttachmentImportMode.preserveOriginal,
+        mimeType: 'image/jpeg',
+        byteSize: 20,
+        thumbnailRelativePath: archivedThumbnailPath,
+      ),
     ],
   );
+  await database
+      .into(database.archiveReferences)
+      .insert(
+        ArchiveReferencesCompanion.insert(
+          id: 'archive-reference-1',
+          attachmentId: 'attachment-archived',
+          destinationType: 'userSelectedFile',
+          logicalKey: 'safe-location.timelinearchive',
+          originalByteSize: 20,
+          originalSha256: 'original-hash',
+          archiveByteSize: 42,
+          archiveSha256: 'archive-hash',
+          encryptionAlgorithm: 'aes-256-gcm+argon2id',
+          formatVersion: 1,
+          archivedAt: at,
+          verifiedAt: at,
+        ),
+      );
 }
 
 Future<void> _seedExistingTarget(AppDatabase database) async {

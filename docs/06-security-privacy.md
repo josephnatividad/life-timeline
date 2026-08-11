@@ -99,6 +99,30 @@ UI therefore warns users to inspect images for faces, addresses,
 notifications, documents, location clues, or other visible private details.
 Story draft, export, and share history are not persisted.
 
+### Storage Manager and archive boundary
+
+Storage analysis remains on-device. File sizes and SHA-256 hashes are used for
+local integrity, duplicate grouping, and copy-protection calculations; they
+are not logged or uploaded. Duplicate detection is advisory and never silently
+deletes a file.
+
+Archive is an explicit local-to-user-owned-storage boundary. One selected
+app-managed original is encrypted locally before the operating-system picker
+receives it. The database retains only a logical filename, sizes, hashes,
+format/algorithm identifiers, and verification timestamps. It does not retain
+the recovery password, key, provider credential, or durable absolute provider
+path.
+
+A local original may be removed only after the encrypted destination verifies,
+the archive reference commits while the local file still exists, and the user
+explicitly opted into removal. Retrieval requires explicit file reconnection,
+authentication, decryption, and original-hash verification before an
+app-managed path is restored.
+
+Temporary cleanup is restricted to documented app-owned directories, filename
+patterns, and a 24-hour stale threshold. It must not traverse user-selected
+archive destinations or referenced-original paths.
+
 ## Claims
 
 Avoid absolute marketing claims unless technically true.

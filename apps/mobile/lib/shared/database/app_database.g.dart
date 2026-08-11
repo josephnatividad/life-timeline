@@ -3242,6 +3242,17 @@ class $AttachmentsTable extends Attachments
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _preservedOriginalRelativePathMeta =
+      const VerificationMeta('preservedOriginalRelativePath');
+  @override
+  late final GeneratedColumn<String> preservedOriginalRelativePath =
+      GeneratedColumn<String>(
+        'preserved_original_relative_path',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _mimeTypeMeta = const VerificationMeta(
     'mimeType',
   );
@@ -3264,6 +3275,30 @@ class $AttachmentsTable extends Attachments
     check: () => ComparableExpr(byteSize).isBiggerOrEqualValue(0),
     type: DriftSqlType.int,
     requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pixelWidthMeta = const VerificationMeta(
+    'pixelWidth',
+  );
+  @override
+  late final GeneratedColumn<int> pixelWidth = GeneratedColumn<int>(
+    'pixel_width',
+    aliasedName,
+    true,
+    check: () => ComparableExpr(pixelWidth).isBiggerThanValue(0),
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pixelHeightMeta = const VerificationMeta(
+    'pixelHeight',
+  );
+  @override
+  late final GeneratedColumn<int> pixelHeight = GeneratedColumn<int>(
+    'pixel_height',
+    aliasedName,
+    true,
+    check: () => ComparableExpr(pixelHeight).isBiggerThanValue(0),
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _checksumMeta = const VerificationMeta(
     'checksum',
@@ -3321,8 +3356,11 @@ class $AttachmentsTable extends Attachments
     displayName,
     relativePath,
     thumbnailRelativePath,
+    preservedOriginalRelativePath,
     mimeType,
     byteSize,
+    pixelWidth,
+    pixelHeight,
     checksum,
     storageState,
     importMode,
@@ -3420,6 +3458,15 @@ class $AttachmentsTable extends Attachments
         ),
       );
     }
+    if (data.containsKey('preserved_original_relative_path')) {
+      context.handle(
+        _preservedOriginalRelativePathMeta,
+        preservedOriginalRelativePath.isAcceptableOrUnknown(
+          data['preserved_original_relative_path']!,
+          _preservedOriginalRelativePathMeta,
+        ),
+      );
+    }
     if (data.containsKey('mime_type')) {
       context.handle(
         _mimeTypeMeta,
@@ -3435,6 +3482,21 @@ class $AttachmentsTable extends Attachments
       );
     } else if (isInserting) {
       context.missing(_byteSizeMeta);
+    }
+    if (data.containsKey('pixel_width')) {
+      context.handle(
+        _pixelWidthMeta,
+        pixelWidth.isAcceptableOrUnknown(data['pixel_width']!, _pixelWidthMeta),
+      );
+    }
+    if (data.containsKey('pixel_height')) {
+      context.handle(
+        _pixelHeightMeta,
+        pixelHeight.isAcceptableOrUnknown(
+          data['pixel_height']!,
+          _pixelHeightMeta,
+        ),
+      );
     }
     if (data.containsKey('checksum')) {
       context.handle(
@@ -3510,6 +3572,10 @@ class $AttachmentsTable extends Attachments
         DriftSqlType.string,
         data['${effectivePrefix}thumbnail_relative_path'],
       ),
+      preservedOriginalRelativePath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preserved_original_relative_path'],
+      ),
       mimeType: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}mime_type'],
@@ -3518,6 +3584,14 @@ class $AttachmentsTable extends Attachments
         DriftSqlType.int,
         data['${effectivePrefix}byte_size'],
       )!,
+      pixelWidth: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}pixel_width'],
+      ),
+      pixelHeight: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}pixel_height'],
+      ),
       checksum: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}checksum'],
@@ -3550,8 +3624,11 @@ class Attachment extends DataClass implements Insertable<Attachment> {
   final String? displayName;
   final String? relativePath;
   final String? thumbnailRelativePath;
+  final String? preservedOriginalRelativePath;
   final String mimeType;
   final int byteSize;
+  final int? pixelWidth;
+  final int? pixelHeight;
   final String? checksum;
   final String storageState;
   final String importMode;
@@ -3566,8 +3643,11 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     this.displayName,
     this.relativePath,
     this.thumbnailRelativePath,
+    this.preservedOriginalRelativePath,
     required this.mimeType,
     required this.byteSize,
+    this.pixelWidth,
+    this.pixelHeight,
     this.checksum,
     required this.storageState,
     required this.importMode,
@@ -3593,8 +3673,19 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     if (!nullToAbsent || thumbnailRelativePath != null) {
       map['thumbnail_relative_path'] = Variable<String>(thumbnailRelativePath);
     }
+    if (!nullToAbsent || preservedOriginalRelativePath != null) {
+      map['preserved_original_relative_path'] = Variable<String>(
+        preservedOriginalRelativePath,
+      );
+    }
     map['mime_type'] = Variable<String>(mimeType);
     map['byte_size'] = Variable<int>(byteSize);
+    if (!nullToAbsent || pixelWidth != null) {
+      map['pixel_width'] = Variable<int>(pixelWidth);
+    }
+    if (!nullToAbsent || pixelHeight != null) {
+      map['pixel_height'] = Variable<int>(pixelHeight);
+    }
     if (!nullToAbsent || checksum != null) {
       map['checksum'] = Variable<String>(checksum);
     }
@@ -3623,8 +3714,18 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       thumbnailRelativePath: thumbnailRelativePath == null && nullToAbsent
           ? const Value.absent()
           : Value(thumbnailRelativePath),
+      preservedOriginalRelativePath:
+          preservedOriginalRelativePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(preservedOriginalRelativePath),
       mimeType: Value(mimeType),
       byteSize: Value(byteSize),
+      pixelWidth: pixelWidth == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pixelWidth),
+      pixelHeight: pixelHeight == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pixelHeight),
       checksum: checksum == null && nullToAbsent
           ? const Value.absent()
           : Value(checksum),
@@ -3653,8 +3754,13 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       thumbnailRelativePath: serializer.fromJson<String?>(
         json['thumbnailRelativePath'],
       ),
+      preservedOriginalRelativePath: serializer.fromJson<String?>(
+        json['preservedOriginalRelativePath'],
+      ),
       mimeType: serializer.fromJson<String>(json['mimeType']),
       byteSize: serializer.fromJson<int>(json['byteSize']),
+      pixelWidth: serializer.fromJson<int?>(json['pixelWidth']),
+      pixelHeight: serializer.fromJson<int?>(json['pixelHeight']),
       checksum: serializer.fromJson<String?>(json['checksum']),
       storageState: serializer.fromJson<String>(json['storageState']),
       importMode: serializer.fromJson<String>(json['importMode']),
@@ -3676,8 +3782,13 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       'thumbnailRelativePath': serializer.toJson<String?>(
         thumbnailRelativePath,
       ),
+      'preservedOriginalRelativePath': serializer.toJson<String?>(
+        preservedOriginalRelativePath,
+      ),
       'mimeType': serializer.toJson<String>(mimeType),
       'byteSize': serializer.toJson<int>(byteSize),
+      'pixelWidth': serializer.toJson<int?>(pixelWidth),
+      'pixelHeight': serializer.toJson<int?>(pixelHeight),
       'checksum': serializer.toJson<String?>(checksum),
       'storageState': serializer.toJson<String>(storageState),
       'importMode': serializer.toJson<String>(importMode),
@@ -3695,8 +3806,11 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     Value<String?> displayName = const Value.absent(),
     Value<String?> relativePath = const Value.absent(),
     Value<String?> thumbnailRelativePath = const Value.absent(),
+    Value<String?> preservedOriginalRelativePath = const Value.absent(),
     String? mimeType,
     int? byteSize,
+    Value<int?> pixelWidth = const Value.absent(),
+    Value<int?> pixelHeight = const Value.absent(),
     Value<String?> checksum = const Value.absent(),
     String? storageState,
     String? importMode,
@@ -3713,8 +3827,13 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     thumbnailRelativePath: thumbnailRelativePath.present
         ? thumbnailRelativePath.value
         : this.thumbnailRelativePath,
+    preservedOriginalRelativePath: preservedOriginalRelativePath.present
+        ? preservedOriginalRelativePath.value
+        : this.preservedOriginalRelativePath,
     mimeType: mimeType ?? this.mimeType,
     byteSize: byteSize ?? this.byteSize,
+    pixelWidth: pixelWidth.present ? pixelWidth.value : this.pixelWidth,
+    pixelHeight: pixelHeight.present ? pixelHeight.value : this.pixelHeight,
     checksum: checksum.present ? checksum.value : this.checksum,
     storageState: storageState ?? this.storageState,
     importMode: importMode ?? this.importMode,
@@ -3741,8 +3860,17 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       thumbnailRelativePath: data.thumbnailRelativePath.present
           ? data.thumbnailRelativePath.value
           : this.thumbnailRelativePath,
+      preservedOriginalRelativePath: data.preservedOriginalRelativePath.present
+          ? data.preservedOriginalRelativePath.value
+          : this.preservedOriginalRelativePath,
       mimeType: data.mimeType.present ? data.mimeType.value : this.mimeType,
       byteSize: data.byteSize.present ? data.byteSize.value : this.byteSize,
+      pixelWidth: data.pixelWidth.present
+          ? data.pixelWidth.value
+          : this.pixelWidth,
+      pixelHeight: data.pixelHeight.present
+          ? data.pixelHeight.value
+          : this.pixelHeight,
       checksum: data.checksum.present ? data.checksum.value : this.checksum,
       storageState: data.storageState.present
           ? data.storageState.value
@@ -3766,8 +3894,13 @@ class Attachment extends DataClass implements Insertable<Attachment> {
           ..write('displayName: $displayName, ')
           ..write('relativePath: $relativePath, ')
           ..write('thumbnailRelativePath: $thumbnailRelativePath, ')
+          ..write(
+            'preservedOriginalRelativePath: $preservedOriginalRelativePath, ',
+          )
           ..write('mimeType: $mimeType, ')
           ..write('byteSize: $byteSize, ')
+          ..write('pixelWidth: $pixelWidth, ')
+          ..write('pixelHeight: $pixelHeight, ')
           ..write('checksum: $checksum, ')
           ..write('storageState: $storageState, ')
           ..write('importMode: $importMode')
@@ -3787,8 +3920,11 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     displayName,
     relativePath,
     thumbnailRelativePath,
+    preservedOriginalRelativePath,
     mimeType,
     byteSize,
+    pixelWidth,
+    pixelHeight,
     checksum,
     storageState,
     importMode,
@@ -3807,8 +3943,12 @@ class Attachment extends DataClass implements Insertable<Attachment> {
           other.displayName == this.displayName &&
           other.relativePath == this.relativePath &&
           other.thumbnailRelativePath == this.thumbnailRelativePath &&
+          other.preservedOriginalRelativePath ==
+              this.preservedOriginalRelativePath &&
           other.mimeType == this.mimeType &&
           other.byteSize == this.byteSize &&
+          other.pixelWidth == this.pixelWidth &&
+          other.pixelHeight == this.pixelHeight &&
           other.checksum == this.checksum &&
           other.storageState == this.storageState &&
           other.importMode == this.importMode);
@@ -3825,8 +3965,11 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
   final Value<String?> displayName;
   final Value<String?> relativePath;
   final Value<String?> thumbnailRelativePath;
+  final Value<String?> preservedOriginalRelativePath;
   final Value<String> mimeType;
   final Value<int> byteSize;
+  final Value<int?> pixelWidth;
+  final Value<int?> pixelHeight;
   final Value<String?> checksum;
   final Value<String> storageState;
   final Value<String> importMode;
@@ -3842,8 +3985,11 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     this.displayName = const Value.absent(),
     this.relativePath = const Value.absent(),
     this.thumbnailRelativePath = const Value.absent(),
+    this.preservedOriginalRelativePath = const Value.absent(),
     this.mimeType = const Value.absent(),
     this.byteSize = const Value.absent(),
+    this.pixelWidth = const Value.absent(),
+    this.pixelHeight = const Value.absent(),
     this.checksum = const Value.absent(),
     this.storageState = const Value.absent(),
     this.importMode = const Value.absent(),
@@ -3860,8 +4006,11 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     this.displayName = const Value.absent(),
     this.relativePath = const Value.absent(),
     this.thumbnailRelativePath = const Value.absent(),
+    this.preservedOriginalRelativePath = const Value.absent(),
     required String mimeType,
     required int byteSize,
+    this.pixelWidth = const Value.absent(),
+    this.pixelHeight = const Value.absent(),
     this.checksum = const Value.absent(),
     required String storageState,
     required String importMode,
@@ -3887,8 +4036,11 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     Expression<String>? displayName,
     Expression<String>? relativePath,
     Expression<String>? thumbnailRelativePath,
+    Expression<String>? preservedOriginalRelativePath,
     Expression<String>? mimeType,
     Expression<int>? byteSize,
+    Expression<int>? pixelWidth,
+    Expression<int>? pixelHeight,
     Expression<String>? checksum,
     Expression<String>? storageState,
     Expression<String>? importMode,
@@ -3907,8 +4059,12 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
       if (relativePath != null) 'relative_path': relativePath,
       if (thumbnailRelativePath != null)
         'thumbnail_relative_path': thumbnailRelativePath,
+      if (preservedOriginalRelativePath != null)
+        'preserved_original_relative_path': preservedOriginalRelativePath,
       if (mimeType != null) 'mime_type': mimeType,
       if (byteSize != null) 'byte_size': byteSize,
+      if (pixelWidth != null) 'pixel_width': pixelWidth,
+      if (pixelHeight != null) 'pixel_height': pixelHeight,
       if (checksum != null) 'checksum': checksum,
       if (storageState != null) 'storage_state': storageState,
       if (importMode != null) 'import_mode': importMode,
@@ -3927,8 +4083,11 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     Value<String?>? displayName,
     Value<String?>? relativePath,
     Value<String?>? thumbnailRelativePath,
+    Value<String?>? preservedOriginalRelativePath,
     Value<String>? mimeType,
     Value<int>? byteSize,
+    Value<int?>? pixelWidth,
+    Value<int?>? pixelHeight,
     Value<String?>? checksum,
     Value<String>? storageState,
     Value<String>? importMode,
@@ -3947,8 +4106,12 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
       relativePath: relativePath ?? this.relativePath,
       thumbnailRelativePath:
           thumbnailRelativePath ?? this.thumbnailRelativePath,
+      preservedOriginalRelativePath:
+          preservedOriginalRelativePath ?? this.preservedOriginalRelativePath,
       mimeType: mimeType ?? this.mimeType,
       byteSize: byteSize ?? this.byteSize,
+      pixelWidth: pixelWidth ?? this.pixelWidth,
+      pixelHeight: pixelHeight ?? this.pixelHeight,
       checksum: checksum ?? this.checksum,
       storageState: storageState ?? this.storageState,
       importMode: importMode ?? this.importMode,
@@ -3993,11 +4156,22 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
         thumbnailRelativePath.value,
       );
     }
+    if (preservedOriginalRelativePath.present) {
+      map['preserved_original_relative_path'] = Variable<String>(
+        preservedOriginalRelativePath.value,
+      );
+    }
     if (mimeType.present) {
       map['mime_type'] = Variable<String>(mimeType.value);
     }
     if (byteSize.present) {
       map['byte_size'] = Variable<int>(byteSize.value);
+    }
+    if (pixelWidth.present) {
+      map['pixel_width'] = Variable<int>(pixelWidth.value);
+    }
+    if (pixelHeight.present) {
+      map['pixel_height'] = Variable<int>(pixelHeight.value);
     }
     if (checksum.present) {
       map['checksum'] = Variable<String>(checksum.value);
@@ -4027,11 +4201,776 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
           ..write('displayName: $displayName, ')
           ..write('relativePath: $relativePath, ')
           ..write('thumbnailRelativePath: $thumbnailRelativePath, ')
+          ..write(
+            'preservedOriginalRelativePath: $preservedOriginalRelativePath, ',
+          )
           ..write('mimeType: $mimeType, ')
           ..write('byteSize: $byteSize, ')
+          ..write('pixelWidth: $pixelWidth, ')
+          ..write('pixelHeight: $pixelHeight, ')
           ..write('checksum: $checksum, ')
           ..write('storageState: $storageState, ')
           ..write('importMode: $importMode, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ArchiveReferencesTable extends ArchiveReferences
+    with TableInfo<$ArchiveReferencesTable, ArchiveReference> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ArchiveReferencesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _attachmentIdMeta = const VerificationMeta(
+    'attachmentId',
+  );
+  @override
+  late final GeneratedColumn<String> attachmentId = GeneratedColumn<String>(
+    'attachment_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES attachments (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _destinationTypeMeta = const VerificationMeta(
+    'destinationType',
+  );
+  @override
+  late final GeneratedColumn<String> destinationType = GeneratedColumn<String>(
+    'destination_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _logicalKeyMeta = const VerificationMeta(
+    'logicalKey',
+  );
+  @override
+  late final GeneratedColumn<String> logicalKey = GeneratedColumn<String>(
+    'logical_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _originalByteSizeMeta = const VerificationMeta(
+    'originalByteSize',
+  );
+  @override
+  late final GeneratedColumn<int> originalByteSize = GeneratedColumn<int>(
+    'original_byte_size',
+    aliasedName,
+    false,
+    check: () => ComparableExpr(originalByteSize).isBiggerOrEqualValue(0),
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _originalSha256Meta = const VerificationMeta(
+    'originalSha256',
+  );
+  @override
+  late final GeneratedColumn<String> originalSha256 = GeneratedColumn<String>(
+    'original_sha256',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _archiveByteSizeMeta = const VerificationMeta(
+    'archiveByteSize',
+  );
+  @override
+  late final GeneratedColumn<int> archiveByteSize = GeneratedColumn<int>(
+    'archive_byte_size',
+    aliasedName,
+    false,
+    check: () => ComparableExpr(archiveByteSize).isBiggerOrEqualValue(0),
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _archiveSha256Meta = const VerificationMeta(
+    'archiveSha256',
+  );
+  @override
+  late final GeneratedColumn<String> archiveSha256 = GeneratedColumn<String>(
+    'archive_sha256',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _encryptionAlgorithmMeta =
+      const VerificationMeta('encryptionAlgorithm');
+  @override
+  late final GeneratedColumn<String> encryptionAlgorithm =
+      GeneratedColumn<String>(
+        'encryption_algorithm',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _formatVersionMeta = const VerificationMeta(
+    'formatVersion',
+  );
+  @override
+  late final GeneratedColumn<int> formatVersion = GeneratedColumn<int>(
+    'format_version',
+    aliasedName,
+    false,
+    check: () => ComparableExpr(formatVersion).isBiggerOrEqualValue(1),
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _archivedAtMeta = const VerificationMeta(
+    'archivedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> archivedAt = GeneratedColumn<DateTime>(
+    'archived_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _verifiedAtMeta = const VerificationMeta(
+    'verifiedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> verifiedAt = GeneratedColumn<DateTime>(
+    'verified_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    attachmentId,
+    destinationType,
+    logicalKey,
+    originalByteSize,
+    originalSha256,
+    archiveByteSize,
+    archiveSha256,
+    encryptionAlgorithm,
+    formatVersion,
+    archivedAt,
+    verifiedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'archive_references';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ArchiveReference> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('attachment_id')) {
+      context.handle(
+        _attachmentIdMeta,
+        attachmentId.isAcceptableOrUnknown(
+          data['attachment_id']!,
+          _attachmentIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_attachmentIdMeta);
+    }
+    if (data.containsKey('destination_type')) {
+      context.handle(
+        _destinationTypeMeta,
+        destinationType.isAcceptableOrUnknown(
+          data['destination_type']!,
+          _destinationTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_destinationTypeMeta);
+    }
+    if (data.containsKey('logical_key')) {
+      context.handle(
+        _logicalKeyMeta,
+        logicalKey.isAcceptableOrUnknown(data['logical_key']!, _logicalKeyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_logicalKeyMeta);
+    }
+    if (data.containsKey('original_byte_size')) {
+      context.handle(
+        _originalByteSizeMeta,
+        originalByteSize.isAcceptableOrUnknown(
+          data['original_byte_size']!,
+          _originalByteSizeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_originalByteSizeMeta);
+    }
+    if (data.containsKey('original_sha256')) {
+      context.handle(
+        _originalSha256Meta,
+        originalSha256.isAcceptableOrUnknown(
+          data['original_sha256']!,
+          _originalSha256Meta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_originalSha256Meta);
+    }
+    if (data.containsKey('archive_byte_size')) {
+      context.handle(
+        _archiveByteSizeMeta,
+        archiveByteSize.isAcceptableOrUnknown(
+          data['archive_byte_size']!,
+          _archiveByteSizeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_archiveByteSizeMeta);
+    }
+    if (data.containsKey('archive_sha256')) {
+      context.handle(
+        _archiveSha256Meta,
+        archiveSha256.isAcceptableOrUnknown(
+          data['archive_sha256']!,
+          _archiveSha256Meta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_archiveSha256Meta);
+    }
+    if (data.containsKey('encryption_algorithm')) {
+      context.handle(
+        _encryptionAlgorithmMeta,
+        encryptionAlgorithm.isAcceptableOrUnknown(
+          data['encryption_algorithm']!,
+          _encryptionAlgorithmMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_encryptionAlgorithmMeta);
+    }
+    if (data.containsKey('format_version')) {
+      context.handle(
+        _formatVersionMeta,
+        formatVersion.isAcceptableOrUnknown(
+          data['format_version']!,
+          _formatVersionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_formatVersionMeta);
+    }
+    if (data.containsKey('archived_at')) {
+      context.handle(
+        _archivedAtMeta,
+        archivedAt.isAcceptableOrUnknown(data['archived_at']!, _archivedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_archivedAtMeta);
+    }
+    if (data.containsKey('verified_at')) {
+      context.handle(
+        _verifiedAtMeta,
+        verifiedAt.isAcceptableOrUnknown(data['verified_at']!, _verifiedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_verifiedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ArchiveReference map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ArchiveReference(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      attachmentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}attachment_id'],
+      )!,
+      destinationType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}destination_type'],
+      )!,
+      logicalKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}logical_key'],
+      )!,
+      originalByteSize: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}original_byte_size'],
+      )!,
+      originalSha256: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}original_sha256'],
+      )!,
+      archiveByteSize: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}archive_byte_size'],
+      )!,
+      archiveSha256: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}archive_sha256'],
+      )!,
+      encryptionAlgorithm: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}encryption_algorithm'],
+      )!,
+      formatVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}format_version'],
+      )!,
+      archivedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}archived_at'],
+      )!,
+      verifiedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}verified_at'],
+      )!,
+    );
+  }
+
+  @override
+  $ArchiveReferencesTable createAlias(String alias) {
+    return $ArchiveReferencesTable(attachedDatabase, alias);
+  }
+}
+
+class ArchiveReference extends DataClass
+    implements Insertable<ArchiveReference> {
+  final String id;
+  final String attachmentId;
+  final String destinationType;
+  final String logicalKey;
+  final int originalByteSize;
+  final String originalSha256;
+  final int archiveByteSize;
+  final String archiveSha256;
+  final String encryptionAlgorithm;
+  final int formatVersion;
+  final DateTime archivedAt;
+  final DateTime verifiedAt;
+  const ArchiveReference({
+    required this.id,
+    required this.attachmentId,
+    required this.destinationType,
+    required this.logicalKey,
+    required this.originalByteSize,
+    required this.originalSha256,
+    required this.archiveByteSize,
+    required this.archiveSha256,
+    required this.encryptionAlgorithm,
+    required this.formatVersion,
+    required this.archivedAt,
+    required this.verifiedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['attachment_id'] = Variable<String>(attachmentId);
+    map['destination_type'] = Variable<String>(destinationType);
+    map['logical_key'] = Variable<String>(logicalKey);
+    map['original_byte_size'] = Variable<int>(originalByteSize);
+    map['original_sha256'] = Variable<String>(originalSha256);
+    map['archive_byte_size'] = Variable<int>(archiveByteSize);
+    map['archive_sha256'] = Variable<String>(archiveSha256);
+    map['encryption_algorithm'] = Variable<String>(encryptionAlgorithm);
+    map['format_version'] = Variable<int>(formatVersion);
+    map['archived_at'] = Variable<DateTime>(archivedAt);
+    map['verified_at'] = Variable<DateTime>(verifiedAt);
+    return map;
+  }
+
+  ArchiveReferencesCompanion toCompanion(bool nullToAbsent) {
+    return ArchiveReferencesCompanion(
+      id: Value(id),
+      attachmentId: Value(attachmentId),
+      destinationType: Value(destinationType),
+      logicalKey: Value(logicalKey),
+      originalByteSize: Value(originalByteSize),
+      originalSha256: Value(originalSha256),
+      archiveByteSize: Value(archiveByteSize),
+      archiveSha256: Value(archiveSha256),
+      encryptionAlgorithm: Value(encryptionAlgorithm),
+      formatVersion: Value(formatVersion),
+      archivedAt: Value(archivedAt),
+      verifiedAt: Value(verifiedAt),
+    );
+  }
+
+  factory ArchiveReference.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ArchiveReference(
+      id: serializer.fromJson<String>(json['id']),
+      attachmentId: serializer.fromJson<String>(json['attachmentId']),
+      destinationType: serializer.fromJson<String>(json['destinationType']),
+      logicalKey: serializer.fromJson<String>(json['logicalKey']),
+      originalByteSize: serializer.fromJson<int>(json['originalByteSize']),
+      originalSha256: serializer.fromJson<String>(json['originalSha256']),
+      archiveByteSize: serializer.fromJson<int>(json['archiveByteSize']),
+      archiveSha256: serializer.fromJson<String>(json['archiveSha256']),
+      encryptionAlgorithm: serializer.fromJson<String>(
+        json['encryptionAlgorithm'],
+      ),
+      formatVersion: serializer.fromJson<int>(json['formatVersion']),
+      archivedAt: serializer.fromJson<DateTime>(json['archivedAt']),
+      verifiedAt: serializer.fromJson<DateTime>(json['verifiedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'attachmentId': serializer.toJson<String>(attachmentId),
+      'destinationType': serializer.toJson<String>(destinationType),
+      'logicalKey': serializer.toJson<String>(logicalKey),
+      'originalByteSize': serializer.toJson<int>(originalByteSize),
+      'originalSha256': serializer.toJson<String>(originalSha256),
+      'archiveByteSize': serializer.toJson<int>(archiveByteSize),
+      'archiveSha256': serializer.toJson<String>(archiveSha256),
+      'encryptionAlgorithm': serializer.toJson<String>(encryptionAlgorithm),
+      'formatVersion': serializer.toJson<int>(formatVersion),
+      'archivedAt': serializer.toJson<DateTime>(archivedAt),
+      'verifiedAt': serializer.toJson<DateTime>(verifiedAt),
+    };
+  }
+
+  ArchiveReference copyWith({
+    String? id,
+    String? attachmentId,
+    String? destinationType,
+    String? logicalKey,
+    int? originalByteSize,
+    String? originalSha256,
+    int? archiveByteSize,
+    String? archiveSha256,
+    String? encryptionAlgorithm,
+    int? formatVersion,
+    DateTime? archivedAt,
+    DateTime? verifiedAt,
+  }) => ArchiveReference(
+    id: id ?? this.id,
+    attachmentId: attachmentId ?? this.attachmentId,
+    destinationType: destinationType ?? this.destinationType,
+    logicalKey: logicalKey ?? this.logicalKey,
+    originalByteSize: originalByteSize ?? this.originalByteSize,
+    originalSha256: originalSha256 ?? this.originalSha256,
+    archiveByteSize: archiveByteSize ?? this.archiveByteSize,
+    archiveSha256: archiveSha256 ?? this.archiveSha256,
+    encryptionAlgorithm: encryptionAlgorithm ?? this.encryptionAlgorithm,
+    formatVersion: formatVersion ?? this.formatVersion,
+    archivedAt: archivedAt ?? this.archivedAt,
+    verifiedAt: verifiedAt ?? this.verifiedAt,
+  );
+  ArchiveReference copyWithCompanion(ArchiveReferencesCompanion data) {
+    return ArchiveReference(
+      id: data.id.present ? data.id.value : this.id,
+      attachmentId: data.attachmentId.present
+          ? data.attachmentId.value
+          : this.attachmentId,
+      destinationType: data.destinationType.present
+          ? data.destinationType.value
+          : this.destinationType,
+      logicalKey: data.logicalKey.present
+          ? data.logicalKey.value
+          : this.logicalKey,
+      originalByteSize: data.originalByteSize.present
+          ? data.originalByteSize.value
+          : this.originalByteSize,
+      originalSha256: data.originalSha256.present
+          ? data.originalSha256.value
+          : this.originalSha256,
+      archiveByteSize: data.archiveByteSize.present
+          ? data.archiveByteSize.value
+          : this.archiveByteSize,
+      archiveSha256: data.archiveSha256.present
+          ? data.archiveSha256.value
+          : this.archiveSha256,
+      encryptionAlgorithm: data.encryptionAlgorithm.present
+          ? data.encryptionAlgorithm.value
+          : this.encryptionAlgorithm,
+      formatVersion: data.formatVersion.present
+          ? data.formatVersion.value
+          : this.formatVersion,
+      archivedAt: data.archivedAt.present
+          ? data.archivedAt.value
+          : this.archivedAt,
+      verifiedAt: data.verifiedAt.present
+          ? data.verifiedAt.value
+          : this.verifiedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArchiveReference(')
+          ..write('id: $id, ')
+          ..write('attachmentId: $attachmentId, ')
+          ..write('destinationType: $destinationType, ')
+          ..write('logicalKey: $logicalKey, ')
+          ..write('originalByteSize: $originalByteSize, ')
+          ..write('originalSha256: $originalSha256, ')
+          ..write('archiveByteSize: $archiveByteSize, ')
+          ..write('archiveSha256: $archiveSha256, ')
+          ..write('encryptionAlgorithm: $encryptionAlgorithm, ')
+          ..write('formatVersion: $formatVersion, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('verifiedAt: $verifiedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    attachmentId,
+    destinationType,
+    logicalKey,
+    originalByteSize,
+    originalSha256,
+    archiveByteSize,
+    archiveSha256,
+    encryptionAlgorithm,
+    formatVersion,
+    archivedAt,
+    verifiedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ArchiveReference &&
+          other.id == this.id &&
+          other.attachmentId == this.attachmentId &&
+          other.destinationType == this.destinationType &&
+          other.logicalKey == this.logicalKey &&
+          other.originalByteSize == this.originalByteSize &&
+          other.originalSha256 == this.originalSha256 &&
+          other.archiveByteSize == this.archiveByteSize &&
+          other.archiveSha256 == this.archiveSha256 &&
+          other.encryptionAlgorithm == this.encryptionAlgorithm &&
+          other.formatVersion == this.formatVersion &&
+          other.archivedAt == this.archivedAt &&
+          other.verifiedAt == this.verifiedAt);
+}
+
+class ArchiveReferencesCompanion extends UpdateCompanion<ArchiveReference> {
+  final Value<String> id;
+  final Value<String> attachmentId;
+  final Value<String> destinationType;
+  final Value<String> logicalKey;
+  final Value<int> originalByteSize;
+  final Value<String> originalSha256;
+  final Value<int> archiveByteSize;
+  final Value<String> archiveSha256;
+  final Value<String> encryptionAlgorithm;
+  final Value<int> formatVersion;
+  final Value<DateTime> archivedAt;
+  final Value<DateTime> verifiedAt;
+  final Value<int> rowid;
+  const ArchiveReferencesCompanion({
+    this.id = const Value.absent(),
+    this.attachmentId = const Value.absent(),
+    this.destinationType = const Value.absent(),
+    this.logicalKey = const Value.absent(),
+    this.originalByteSize = const Value.absent(),
+    this.originalSha256 = const Value.absent(),
+    this.archiveByteSize = const Value.absent(),
+    this.archiveSha256 = const Value.absent(),
+    this.encryptionAlgorithm = const Value.absent(),
+    this.formatVersion = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    this.verifiedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ArchiveReferencesCompanion.insert({
+    required String id,
+    required String attachmentId,
+    required String destinationType,
+    required String logicalKey,
+    required int originalByteSize,
+    required String originalSha256,
+    required int archiveByteSize,
+    required String archiveSha256,
+    required String encryptionAlgorithm,
+    required int formatVersion,
+    required DateTime archivedAt,
+    required DateTime verifiedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       attachmentId = Value(attachmentId),
+       destinationType = Value(destinationType),
+       logicalKey = Value(logicalKey),
+       originalByteSize = Value(originalByteSize),
+       originalSha256 = Value(originalSha256),
+       archiveByteSize = Value(archiveByteSize),
+       archiveSha256 = Value(archiveSha256),
+       encryptionAlgorithm = Value(encryptionAlgorithm),
+       formatVersion = Value(formatVersion),
+       archivedAt = Value(archivedAt),
+       verifiedAt = Value(verifiedAt);
+  static Insertable<ArchiveReference> custom({
+    Expression<String>? id,
+    Expression<String>? attachmentId,
+    Expression<String>? destinationType,
+    Expression<String>? logicalKey,
+    Expression<int>? originalByteSize,
+    Expression<String>? originalSha256,
+    Expression<int>? archiveByteSize,
+    Expression<String>? archiveSha256,
+    Expression<String>? encryptionAlgorithm,
+    Expression<int>? formatVersion,
+    Expression<DateTime>? archivedAt,
+    Expression<DateTime>? verifiedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (attachmentId != null) 'attachment_id': attachmentId,
+      if (destinationType != null) 'destination_type': destinationType,
+      if (logicalKey != null) 'logical_key': logicalKey,
+      if (originalByteSize != null) 'original_byte_size': originalByteSize,
+      if (originalSha256 != null) 'original_sha256': originalSha256,
+      if (archiveByteSize != null) 'archive_byte_size': archiveByteSize,
+      if (archiveSha256 != null) 'archive_sha256': archiveSha256,
+      if (encryptionAlgorithm != null)
+        'encryption_algorithm': encryptionAlgorithm,
+      if (formatVersion != null) 'format_version': formatVersion,
+      if (archivedAt != null) 'archived_at': archivedAt,
+      if (verifiedAt != null) 'verified_at': verifiedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ArchiveReferencesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? attachmentId,
+    Value<String>? destinationType,
+    Value<String>? logicalKey,
+    Value<int>? originalByteSize,
+    Value<String>? originalSha256,
+    Value<int>? archiveByteSize,
+    Value<String>? archiveSha256,
+    Value<String>? encryptionAlgorithm,
+    Value<int>? formatVersion,
+    Value<DateTime>? archivedAt,
+    Value<DateTime>? verifiedAt,
+    Value<int>? rowid,
+  }) {
+    return ArchiveReferencesCompanion(
+      id: id ?? this.id,
+      attachmentId: attachmentId ?? this.attachmentId,
+      destinationType: destinationType ?? this.destinationType,
+      logicalKey: logicalKey ?? this.logicalKey,
+      originalByteSize: originalByteSize ?? this.originalByteSize,
+      originalSha256: originalSha256 ?? this.originalSha256,
+      archiveByteSize: archiveByteSize ?? this.archiveByteSize,
+      archiveSha256: archiveSha256 ?? this.archiveSha256,
+      encryptionAlgorithm: encryptionAlgorithm ?? this.encryptionAlgorithm,
+      formatVersion: formatVersion ?? this.formatVersion,
+      archivedAt: archivedAt ?? this.archivedAt,
+      verifiedAt: verifiedAt ?? this.verifiedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (attachmentId.present) {
+      map['attachment_id'] = Variable<String>(attachmentId.value);
+    }
+    if (destinationType.present) {
+      map['destination_type'] = Variable<String>(destinationType.value);
+    }
+    if (logicalKey.present) {
+      map['logical_key'] = Variable<String>(logicalKey.value);
+    }
+    if (originalByteSize.present) {
+      map['original_byte_size'] = Variable<int>(originalByteSize.value);
+    }
+    if (originalSha256.present) {
+      map['original_sha256'] = Variable<String>(originalSha256.value);
+    }
+    if (archiveByteSize.present) {
+      map['archive_byte_size'] = Variable<int>(archiveByteSize.value);
+    }
+    if (archiveSha256.present) {
+      map['archive_sha256'] = Variable<String>(archiveSha256.value);
+    }
+    if (encryptionAlgorithm.present) {
+      map['encryption_algorithm'] = Variable<String>(encryptionAlgorithm.value);
+    }
+    if (formatVersion.present) {
+      map['format_version'] = Variable<int>(formatVersion.value);
+    }
+    if (archivedAt.present) {
+      map['archived_at'] = Variable<DateTime>(archivedAt.value);
+    }
+    if (verifiedAt.present) {
+      map['verified_at'] = Variable<DateTime>(verifiedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ArchiveReferencesCompanion(')
+          ..write('id: $id, ')
+          ..write('attachmentId: $attachmentId, ')
+          ..write('destinationType: $destinationType, ')
+          ..write('logicalKey: $logicalKey, ')
+          ..write('originalByteSize: $originalByteSize, ')
+          ..write('originalSha256: $originalSha256, ')
+          ..write('archiveByteSize: $archiveByteSize, ')
+          ..write('archiveSha256: $archiveSha256, ')
+          ..write('encryptionAlgorithm: $encryptionAlgorithm, ')
+          ..write('formatVersion: $formatVersion, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('verifiedAt: $verifiedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -10686,6 +11625,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $RelationshipsTable relationships = $RelationshipsTable(this);
   late final $AttachmentsTable attachments = $AttachmentsTable(this);
+  late final $ArchiveReferencesTable archiveReferences =
+      $ArchiveReferencesTable(this);
   late final $MemoryCandidatesTable memoryCandidates = $MemoryCandidatesTable(
     this,
   );
@@ -10782,6 +11723,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Index attachmentsChecksumIdx = Index(
     'attachments_checksum_idx',
     'CREATE INDEX attachments_checksum_idx ON attachments (checksum)',
+  );
+  late final Index archiveReferencesAttachmentIdx = Index(
+    'archive_references_attachment_idx',
+    'CREATE UNIQUE INDEX archive_references_attachment_idx ON archive_references (attachment_id)',
+  );
+  late final Index archiveReferencesArchivedAtIdx = Index(
+    'archive_references_archived_at_idx',
+    'CREATE INDEX archive_references_archived_at_idx ON archive_references (archived_at)',
   );
   late final Index provenanceEntityIdx = Index(
     'provenance_entity_idx',
@@ -10889,6 +11838,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     evidenceRecords,
     relationships,
     attachments,
+    archiveReferences,
     memoryCandidates,
     fieldProvenanceRows,
     candidateExtractedFields,
@@ -10921,6 +11871,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     attachmentsEvidenceIdx,
     attachmentsStorageStateIdx,
     attachmentsChecksumIdx,
+    archiveReferencesAttachmentIdx,
+    archiveReferencesArchivedAtIdx,
     provenanceEntityIdx,
     provenanceEventIdx,
     provenanceEvidenceIdx,
@@ -10948,6 +11900,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'attachments',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('archive_references', kind: UpdateKind.delete)],
+    ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'events',
@@ -15221,8 +16180,11 @@ typedef $$AttachmentsTableCreateCompanionBuilder =
       Value<String?> displayName,
       Value<String?> relativePath,
       Value<String?> thumbnailRelativePath,
+      Value<String?> preservedOriginalRelativePath,
       required String mimeType,
       required int byteSize,
+      Value<int?> pixelWidth,
+      Value<int?> pixelHeight,
       Value<String?> checksum,
       required String storageState,
       required String importMode,
@@ -15240,8 +16202,11 @@ typedef $$AttachmentsTableUpdateCompanionBuilder =
       Value<String?> displayName,
       Value<String?> relativePath,
       Value<String?> thumbnailRelativePath,
+      Value<String?> preservedOriginalRelativePath,
       Value<String> mimeType,
       Value<int> byteSize,
+      Value<int?> pixelWidth,
+      Value<int?> pixelHeight,
       Value<String?> checksum,
       Value<String> storageState,
       Value<String> importMode,
@@ -15266,6 +16231,27 @@ final class $$AttachmentsTableReferences
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static MultiTypedResultKey<$ArchiveReferencesTable, List<ArchiveReference>>
+  _archiveReferencesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.archiveReferences,
+        aliasName: 'attachments__id__archive_references__attachment_id',
+      );
+
+  $$ArchiveReferencesTableProcessedTableManager get archiveReferencesRefs {
+    final manager = $$ArchiveReferencesTableTableManager(
+      $_db,
+      $_db.archiveReferences,
+    ).filter((f) => f.attachmentId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _archiveReferencesRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
     );
   }
 
@@ -15348,6 +16334,11 @@ class $$AttachmentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get preservedOriginalRelativePath => $composableBuilder(
+    column: $table.preservedOriginalRelativePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get mimeType => $composableBuilder(
     column: $table.mimeType,
     builder: (column) => ColumnFilters(column),
@@ -15355,6 +16346,16 @@ class $$AttachmentsTableFilterComposer
 
   ColumnFilters<int> get byteSize => $composableBuilder(
     column: $table.byteSize,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pixelWidth => $composableBuilder(
+    column: $table.pixelWidth,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pixelHeight => $composableBuilder(
+    column: $table.pixelHeight,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -15394,6 +16395,31 @@ class $$AttachmentsTableFilterComposer
           ),
     );
     return composer;
+  }
+
+  Expression<bool> archiveReferencesRefs(
+    Expression<bool> Function($$ArchiveReferencesTableFilterComposer f) f,
+  ) {
+    final $$ArchiveReferencesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.archiveReferences,
+      getReferencedColumn: (t) => t.attachmentId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ArchiveReferencesTableFilterComposer(
+            $db: $db,
+            $table: $db.archiveReferences,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
   }
 
   Expression<bool> fieldProvenanceRowsRefs(
@@ -15476,6 +16502,12 @@ class $$AttachmentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get preservedOriginalRelativePath =>
+      $composableBuilder(
+        column: $table.preservedOriginalRelativePath,
+        builder: (column) => ColumnOrderings(column),
+      );
+
   ColumnOrderings<String> get mimeType => $composableBuilder(
     column: $table.mimeType,
     builder: (column) => ColumnOrderings(column),
@@ -15483,6 +16515,16 @@ class $$AttachmentsTableOrderingComposer
 
   ColumnOrderings<int> get byteSize => $composableBuilder(
     column: $table.byteSize,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pixelWidth => $composableBuilder(
+    column: $table.pixelWidth,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pixelHeight => $composableBuilder(
+    column: $table.pixelHeight,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -15569,11 +16611,27 @@ class $$AttachmentsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get preservedOriginalRelativePath =>
+      $composableBuilder(
+        column: $table.preservedOriginalRelativePath,
+        builder: (column) => column,
+      );
+
   GeneratedColumn<String> get mimeType =>
       $composableBuilder(column: $table.mimeType, builder: (column) => column);
 
   GeneratedColumn<int> get byteSize =>
       $composableBuilder(column: $table.byteSize, builder: (column) => column);
+
+  GeneratedColumn<int> get pixelWidth => $composableBuilder(
+    column: $table.pixelWidth,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get pixelHeight => $composableBuilder(
+    column: $table.pixelHeight,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get checksum =>
       $composableBuilder(column: $table.checksum, builder: (column) => column);
@@ -15609,6 +16667,32 @@ class $$AttachmentsTableAnnotationComposer
           ),
     );
     return composer;
+  }
+
+  Expression<T> archiveReferencesRefs<T extends Object>(
+    Expression<T> Function($$ArchiveReferencesTableAnnotationComposer a) f,
+  ) {
+    final $$ArchiveReferencesTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.archiveReferences,
+          getReferencedColumn: (t) => t.attachmentId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$ArchiveReferencesTableAnnotationComposer(
+                $db: $db,
+                $table: $db.archiveReferences,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
   }
 
   Expression<T> fieldProvenanceRowsRefs<T extends Object>(
@@ -15653,6 +16737,7 @@ class $$AttachmentsTableTableManager
           Attachment,
           PrefetchHooks Function({
             bool evidenceId,
+            bool archiveReferencesRefs,
             bool fieldProvenanceRowsRefs,
           })
         > {
@@ -15679,8 +16764,12 @@ class $$AttachmentsTableTableManager
                 Value<String?> displayName = const Value.absent(),
                 Value<String?> relativePath = const Value.absent(),
                 Value<String?> thumbnailRelativePath = const Value.absent(),
+                Value<String?> preservedOriginalRelativePath =
+                    const Value.absent(),
                 Value<String> mimeType = const Value.absent(),
                 Value<int> byteSize = const Value.absent(),
+                Value<int?> pixelWidth = const Value.absent(),
+                Value<int?> pixelHeight = const Value.absent(),
                 Value<String?> checksum = const Value.absent(),
                 Value<String> storageState = const Value.absent(),
                 Value<String> importMode = const Value.absent(),
@@ -15696,8 +16785,11 @@ class $$AttachmentsTableTableManager
                 displayName: displayName,
                 relativePath: relativePath,
                 thumbnailRelativePath: thumbnailRelativePath,
+                preservedOriginalRelativePath: preservedOriginalRelativePath,
                 mimeType: mimeType,
                 byteSize: byteSize,
+                pixelWidth: pixelWidth,
+                pixelHeight: pixelHeight,
                 checksum: checksum,
                 storageState: storageState,
                 importMode: importMode,
@@ -15715,8 +16807,12 @@ class $$AttachmentsTableTableManager
                 Value<String?> displayName = const Value.absent(),
                 Value<String?> relativePath = const Value.absent(),
                 Value<String?> thumbnailRelativePath = const Value.absent(),
+                Value<String?> preservedOriginalRelativePath =
+                    const Value.absent(),
                 required String mimeType,
                 required int byteSize,
+                Value<int?> pixelWidth = const Value.absent(),
+                Value<int?> pixelHeight = const Value.absent(),
                 Value<String?> checksum = const Value.absent(),
                 required String storageState,
                 required String importMode,
@@ -15732,8 +16828,11 @@ class $$AttachmentsTableTableManager
                 displayName: displayName,
                 relativePath: relativePath,
                 thumbnailRelativePath: thumbnailRelativePath,
+                preservedOriginalRelativePath: preservedOriginalRelativePath,
                 mimeType: mimeType,
                 byteSize: byteSize,
+                pixelWidth: pixelWidth,
+                pixelHeight: pixelHeight,
                 checksum: checksum,
                 storageState: storageState,
                 importMode: importMode,
@@ -15748,10 +16847,15 @@ class $$AttachmentsTableTableManager
               )
               .toList(),
           prefetchHooksCallback:
-              ({evidenceId = false, fieldProvenanceRowsRefs = false}) {
+              ({
+                evidenceId = false,
+                archiveReferencesRefs = false,
+                fieldProvenanceRowsRefs = false,
+              }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
+                    if (archiveReferencesRefs) db.archiveReferences,
                     if (fieldProvenanceRowsRefs) db.fieldProvenanceRows,
                   ],
                   addJoins:
@@ -15790,6 +16894,27 @@ class $$AttachmentsTableTableManager
                       },
                   getPrefetchedDataCallback: (items) async {
                     return [
+                      if (archiveReferencesRefs)
+                        await $_getPrefetchedData<
+                          Attachment,
+                          $AttachmentsTable,
+                          ArchiveReference
+                        >(
+                          currentTable: table,
+                          referencedTable: $$AttachmentsTableReferences
+                              ._archiveReferencesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$AttachmentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).archiveReferencesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.attachmentId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (fieldProvenanceRowsRefs)
                         await $_getPrefetchedData<
                           Attachment,
@@ -15831,7 +16956,498 @@ typedef $$AttachmentsTableProcessedTableManager =
       $$AttachmentsTableUpdateCompanionBuilder,
       (Attachment, $$AttachmentsTableReferences),
       Attachment,
-      PrefetchHooks Function({bool evidenceId, bool fieldProvenanceRowsRefs})
+      PrefetchHooks Function({
+        bool evidenceId,
+        bool archiveReferencesRefs,
+        bool fieldProvenanceRowsRefs,
+      })
+    >;
+typedef $$ArchiveReferencesTableCreateCompanionBuilder =
+    ArchiveReferencesCompanion Function({
+      required String id,
+      required String attachmentId,
+      required String destinationType,
+      required String logicalKey,
+      required int originalByteSize,
+      required String originalSha256,
+      required int archiveByteSize,
+      required String archiveSha256,
+      required String encryptionAlgorithm,
+      required int formatVersion,
+      required DateTime archivedAt,
+      required DateTime verifiedAt,
+      Value<int> rowid,
+    });
+typedef $$ArchiveReferencesTableUpdateCompanionBuilder =
+    ArchiveReferencesCompanion Function({
+      Value<String> id,
+      Value<String> attachmentId,
+      Value<String> destinationType,
+      Value<String> logicalKey,
+      Value<int> originalByteSize,
+      Value<String> originalSha256,
+      Value<int> archiveByteSize,
+      Value<String> archiveSha256,
+      Value<String> encryptionAlgorithm,
+      Value<int> formatVersion,
+      Value<DateTime> archivedAt,
+      Value<DateTime> verifiedAt,
+      Value<int> rowid,
+    });
+
+final class $$ArchiveReferencesTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $ArchiveReferencesTable,
+          ArchiveReference
+        > {
+  $$ArchiveReferencesTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $AttachmentsTable _attachmentIdTable(_$AppDatabase db) => db
+      .attachments
+      .createAlias('archive_references__attachment_id__attachments__id');
+
+  $$AttachmentsTableProcessedTableManager get attachmentId {
+    final $_column = $_itemColumn<String>('attachment_id')!;
+
+    final manager = $$AttachmentsTableTableManager(
+      $_db,
+      $_db.attachments,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_attachmentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$ArchiveReferencesTableFilterComposer
+    extends Composer<_$AppDatabase, $ArchiveReferencesTable> {
+  $$ArchiveReferencesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get destinationType => $composableBuilder(
+    column: $table.destinationType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get logicalKey => $composableBuilder(
+    column: $table.logicalKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get originalByteSize => $composableBuilder(
+    column: $table.originalByteSize,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originalSha256 => $composableBuilder(
+    column: $table.originalSha256,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get archiveByteSize => $composableBuilder(
+    column: $table.archiveByteSize,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get archiveSha256 => $composableBuilder(
+    column: $table.archiveSha256,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get encryptionAlgorithm => $composableBuilder(
+    column: $table.encryptionAlgorithm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get formatVersion => $composableBuilder(
+    column: $table.formatVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get verifiedAt => $composableBuilder(
+    column: $table.verifiedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$AttachmentsTableFilterComposer get attachmentId {
+    final $$AttachmentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.attachmentId,
+      referencedTable: $db.attachments,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AttachmentsTableFilterComposer(
+            $db: $db,
+            $table: $db.attachments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ArchiveReferencesTableOrderingComposer
+    extends Composer<_$AppDatabase, $ArchiveReferencesTable> {
+  $$ArchiveReferencesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get destinationType => $composableBuilder(
+    column: $table.destinationType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get logicalKey => $composableBuilder(
+    column: $table.logicalKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get originalByteSize => $composableBuilder(
+    column: $table.originalByteSize,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get originalSha256 => $composableBuilder(
+    column: $table.originalSha256,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get archiveByteSize => $composableBuilder(
+    column: $table.archiveByteSize,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get archiveSha256 => $composableBuilder(
+    column: $table.archiveSha256,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get encryptionAlgorithm => $composableBuilder(
+    column: $table.encryptionAlgorithm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get formatVersion => $composableBuilder(
+    column: $table.formatVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get verifiedAt => $composableBuilder(
+    column: $table.verifiedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$AttachmentsTableOrderingComposer get attachmentId {
+    final $$AttachmentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.attachmentId,
+      referencedTable: $db.attachments,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AttachmentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.attachments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ArchiveReferencesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ArchiveReferencesTable> {
+  $$ArchiveReferencesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get destinationType => $composableBuilder(
+    column: $table.destinationType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get logicalKey => $composableBuilder(
+    column: $table.logicalKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get originalByteSize => $composableBuilder(
+    column: $table.originalByteSize,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get originalSha256 => $composableBuilder(
+    column: $table.originalSha256,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get archiveByteSize => $composableBuilder(
+    column: $table.archiveByteSize,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get archiveSha256 => $composableBuilder(
+    column: $table.archiveSha256,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get encryptionAlgorithm => $composableBuilder(
+    column: $table.encryptionAlgorithm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get formatVersion => $composableBuilder(
+    column: $table.formatVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get archivedAt => $composableBuilder(
+    column: $table.archivedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get verifiedAt => $composableBuilder(
+    column: $table.verifiedAt,
+    builder: (column) => column,
+  );
+
+  $$AttachmentsTableAnnotationComposer get attachmentId {
+    final $$AttachmentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.attachmentId,
+      referencedTable: $db.attachments,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AttachmentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.attachments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$ArchiveReferencesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ArchiveReferencesTable,
+          ArchiveReference,
+          $$ArchiveReferencesTableFilterComposer,
+          $$ArchiveReferencesTableOrderingComposer,
+          $$ArchiveReferencesTableAnnotationComposer,
+          $$ArchiveReferencesTableCreateCompanionBuilder,
+          $$ArchiveReferencesTableUpdateCompanionBuilder,
+          (ArchiveReference, $$ArchiveReferencesTableReferences),
+          ArchiveReference,
+          PrefetchHooks Function({bool attachmentId})
+        > {
+  $$ArchiveReferencesTableTableManager(
+    _$AppDatabase db,
+    $ArchiveReferencesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ArchiveReferencesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ArchiveReferencesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ArchiveReferencesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> attachmentId = const Value.absent(),
+                Value<String> destinationType = const Value.absent(),
+                Value<String> logicalKey = const Value.absent(),
+                Value<int> originalByteSize = const Value.absent(),
+                Value<String> originalSha256 = const Value.absent(),
+                Value<int> archiveByteSize = const Value.absent(),
+                Value<String> archiveSha256 = const Value.absent(),
+                Value<String> encryptionAlgorithm = const Value.absent(),
+                Value<int> formatVersion = const Value.absent(),
+                Value<DateTime> archivedAt = const Value.absent(),
+                Value<DateTime> verifiedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ArchiveReferencesCompanion(
+                id: id,
+                attachmentId: attachmentId,
+                destinationType: destinationType,
+                logicalKey: logicalKey,
+                originalByteSize: originalByteSize,
+                originalSha256: originalSha256,
+                archiveByteSize: archiveByteSize,
+                archiveSha256: archiveSha256,
+                encryptionAlgorithm: encryptionAlgorithm,
+                formatVersion: formatVersion,
+                archivedAt: archivedAt,
+                verifiedAt: verifiedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String attachmentId,
+                required String destinationType,
+                required String logicalKey,
+                required int originalByteSize,
+                required String originalSha256,
+                required int archiveByteSize,
+                required String archiveSha256,
+                required String encryptionAlgorithm,
+                required int formatVersion,
+                required DateTime archivedAt,
+                required DateTime verifiedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => ArchiveReferencesCompanion.insert(
+                id: id,
+                attachmentId: attachmentId,
+                destinationType: destinationType,
+                logicalKey: logicalKey,
+                originalByteSize: originalByteSize,
+                originalSha256: originalSha256,
+                archiveByteSize: archiveByteSize,
+                archiveSha256: archiveSha256,
+                encryptionAlgorithm: encryptionAlgorithm,
+                formatVersion: formatVersion,
+                archivedAt: archivedAt,
+                verifiedAt: verifiedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$ArchiveReferencesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({attachmentId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (attachmentId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.attachmentId,
+                                referencedTable:
+                                    $$ArchiveReferencesTableReferences
+                                        ._attachmentIdTable(db),
+                                referencedColumn:
+                                    $$ArchiveReferencesTableReferences
+                                        ._attachmentIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$ArchiveReferencesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ArchiveReferencesTable,
+      ArchiveReference,
+      $$ArchiveReferencesTableFilterComposer,
+      $$ArchiveReferencesTableOrderingComposer,
+      $$ArchiveReferencesTableAnnotationComposer,
+      $$ArchiveReferencesTableCreateCompanionBuilder,
+      $$ArchiveReferencesTableUpdateCompanionBuilder,
+      (ArchiveReference, $$ArchiveReferencesTableReferences),
+      ArchiveReference,
+      PrefetchHooks Function({bool attachmentId})
     >;
 typedef $$MemoryCandidatesTableCreateCompanionBuilder =
     MemoryCandidatesCompanion Function({
@@ -22746,6 +24362,8 @@ class $AppDatabaseManager {
       $$RelationshipsTableTableManager(_db, _db.relationships);
   $$AttachmentsTableTableManager get attachments =>
       $$AttachmentsTableTableManager(_db, _db.attachments);
+  $$ArchiveReferencesTableTableManager get archiveReferences =>
+      $$ArchiveReferencesTableTableManager(_db, _db.archiveReferences);
   $$MemoryCandidatesTableTableManager get memoryCandidates =>
       $$MemoryCandidatesTableTableManager(_db, _db.memoryCandidates);
   $$FieldProvenanceRowsTableTableManager get fieldProvenanceRows =>

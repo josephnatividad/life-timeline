@@ -7,13 +7,22 @@ import 'package:cryptography/cryptography.dart';
 import 'package:life_timeline/shared/crypto/crypto_models.dart';
 
 final class AesGcmFileEncryptionService implements EncryptionService {
-  const AesGcmFileEncryptionService(this._keyDeriver);
+  const AesGcmFileEncryptionService(
+    this._keyDeriver, {
+    this.magic = 'LTBACK01',
+  });
 
-  static final _magic = ascii.encode('LTBACK01');
   static const _macLength = 16;
   static const _maxHeaderLength = 16 * 1024;
 
   final PasswordKeyDeriver _keyDeriver;
+  final String magic;
+
+  List<int> get _magic {
+    final value = ascii.encode(magic);
+    if (value.length != 8) throw const CryptoFailure('invalid_magic');
+    return value;
+  }
 
   @override
   Future<EncryptedContainerHeader> inspect(String encryptedPath) async {

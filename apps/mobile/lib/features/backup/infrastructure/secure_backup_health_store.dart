@@ -33,6 +33,11 @@ final class SecureBackupHealthStore implements BackupHealthStore {
         pendingChangesSinceBackup:
             json['pendingChangesSinceBackup'] as bool? ?? true,
         recoveryConfigured: json['recoveryConfigured'] as bool? ?? false,
+        importantItemsWithSingleCopy:
+            json['importantItemsWithSingleCopy'] as int? ?? 0,
+        archiveItemsWithSingleCopy:
+            json['archiveItemsWithSingleCopy'] as int? ?? 0,
+        itemsWithNoVerifiedCopy: json['itemsWithNoVerifiedCopy'] as int? ?? 0,
       );
     } on Object {
       return const BackupHealth();
@@ -49,6 +54,9 @@ final class SecureBackupHealthStore implements BackupHealthStore {
       'backupSize': health.backupSize,
       'pendingChangesSinceBackup': health.pendingChangesSinceBackup,
       'recoveryConfigured': health.recoveryConfigured,
+      'importantItemsWithSingleCopy': health.importantItemsWithSingleCopy,
+      'archiveItemsWithSingleCopy': health.archiveItemsWithSingleCopy,
+      'itemsWithNoVerifiedCopy': health.itemsWithNoVerifiedCopy,
     }),
   );
 }

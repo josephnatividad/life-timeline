@@ -4,6 +4,7 @@ import 'package:life_timeline/shared/database/schema_migrations.dart';
 import 'package:life_timeline/shared/database/tables/candidate_provenance_tables.dart';
 import 'package:life_timeline/shared/database/tables/insight_tables.dart';
 import 'package:life_timeline/shared/database/tables/schema_constraints.dart';
+import 'package:life_timeline/shared/database/tables/storage_tables.dart';
 import 'package:life_timeline/shared/database/tables/taxonomy_tables.dart';
 import 'package:life_timeline/shared/database/tables/timeline_tables.dart';
 
@@ -16,6 +17,7 @@ part 'app_database.g.dart';
     EvidenceRecords,
     Relationships,
     Attachments,
+    ArchiveReferences,
     FieldProvenanceRows,
     MemoryCandidates,
     CandidateExtractedFields,
@@ -38,7 +40,7 @@ final class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

@@ -64,11 +64,13 @@ final class AppBadge extends StatelessWidget {
                   ),
                   const SizedBox(width: AppSpacing.xxs),
                 ],
-                Text(
-                  label,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelLarge?.copyWith(color: foreground),
+                Flexible(
+                  child: Text(
+                    label,
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelLarge?.copyWith(color: foreground),
+                  ),
                 ),
               ],
             ),

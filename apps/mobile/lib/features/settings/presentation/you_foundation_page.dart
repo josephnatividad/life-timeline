@@ -33,6 +33,17 @@ final class YouFoundationPage extends StatelessWidget {
                 trailing: const AppIcon(icon: AppIcons.next),
                 onTap: () => context.pushNamed(AppRoute.security.name),
               ),
+              ListTile(
+                key: const Key('storage-manager-row'),
+                contentPadding: EdgeInsets.zero,
+                leading: const AppIcon(icon: AppIcons.database),
+                title: const Text('Storage'),
+                subtitle: const Text(
+                  'Usage, safe cleanup, archive, and backup protection',
+                ),
+                trailing: const AppIcon(icon: AppIcons.next),
+                onTap: () => context.pushNamed(AppRoute.storageManager.name),
+              ),
               const SizedBox(height: AppSpacing.xl),
               const AppDivider(),
               const SizedBox(height: AppSpacing.xl),

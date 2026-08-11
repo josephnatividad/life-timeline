@@ -18,7 +18,7 @@ void main() {
 
   tearDown(() => database.close());
 
-  test('schema v5 preserves the complete relational baseline', () async {
+  test('schema v6 preserves the complete relational baseline', () async {
     final rows = await database
         .customSelect(
           "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name",
@@ -26,7 +26,7 @@ void main() {
         .get();
     final names = rows.map((row) => row.read<String>('name')).toSet();
 
-    expect(database.schemaVersion, 5);
+    expect(database.schemaVersion, 6);
     expect(
       names,
       containsAll(<String>{
@@ -49,6 +49,7 @@ void main() {
         'event_categories',
         'evidence_categories',
         'insight_dismissals',
+        'archive_references',
       }),
     );
   });
@@ -77,6 +78,8 @@ void main() {
         'events_type_idx',
         'relationships_type_idx',
         'insight_dismissals_dismissed_at_idx',
+        'archive_references_attachment_idx',
+        'archive_references_archived_at_idx',
       }),
     );
   });
@@ -92,6 +95,9 @@ void main() {
 
       expect(names, contains('relative_path'));
       expect(names, contains('thumbnail_relative_path'));
+      expect(names, contains('preserved_original_relative_path'));
+      expect(names, contains('pixel_width'));
+      expect(names, contains('pixel_height'));
       expect(names, isNot(contains('data')));
       expect(names, isNot(contains('content')));
       expect(types, isNot(contains('BLOB')));
@@ -122,10 +128,10 @@ void main() {
   test(
     'migration baseline is explicit and rejects unimplemented upgrades',
     () async {
-      await migrateSchema(database, database.createMigrator(), from: 5, to: 5);
+      await migrateSchema(database, database.createMigrator(), from: 6, to: 6);
 
       expect(
-        migrateSchema(database, database.createMigrator(), from: 5, to: 6),
+        migrateSchema(database, database.createMigrator(), from: 6, to: 7),
         throwsA(isA<StateError>()),
       );
     },
@@ -136,7 +142,7 @@ void main() {
     expect(row.read<int>('foreign_keys'), 1);
   });
 
-  test('schema v5 retains the local FTS5 event index', () async {
+  test('schema v6 retains the local FTS5 event index', () async {
     final row = await database
         .customSelect(
           "SELECT sql FROM sqlite_master WHERE name = 'event_search'",
@@ -291,6 +297,9 @@ void main() {
             'CREATE TABLE relationships (id TEXT NOT NULL PRIMARY KEY, relationship_type TEXT)',
           );
           raw.execute(
+            'CREATE TABLE attachments (id TEXT NOT NULL PRIMARY KEY)',
+          );
+          raw.execute(
             "INSERT INTO entities(id, entity_type) VALUES ('kept', 'phone')",
           );
           raw.execute('PRAGMA user_version = 4');
@@ -316,5 +325,74 @@ void main() {
     expect(kept.read<String>('id'), 'kept');
     expect(table.read<String>('name'), 'insight_dismissals');
     expect(indexes, hasLength(3));
+  });
+
+  test('v5 to v6 adds archive metadata without resetting attachments', () async {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+    addTearDown(
+      () => driftRuntimeOptions.dontWarnAboutMultipleDatabases = false,
+    );
+    final migrated = AppDatabase.forTesting(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw.execute('''
+            CREATE TABLE attachments (
+              id TEXT NOT NULL PRIMARY KEY,
+              evidence_id TEXT NOT NULL,
+              privacy_classification TEXT NOT NULL,
+              lifecycle TEXT NOT NULL,
+              created_at INTEGER NOT NULL,
+              updated_at INTEGER NOT NULL,
+              deleted_at INTEGER,
+              storage_state TEXT NOT NULL,
+              import_mode TEXT NOT NULL,
+              mime_type TEXT NOT NULL,
+              byte_size INTEGER NOT NULL,
+              checksum TEXT,
+              display_name TEXT,
+              relative_path TEXT,
+              thumbnail_relative_path TEXT
+            )
+          ''');
+          raw.execute('''
+            INSERT INTO attachments (
+              id, evidence_id, privacy_classification, lifecycle,
+              created_at, updated_at, storage_state, import_mode,
+              mime_type, byte_size, relative_path
+            ) VALUES (
+              'kept', 'evidence-1', 'personal', 'confirmed',
+              1, 1, 'local', 'preserveOriginal',
+              'image/jpeg', 12, 'photos/kept.jpg'
+            )
+          ''');
+          raw.execute('PRAGMA user_version = 5');
+        },
+      ),
+    );
+    addTearDown(migrated.close);
+
+    final kept = await migrated
+        .customSelect('SELECT id, relative_path FROM attachments')
+        .getSingle();
+    final columns = await migrated
+        .customSelect('PRAGMA table_info(attachments)')
+        .get();
+    final archiveTable = await migrated
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'archive_references'",
+        )
+        .getSingle();
+
+    expect(kept.read<String>('id'), 'kept');
+    expect(kept.read<String>('relative_path'), 'photos/kept.jpg');
+    expect(
+      columns.map((row) => row.read<String>('name')),
+      containsAll(<String>[
+        'preserved_original_relative_path',
+        'pixel_width',
+        'pixel_height',
+      ]),
+    );
+    expect(archiveTable.read<String>('name'), 'archive_references');
   });
 }

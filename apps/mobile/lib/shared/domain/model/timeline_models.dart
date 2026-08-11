@@ -124,12 +124,19 @@ final class Attachment {
     this.displayName,
     this.relativePath,
     this.thumbnailRelativePath,
+    this.preservedOriginalRelativePath,
+    this.pixelWidth,
+    this.pixelHeight,
   }) {
     if (evidenceId.trim().isEmpty || mimeType.trim().isEmpty) {
       throw ArgumentError('Evidence ID and MIME type must not be empty.');
     }
     if (byteSize < 0) {
       throw ArgumentError.value(byteSize, 'byteSize', 'Must not be negative.');
+    }
+    if ((pixelWidth != null && pixelWidth! <= 0) ||
+        (pixelHeight != null && pixelHeight! <= 0)) {
+      throw ArgumentError('Attachment dimensions must be positive.');
     }
   }
 
@@ -141,6 +148,9 @@ final class Attachment {
   final RecordMetadata metadata;
   final String mimeType;
   final String? relativePath;
+  final String? preservedOriginalRelativePath;
+  final int? pixelHeight;
+  final int? pixelWidth;
   final AttachmentStorageState storageState;
   final String? thumbnailRelativePath;
 }

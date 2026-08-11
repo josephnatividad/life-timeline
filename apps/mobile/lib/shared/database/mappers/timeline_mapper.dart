@@ -152,8 +152,11 @@ abstract final class TimelineMapper {
     displayName: Value(value.displayName),
     relativePath: Value(value.relativePath),
     thumbnailRelativePath: Value(value.thumbnailRelativePath),
+    preservedOriginalRelativePath: Value(value.preservedOriginalRelativePath),
     mimeType: Value(value.mimeType),
     byteSize: Value(value.byteSize),
+    pixelWidth: Value(value.pixelWidth),
+    pixelHeight: Value(value.pixelHeight),
     checksum: Value(value.checksum),
     storageState: Value(
       PersistenceValueCodec.attachmentStateToStorage(value.storageState),
@@ -186,6 +189,9 @@ abstract final class TimelineMapper {
         displayName: row.displayName,
         relativePath: row.relativePath,
         thumbnailRelativePath: row.thumbnailRelativePath,
+        preservedOriginalRelativePath: row.preservedOriginalRelativePath,
+        pixelWidth: row.pixelWidth,
+        pixelHeight: row.pixelHeight,
       );
 
   static db.RelationshipsCompanion relationshipToCompanion(

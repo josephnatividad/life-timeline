@@ -8,9 +8,9 @@ not a promise that all device compromise is preventable.
 
 This foundation follows `06-security-privacy.md`,
 `07-backup-archive-recovery.md`, accepted ADRs, and `AGENTS.md`. It adds no
-account, backend, analytics, cloud storage, cloud AI, or archive/offload
-behavior. Backup is a user-initiated local export and remains separate from
-future archive/offload work.
+account, backend, analytics, developer-owned cloud storage, or cloud AI.
+Backup and archive are user-initiated local exports and remain distinct:
+backup protects against loss, while archive may free device space.
 
 ## Threat model
 
@@ -24,6 +24,9 @@ The implementation addresses:
 - accidental inclusion of externally referenced originals in an app-owned
   backup;
 - accidental secret or personal-content disclosure through application logs.
+- premature local-original deletion before an encrypted archive is verified;
+- archive substitution or corruption during explicit retrieval;
+- unsafe temporary cleanup reaching user-selected or referenced content.
 
 It does not claim to protect against a fully compromised/rooted device, a
 malicious or compromised operating system, screen capture by the OS, runtime
@@ -133,10 +136,39 @@ links, unsafe paths, excessive entry counts, and excessive expanded size are
 rejected.
 
 Only app-managed `local` attachments are copied. `referenced` attachment rows
-remain as metadata, but their absolute/relative external paths and thumbnail
-paths are cleared in the portable snapshot. Absolute paths are rejected for
-app-managed files. Attachment IDs and storage mapping are checked against the
-manifest before commit.
+remain as metadata, but their external paths are cleared in the portable
+snapshot. Managed thumbnails and explicitly preserved pre-optimization
+originals are copied and verified as separate manifest roles. Archived rows
+retain portable archive-reference metadata and managed previews, but the
+external archive file is not silently treated as backup content. Absolute
+paths are rejected for app-managed files. Attachment IDs and storage mapping
+are checked against the manifest before commit.
+
+## Archive format and deletion safety
+
+The project-neutral archive extension is `.timelinearchive`. V1 encrypts one
+original per container using the same reviewed encryption service but a
+distinct eight-byte magic, `LTARCH01`. The plaintext authenticated header
+contains only format, creation, payload-size, cipher/KDF, salt, and nonce
+metadata. The raw original is the authenticated encrypted payload; it is not
+placed in SQLite.
+
+The archive recovery password is operation-scoped and not persisted. Archive
+references contain a logical filename, original/encrypted hashes and sizes,
+algorithm and format identifiers, and verification timestamps. They contain no
+absolute provider location, key, password, or credential.
+
+The implementation verifies the managed source, encrypts in an app-private
+temporary directory, invokes the system destination picker, verifies the
+saved archive, and commits its reference before considering local removal.
+Local removal is separately confirmed and off by default. If deletion fails
+while the source still exists, the row returns to local. If metadata
+finalization fails after a successful deletion, the verified archive state is
+retained rather than falsely claiming a local original exists.
+
+Retrieval verifies the encrypted archive hash/size before decryption and the
+original hash/size after decryption and after the final managed copy. Wrong
+password and damaged authentication map to conservative user-facing wording.
 
 ## Fresh-install restore and atomicity
 
@@ -190,6 +222,20 @@ content, or attachments.
   checks without exposing timeline content.
 - Export cancellation or a destination-provider failure may leave a partial
   file under provider control. App-private staging is cleaned best effort.
+- Archive V1 requires explicit file reconnection and does not persist Android
+  document URIs or Apple security-scoped bookmarks. Provider moves or revoked
+  permissions therefore require the user to select the file again.
+- Each V1 archive contains one original. Multi-select opens one save flow per
+  item; durable directory and batch-container designs remain future work.
+- An archive and its password remain the user's responsibility. There is no
+  escrow, remote recovery, automatic redundancy, or guarantee that an
+  archived original has more than one copy.
+- JPEG optimization is lossy by design and requires explicit confirmation;
+  preserving the source is the default. Release QA must validate fidelity
+  across representative orientation and color-profile inputs.
+- Cleanup safety depends on maintaining narrow directory/name allowlists.
+  Adding a temporary-file producer requires a corresponding review rather
+  than broadening cleanup to arbitrary cache or user paths.
 - Platform file-provider behavior and biometric enrollment/lockout need manual
   validation on each supported OS and representative devices.
 - The Android build still uses Flutter's temporary legacy Kotlin Gradle Plugin

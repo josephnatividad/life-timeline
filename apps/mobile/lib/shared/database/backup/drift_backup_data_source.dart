@@ -14,6 +14,7 @@ final class DriftBackupDataSource implements BackupDataSource {
     'categories',
     'relationships',
     'attachments',
+    'archive_references',
     'memory_candidates',
     'candidate_extracted_fields',
     'candidate_entity_proposals',

@@ -115,6 +115,40 @@ Future<void> migrateSchema(
           'CREATE INDEX relationships_type_idx ON relationships(relationship_type)',
         );
         break;
+      case 6:
+        await database.customStatement(
+          'ALTER TABLE attachments ADD COLUMN preserved_original_relative_path TEXT NULL',
+        );
+        await database.customStatement(
+          'ALTER TABLE attachments ADD COLUMN pixel_width INTEGER NULL CHECK (pixel_width IS NULL OR pixel_width > 0)',
+        );
+        await database.customStatement(
+          'ALTER TABLE attachments ADD COLUMN pixel_height INTEGER NULL CHECK (pixel_height IS NULL OR pixel_height > 0)',
+        );
+        await database.customStatement('''
+          CREATE TABLE archive_references (
+            id TEXT NOT NULL PRIMARY KEY,
+            attachment_id TEXT NOT NULL REFERENCES attachments(id) ON DELETE CASCADE,
+            destination_type TEXT NOT NULL,
+            logical_key TEXT NOT NULL,
+            original_byte_size INTEGER NOT NULL CHECK (original_byte_size >= 0),
+            original_sha256 TEXT NOT NULL,
+            archive_byte_size INTEGER NOT NULL CHECK (archive_byte_size >= 0),
+            archive_sha256 TEXT NOT NULL,
+            encryption_algorithm TEXT NOT NULL,
+            format_version INTEGER NOT NULL CHECK (format_version >= 1),
+            archived_at INTEGER NOT NULL,
+            verified_at INTEGER NOT NULL,
+            CHECK (verified_at >= archived_at)
+          )
+        ''');
+        await database.customStatement(
+          'CREATE UNIQUE INDEX archive_references_attachment_idx ON archive_references(attachment_id)',
+        );
+        await database.customStatement(
+          'CREATE INDEX archive_references_archived_at_idx ON archive_references(archived_at)',
+        );
+        break;
       default:
         throw StateError('Missing explicit migration to schema v$version.');
     }

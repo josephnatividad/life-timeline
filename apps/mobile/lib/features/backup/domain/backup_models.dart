@@ -36,17 +36,49 @@ final class BackupHealth {
     this.backupSize,
     this.pendingChangesSinceBackup = true,
     this.recoveryConfigured = false,
+    this.importantItemsWithSingleCopy = 0,
+    this.archiveItemsWithSingleCopy = 0,
+    this.itemsWithNoVerifiedCopy = 0,
   });
 
   final int? backupSize;
+  final int archiveItemsWithSingleCopy;
   final BackupDestinationType? destinationType;
   final DateTime? lastBackupAt;
+  final int importantItemsWithSingleCopy;
+  final int itemsWithNoVerifiedCopy;
   final bool pendingChangesSinceBackup;
   final bool recoveryConfigured;
   final bool verified;
+
+  BackupHealth copyWith({
+    DateTime? lastBackupAt,
+    BackupDestinationType? destinationType,
+    bool? verified,
+    int? backupSize,
+    bool? pendingChangesSinceBackup,
+    bool? recoveryConfigured,
+    int? importantItemsWithSingleCopy,
+    int? archiveItemsWithSingleCopy,
+    int? itemsWithNoVerifiedCopy,
+  }) => BackupHealth(
+    lastBackupAt: lastBackupAt ?? this.lastBackupAt,
+    destinationType: destinationType ?? this.destinationType,
+    verified: verified ?? this.verified,
+    backupSize: backupSize ?? this.backupSize,
+    pendingChangesSinceBackup:
+        pendingChangesSinceBackup ?? this.pendingChangesSinceBackup,
+    recoveryConfigured: recoveryConfigured ?? this.recoveryConfigured,
+    importantItemsWithSingleCopy:
+        importantItemsWithSingleCopy ?? this.importantItemsWithSingleCopy,
+    archiveItemsWithSingleCopy:
+        archiveItemsWithSingleCopy ?? this.archiveItemsWithSingleCopy,
+    itemsWithNoVerifiedCopy:
+        itemsWithNoVerifiedCopy ?? this.itemsWithNoVerifiedCopy,
+  );
 }
 
-enum BackupEntryType { database, attachment }
+enum BackupEntryType { database, attachment, thumbnail, preservedOriginal }
 
 final class BackupFileEntry {
   const BackupFileEntry({

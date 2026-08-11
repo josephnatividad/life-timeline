@@ -79,8 +79,13 @@ class Attachments extends Table with RecordColumns {
   TextColumn get displayName => text().nullable()();
   TextColumn get relativePath => text().nullable()();
   TextColumn get thumbnailRelativePath => text().nullable()();
+  TextColumn get preservedOriginalRelativePath => text().nullable()();
   TextColumn get mimeType => text()();
   IntColumn get byteSize => integer().check(byteSize.isBiggerOrEqualValue(0))();
+  IntColumn get pixelWidth =>
+      integer().nullable().check(pixelWidth.isBiggerThanValue(0))();
+  IntColumn get pixelHeight =>
+      integer().nullable().check(pixelHeight.isBiggerThanValue(0))();
   TextColumn get checksum => text().nullable()();
   TextColumn get storageState => text().check(
     storageState.isIn(const ['local', 'referenced', 'archived', 'unavailable']),
