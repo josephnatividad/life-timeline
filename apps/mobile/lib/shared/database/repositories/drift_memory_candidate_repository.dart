@@ -5,6 +5,7 @@ import 'package:life_timeline/shared/database/app_database.dart' as db;
 import 'package:life_timeline/shared/database/mappers/candidate_provenance_mapper.dart';
 import 'package:life_timeline/shared/database/mappers/reminder_mapper.dart';
 import 'package:life_timeline/shared/database/mappers/timeline_mapper.dart';
+import 'package:life_timeline/shared/database/schema_migrations.dart';
 import 'package:life_timeline/shared/domain/model/field_provenance.dart';
 import 'package:life_timeline/shared/domain/model/memory_candidate.dart';
 import 'package:life_timeline/shared/domain/model/record_metadata.dart';
@@ -326,26 +327,9 @@ final class DriftMemoryCandidateRepository
           .into(_database.reminders)
           .insert(ReminderMapper.toCompanion(reminder));
     }
-    await _database.customStatement(
-      'DELETE FROM event_search WHERE event_id = ?',
-      [confirmedEvent.metadata.id],
-    );
-    await _database.customStatement(
-      '''
-      INSERT INTO event_search(
-        event_id, title, description, event_type, entity_names,
-        category_names, media_captions
-      )
-      VALUES (?, ?, ?, ?, ?, '', '')
-    ''',
-      [
-        confirmedEvent.metadata.id,
-        confirmedEvent.title,
-        confirmedEvent.description ?? '',
-        confirmedEvent.eventType ?? '',
-        entities.map((entity) => entity.name).join(' '),
-      ],
-    );
+    // Rebuild from persisted relationships rather than only the newly-created
+    // entities. This also indexes an existing entity linked during review.
+    await refreshEventSearchIndex(_database, confirmedEvent.metadata.id);
   });
 
   @override

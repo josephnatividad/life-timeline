@@ -206,6 +206,85 @@ void main() {
     expect(indexed.read<String>('event_id'), 'event-1');
   });
 
+  test('sequential v1 to v8 migration preserves a realistic legacy graph', () async {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+    addTearDown(
+      () => driftRuntimeOptions.dontWarnAboutMultipleDatabases = false,
+    );
+    final migrated = AppDatabase.forTesting(
+      NativeDatabase.memory(
+        setup: (raw) {
+          _createSequentialV1Fixture(raw.execute);
+          raw.execute('PRAGMA user_version = 1');
+        },
+      ),
+    );
+    addTearDown(migrated.close);
+
+    final events = await migrated
+        .customSelect('SELECT id, lifecycle, temporal_precision FROM events')
+        .get();
+    final relationship = await migrated
+        .customSelect(
+          "SELECT source_event_id, target_evidence_id FROM relationships WHERE id = 'relationship-proof'",
+        )
+        .getSingle();
+    final evidence = await migrated
+        .customSelect("SELECT title FROM evidence WHERE id = 'evidence-proof'")
+        .getSingle();
+    final attachment = await migrated
+        .customSelect(
+          "SELECT id, relative_path FROM attachments WHERE id = 'attachment-proof'",
+        )
+        .getSingle();
+    final link = await migrated
+        .customSelect(
+          "SELECT evidence_id, role FROM attachment_links WHERE attachment_id = 'attachment-proof'",
+        )
+        .getSingle();
+    final candidate = await migrated
+        .customSelect(
+          "SELECT title, document_type, review_status FROM memory_candidates WHERE id = 'candidate-proof'",
+        )
+        .getSingle();
+    final reminderTable = await migrated
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'reminders'",
+        )
+        .getSingle();
+    final search = await migrated
+        .customSelect(
+          "SELECT event_id FROM event_search WHERE event_search MATCH 'legacy' ORDER BY event_id",
+        )
+        .get();
+    final foreignKeyProblems = await migrated
+        .customSelect('PRAGMA foreign_key_check')
+        .get();
+
+    expect(events, hasLength(3));
+    expect({
+      for (final row in events) row.read<String>('lifecycle'),
+    }, containsAll({'confirmed', 'archived', 'soft_deleted'}));
+    expect({
+      for (final row in events) row.read<String>('temporal_precision'),
+    }, containsAll({'approximate', 'year', 'range'}));
+    expect(relationship.read<String>('source_event_id'), 'event-active');
+    expect(relationship.read<String>('target_evidence_id'), 'evidence-proof');
+    expect(evidence.read<String>('title'), 'Legacy receipt');
+    expect(attachment.read<String>('relative_path'), 'photos/proof.jpg');
+    expect(link.read<String>('evidence_id'), 'evidence-proof');
+    expect(link.read<String>('role'), 'evidence');
+    expect(candidate.read<String>('title'), 'Legacy candidate');
+    expect(candidate.read<String>('document_type'), 'unknown');
+    expect(candidate.read<String>('review_status'), 'pending');
+    expect(reminderTable.read<String>('name'), 'reminders');
+    expect(
+      search.map((row) => row.read<String>('event_id')),
+      containsAll({'event-active', 'event-archived'}),
+    );
+    expect(foreignKeyProblems, isEmpty);
+  });
+
   test('v2 to v3 migration adds candidate intelligence without reset', () async {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     addTearDown(
@@ -689,4 +768,189 @@ void _createLegacyRelationalFixture(void Function(String sql) execute) {
       import_mode TEXT NOT NULL
     )
   ''');
+}
+
+void _createSequentialV1Fixture(void Function(String sql) execute) {
+  execute('''
+    CREATE TABLE entities (
+      id TEXT NOT NULL PRIMARY KEY,
+      privacy_classification TEXT NOT NULL,
+      lifecycle TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      deleted_at INTEGER,
+      name TEXT NOT NULL,
+      normalized_name TEXT NOT NULL,
+      entity_type TEXT NOT NULL,
+      notes TEXT
+    )
+  ''');
+  execute("""
+    INSERT INTO entities VALUES (
+      'entity-place', 'personal', 'confirmed', 1, 1, NULL,
+      'Legacy Place', 'legacy place', 'place', NULL
+    )
+  """);
+  execute('''
+    CREATE TABLE events (
+      id TEXT NOT NULL PRIMARY KEY,
+      privacy_classification TEXT NOT NULL,
+      lifecycle TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      deleted_at INTEGER,
+      title TEXT NOT NULL,
+      normalized_title TEXT NOT NULL,
+      description TEXT,
+      event_type TEXT,
+      temporal_precision TEXT NOT NULL,
+      start_year INTEGER,
+      start_month INTEGER,
+      start_day INTEGER,
+      end_year INTEGER,
+      end_month INTEGER,
+      end_day INTEGER,
+      qualifier TEXT
+    )
+  ''');
+  execute("""
+    INSERT INTO events VALUES
+      ('event-active', 'personal', 'confirmed', 1, 1, NULL,
+       'Legacy active memory', 'legacy active memory', NULL, 'purchase',
+       'approximate', 2018, NULL, NULL, NULL, NULL, NULL, 'around'),
+      ('event-archived', 'sensitive', 'archived', 1, 2, NULL,
+       'Legacy archived memory', 'legacy archived memory', NULL, 'travel',
+       'year', 2019, NULL, NULL, NULL, NULL, NULL, NULL),
+      ('event-trash', 'never_share', 'soft_deleted', 1, 3, 3,
+       'Legacy trashed memory', 'legacy trashed memory', NULL, 'private',
+       'range', 2020, 1, NULL, 2020, 3, NULL, NULL)
+  """);
+  execute('''
+    CREATE TABLE evidence (
+      id TEXT NOT NULL PRIMARY KEY,
+      privacy_classification TEXT NOT NULL,
+      lifecycle TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      deleted_at INTEGER,
+      title TEXT NOT NULL,
+      normalized_title TEXT NOT NULL,
+      evidence_type TEXT NOT NULL,
+      summary TEXT
+    )
+  ''');
+  execute("""
+    INSERT INTO evidence VALUES (
+      'evidence-proof', 'sensitive', 'confirmed', 1, 1, NULL,
+      'Legacy receipt', 'legacy receipt', 'photo', NULL
+    )
+  """);
+  execute('''
+    CREATE TABLE relationships (
+      id TEXT NOT NULL PRIMARY KEY,
+      privacy_classification TEXT NOT NULL,
+      lifecycle TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      deleted_at INTEGER,
+      source_entity_id TEXT,
+      source_event_id TEXT,
+      source_evidence_id TEXT,
+      target_entity_id TEXT,
+      target_event_id TEXT,
+      target_evidence_id TEXT,
+      relationship_type TEXT NOT NULL,
+      notes TEXT
+    )
+  ''');
+  execute("""
+    INSERT INTO relationships VALUES
+      ('relationship-place', 'personal', 'confirmed', 1, 1, NULL,
+       NULL, 'event-active', NULL, 'entity-place', NULL, NULL, 'involves', NULL),
+      ('relationship-proof', 'sensitive', 'confirmed', 1, 1, NULL,
+       NULL, 'event-active', NULL, NULL, NULL, 'evidence-proof', 'supported_by', NULL)
+  """);
+  execute('''
+    CREATE TABLE categories (
+      id TEXT NOT NULL PRIMARY KEY,
+      name TEXT NOT NULL,
+      lifecycle TEXT NOT NULL
+    )
+  ''');
+  execute(
+    "INSERT INTO categories VALUES ('category-legacy', 'Legacy', 'confirmed')",
+  );
+  execute('''
+    CREATE TABLE event_categories (
+      event_id TEXT NOT NULL,
+      category_id TEXT NOT NULL
+    )
+  ''');
+  execute(
+    "INSERT INTO event_categories VALUES ('event-active', 'category-legacy')",
+  );
+  execute('''
+    CREATE TABLE memory_candidates (
+      id TEXT NOT NULL PRIMARY KEY,
+      privacy_classification TEXT NOT NULL,
+      lifecycle TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      deleted_at INTEGER,
+      temporal_precision TEXT NOT NULL,
+      start_year INTEGER,
+      start_month INTEGER,
+      start_day INTEGER,
+      end_year INTEGER,
+      end_month INTEGER,
+      end_day INTEGER,
+      qualifier TEXT,
+      title TEXT NOT NULL,
+      description TEXT,
+      source_evidence_id TEXT,
+      confirmed_event_id TEXT
+    )
+  ''');
+  execute("""
+    INSERT INTO memory_candidates VALUES (
+      'candidate-proof', 'sensitive', 'candidate', 1, 1, NULL,
+      'unknown', NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+      'Legacy candidate', NULL, 'evidence-proof', NULL
+    )
+  """);
+  execute('''
+    CREATE TABLE attachments (
+      id TEXT NOT NULL PRIMARY KEY,
+      evidence_id TEXT NOT NULL,
+      privacy_classification TEXT NOT NULL,
+      lifecycle TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      deleted_at INTEGER,
+      display_name TEXT,
+      relative_path TEXT,
+      thumbnail_relative_path TEXT,
+      mime_type TEXT NOT NULL,
+      byte_size INTEGER NOT NULL,
+      checksum TEXT,
+      storage_state TEXT NOT NULL,
+      import_mode TEXT NOT NULL
+    )
+  ''');
+  execute("""
+    INSERT INTO attachments VALUES (
+      'attachment-proof', 'evidence-proof', 'sensitive', 'confirmed', 1, 1, NULL,
+      'proof.jpg', 'photos/proof.jpg', 'thumbnails/proof.jpg',
+      'image/jpeg', 42, 'proof-checksum', 'local', 'preserve_original'
+    )
+  """);
+  execute('''
+    CREATE TABLE field_provenance (
+      id TEXT NOT NULL PRIMARY KEY,
+      attachment_id TEXT
+    )
+  ''');
+  execute(
+    "INSERT INTO field_provenance VALUES ('provenance-proof', 'attachment-proof')",
+  );
 }

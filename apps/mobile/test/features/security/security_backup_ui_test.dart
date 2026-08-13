@@ -63,6 +63,35 @@ void main() {
     expect(find.text('The recovery passwords do not match.'), findsOneWidget);
   });
 
+  testWidgets('inactive app obscures private content for system snapshots', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          securityControllerProvider.overrideWith(
+            TestUnlockedSecurityController.new,
+          ),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: const AppLockGate(child: Text('Private timeline content')),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Private timeline content'), findsOneWidget);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    await tester.pump();
+    expect(find.text('Private timeline content'), findsNothing);
+    expect(find.bySemanticsLabel('Privacy screen'), findsOneWidget);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pump();
+    expect(find.text('Private timeline content'), findsOneWidget);
+  });
+
   testWidgets('fresh-install restore states original device is unnecessary', (
     tester,
   ) async {
@@ -96,4 +125,13 @@ final class TestLockedSecurityController extends SecurityController {
     state = AsyncData(current.copyWith(locked: false));
     return const PinAttemptResult(PinAttemptStatus.success);
   }
+}
+
+final class TestUnlockedSecurityController extends SecurityController {
+  @override
+  Future<SecuritySessionState> build() async => const SecuritySessionState(
+    settings: SecuritySettings(),
+    locked: false,
+    biometricAvailable: false,
+  );
 }

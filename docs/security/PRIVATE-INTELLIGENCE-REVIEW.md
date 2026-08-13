@@ -5,20 +5,20 @@ Authority: `AGENTS.md`, PDDs, and accepted ADRs remain authoritative.
 
 ## Decision summary
 
-Private Intelligence V1 processes selected images on Android and iOS without an application-initiated network request. The pipeline uses a bundled Latin-script ML Kit recognizer through a project-owned interface, deterministic Dart classifiers/extractors, app-private attachment storage, and the existing Drift domain/repository boundaries. OCR output remains candidate data until explicit confirmation.
+Private Intelligence V1 processes selected images on Android and iOS without an application-authored network request. The pipeline uses a bundled Latin-script ML Kit recognizer through a project-owned interface, deterministic Dart classifiers/extractors, app-private attachment storage, and the existing Drift domain/repository boundaries. OCR output remains candidate data until explicit confirmation.
 
-No backend, account, cloud AI, remote OCR, analytics, content telemetry, or generative model was introduced.
+No backend, account, cloud AI, remote OCR, application analytics, content telemetry, or generative model was introduced. However, Google states that ML Kit SDKs send performance and utilization metrics and documents collection of SDK/device identifiers, diagnostics, configuration, API usage, and error data. That native SDK behavior conflicts with the product's unqualified no-analytics promise even though inference is on-device and the reviewed application code does not send OCR content. This is a P0 release decision, not a detail that the implementation review may waive.
 
 ## Dependency review
 
 | Dependency | Version/constraint | Purpose | License | Maintenance/risk decision |
 | --- | --- | --- | --- | --- |
 | `google_mlkit_text_recognition` | `0.15.1` | Flutter bridge to native on-device OCR | MIT | Community maintained, not a Google-supported Flutter plugin. Pinned below 0.16.0 because 0.16.0 adds another Kotlin Gradle Plugin user and worsens Flutter's built-in-Kotlin migration warning. Review this pin when the plugin supports built-in Kotlin. |
-| Google ML Kit Text Recognition | Android `16.0.1`, iOS native pod via plugin | Bundled Latin recognizer | Google SDK terms | Mobile-only. Android model is statically linked, not the Play Services download variant. Current iOS integration raises the deployment target to 15.5. |
+| Google ML Kit Text Recognition | Android `16.0.1`, iOS native package via plugin | Bundled Latin recognizer | Google SDK terms | Mobile-only. Android model is statically linked, not the Play Services download variant. Current iOS integration raises the deployment target to 15.5. Google documents SDK utilization/diagnostic data collection, so privacy approval or an engine change is required before external release. |
 | `image_picker` | `^1.2.3` | Camera and system photo selection | BSD-3-Clause | Flutter-team package. Selected files may initially be system/cache paths; the pipeline makes its own working and managed copies. |
 | `image` | `^4.9.1` | Orientation normalization, bounded resize, JPEG encoding | MIT | Pure Dart and network-free. Decode/resize is isolated to avoid blocking the UI, but large damaged images can still create memory pressure before resizing. |
 
-The feature has no direct `http`, Firebase, analytics, advertising, cloud-storage, or remote-model dependency. The lockfile does contain `http` transitively through existing/web-capable packages such as `package_info_plus`, file selectors, SVG support, and `image_picker` platform interfaces; Private Intelligence imports none of those HTTP APIs. Android's removed network permissions provide the stronger runtime boundary. Transitive packages must be re-audited during dependency upgrades, especially on iOS where there is no equivalent manifest permission gate.
+The feature has no direct `http`, Firebase, application-analytics, advertising, cloud-storage, or remote-model dependency. The lockfile does contain `http` transitively through existing/web-capable packages such as `package_info_plus`, file selectors, SVG support, and `image_picker` platform interfaces; Private Intelligence imports none of those HTTP APIs. Android's removed network permissions provide a stronger release-runtime boundary. Transitive and native SDK behavior must be re-audited during dependency upgrades, especially on iOS where there is no equivalent manifest permission gate.
 
 Android release shrinking needs narrow `-dontwarn` entries for the plugin's optional Chinese, Devanagari, Japanese, and Korean option classes because those libraries are intentionally `compileOnly` and absent. The rules do not suppress the Latin recognizer or general ML Kit diagnostics. A release APK build verifies the configuration.
 
@@ -56,21 +56,29 @@ Privacy is field-aware:
 
 No production log statement records OCR text, extracted values, image paths, candidate titles, entity names, or document identifiers. User-facing failures are generic and do not echo personal content.
 
-## Offline guarantee and network inspection
+## Offline behavior and network inspection
 
 Android uses `com.google.mlkit:text-recognition`, the statically linked library. It does not use `com.google.android.gms:play-services-mlkit-text-recognition`, Firebase model download, or a hosted inference endpoint. The model is available immediately after app installation and capture/OCR/extraction/confirmation have no network dependency.
 
-The Android manifest also removes transitive `INTERNET` and `ACCESS_NETWORK_STATE` permissions at merge time. The release APK permission dump is therefore expected to contain neither permission, making application network access unavailable at the OS boundary.
+The Android manifest also removes transitive `INTERNET` and `ACCESS_NETWORK_STATE` permissions at merge time. The release APK permission dump is therefore expected to contain neither permission, making application network access unavailable at the OS boundary. Debug/profile manifests add internet access for Flutter tooling and must not be used as evidence for the release privacy boundary.
 
-iOS ML Kit is delivered through the app's native dependency build. No model-download API is called by Life Timeline.
+iOS ML Kit is delivered through the app's native dependency build. No model-download API is called by Life Timeline, but iOS has no Android-style manifest permission that blocks the SDK's documented metrics. Airplane-mode success proves offline capability; it does not prove absence of later diagnostics uploads.
 
 Package download during development/build is not a runtime content flow. OS camera/photo providers and app-store update mechanisms remain outside the feature boundary.
+
+Authoritative vendor disclosures reviewed for this conclusion:
+
+- [ML Kit terms](https://developers.google.com/ml-kit/terms)
+- [ML Kit Android data disclosure](https://developers.google.com/ml-kit/android-data-disclosure)
+- [ML Kit Apple data disclosure](https://developers.google.com/ml-kit/ios-data-disclosure)
+- [ML Kit on-device overview](https://developers.google.com/ml-kit)
 
 ## Threats and mitigations
 
 | Threat | Mitigation | Residual risk |
 | --- | --- | --- |
-| Personal text leaves the device | Bundled OCR, no remote client, no content logging | Native SDK behavior must be re-reviewed on upgrades. |
+| Personal text leaves the device | Bundled OCR, no remote client, no content logging | Vendor documentation supports on-device inference but does not make an absolute no-network/no-metrics guarantee. Packet inspection and a product privacy decision remain required. |
+| Technical SDK metrics conflict with the no-analytics promise | Android release removes network permissions; application code has no metrics client | iOS has no equivalent OS network gate. The current engine cannot be approved for an unqualified no-analytics claim without an explicit policy change or replacement. |
 | OCR becomes accepted fact | Candidate lifecycle, qualitative uncertainty, editable fields, explicit confirmation | Users can still confirm an incorrect value. |
 | Original image corruption | Read source only; create separate working and managed copies | Provider-backed files can disappear before copying. |
 | SQLite bloat/sensitive blobs | No binary image columns; relative references only | Structured sensitive values still exist in the local database. |
@@ -90,9 +98,18 @@ Package download during development/build is not a runtime content flow. OS came
 
 ## Measured Android artifact impact
 
-The verified release outputs are 29.0 MB (`armeabi-v7a`), 35.1 MB (`arm64-v8a`), and 37.1 MB (`x86_64`). The arm64 APK is 36,794,678 bytes. Entries clearly attributable to the bundled Latin OCR assets and arm64 pipeline occupy 12,336,869 compressed bytes (12,551,347 uncompressed) in that artifact. This is a measured package-content figure, not a controlled before/after delta; other transitive ML Kit/common code may add further overhead. Performance risk is primarily first-use native initialization plus image decode/OCR CPU and memory on older devices.
+The 2026-08-14 verified split release outputs are 30.9 MB
+(`armeabi-v7a`, 32,401,925 bytes), 36.9 MB (`arm64-v8a`, 38,646,459
+bytes), and 38.9 MB (`x86_64`, 40,769,932 bytes). These are complete APK
+sizes, not a controlled with/without-OCR delta; native OCR assets and other
+transitive components both contribute. Performance risk is primarily first-use
+native initialization plus image decode/OCR CPU and memory on older devices.
 
-The build still reports the repository's pre-existing future Flutter built-in-Kotlin migration warning for the app, `file_picker`, and `package_info_plus`. The pinned OCR plugin does not apply Kotlin and adds no new KGP warning. Resolving the remaining warning is a separate foundation migration/package-upgrade task.
+The build still reports the repository's pre-existing future Flutter
+built-in-Kotlin migration warning for the app, `file_picker`,
+`flutter_timezone`, `package_info_plus`, and `share_plus`. The pinned OCR plugin
+does not apply Kotlin and adds no new KGP warning. Resolving the remaining
+warning is a separate foundation migration/package-upgrade task.
 
 ## Future local-only options
 
@@ -100,4 +117,4 @@ Subject to a new dependency/privacy review: platform document scanners, offline 
 
 ## Review outcome
 
-No blocking privacy conflict was found for the implemented local slice. Release readiness still requires physical-device airplane-mode verification on both supported platforms, iOS build verification on Xcode, and human approval of the ignored-candidate retention policy and complimentary-action allowance.
+A blocking privacy-policy conflict remains. OCR inference and application-authored processing are local, but the native ML Kit SDK's documented metrics are incompatible with the current unqualified no-analytics requirement. The implementation is suitable for controlled device QA; it is **not approved for external release** until the product/privacy owner chooses an audited no-telemetry OCR engine, narrows platform/release scope with a verified network boundary, or explicitly revises the privacy promise and disclosures. Physical-device traffic inspection, airplane-mode verification on both platforms, iOS build verification on Xcode, and human approval of ignored-candidate retention remain required.

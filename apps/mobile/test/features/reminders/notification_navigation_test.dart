@@ -65,6 +65,7 @@ void main() {
     tester,
   ) async {
     final router = _router();
+    final reminders = TestReminderRepository([_reminder()]);
     addTearDown(router.dispose);
     await tester.pumpWidget(
       ProviderScope(
@@ -73,9 +74,7 @@ void main() {
           securityControllerProvider.overrideWith(
             _UnlockedSecurityController.new,
           ),
-          reminderStoreProvider.overrideWithValue(
-            TestReminderRepository([_reminder()]),
-          ),
+          reminderStoreProvider.overrideWithValue(reminders),
           localNotificationServiceProvider.overrideWithValue(
             _LaunchNotificationService(),
           ),
@@ -89,6 +88,14 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Private reminder destination'), findsOneWidget);
+    expect((await reminders.byId('reminder-1'))?.dismissedAt, isNotNull);
+    expect(
+      (await reminders.byId('reminder-1'))?.status,
+      ReminderStatus.scheduled,
+    );
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('Timeline'), findsOneWidget);
     debugDefaultTargetPlatformOverride = null;
   });
 }
@@ -96,7 +103,11 @@ void main() {
 GoRouter _router() => GoRouter(
   initialLocation: '/',
   routes: [
-    GoRoute(path: '/', builder: (context, state) => const Text('Timeline')),
+    GoRoute(
+      name: AppRoute.timeline.name,
+      path: '/',
+      builder: (context, state) => const Text('Timeline'),
+    ),
     GoRoute(
       name: AppRoute.memoryDetail.name,
       path: AppRoute.memoryDetail.path,

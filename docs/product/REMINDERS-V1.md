@@ -70,6 +70,8 @@ Android declares `POST_NOTIFICATIONS` and `RECEIVE_BOOT_COMPLETED`. It does not 
 
 Notification visibility is private on Android. A tap creates a pending reminder intent. `ReminderAppCoordinator` does not navigate until the existing security session reports unlocked; after PIN/biometric unlock, the reminder is looked up locally and the linked Memory Detail opens. A deleted or unlinked reminder falls back to the Reminders list.
 
+Opening a delivered notification persists `dismissedAt` as a local acknowledgement and cancels that OS request. This does not mark the reminder's underlying task completed. Once its scheduled time has elapsed, an acknowledged reminder is presented as **Opened**, while an elapsed reminder with no acknowledgement is presented as **Missed**. Notification launches establish Timeline as a safe Back destination before opening Memory Detail or Reminders.
+
 ## Lifecycle behavior
 
 - Archive preserves reminders unchanged.

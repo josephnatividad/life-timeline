@@ -192,6 +192,74 @@ void main() {
   });
 
   test(
+    'permanent delete preserves an attachment referenced by an archive',
+    () async {
+      final id = await saveMemory(_draft());
+      final evidence = Evidence(
+        metadata: _metadata('evidence-archived'),
+        evidenceType: EvidenceType.other,
+        title: 'Archived evidence',
+      );
+      await repository.saveEvidence(
+        evidence,
+        attachments: [
+          Attachment(
+            metadata: _metadata('attachment-archived'),
+            storageState: AttachmentStorageState.local,
+            importMode: AttachmentImportMode.preserveOriginal,
+            mimeType: 'application/pdf',
+            byteSize: 12,
+            relativePath: 'documents/archived.pdf',
+          ),
+        ],
+      );
+      await repository.saveRelationship(
+        Relationship(
+          metadata: _metadata('relationship-archived'),
+          source: TimelineRecordReference(
+            type: TimelineRecordType.event,
+            id: id,
+          ),
+          target: TimelineRecordReference(
+            type: TimelineRecordType.evidence,
+            id: evidence.metadata.id,
+          ),
+          relationshipType: 'supported_by',
+        ),
+      );
+      await database
+          .into(database.archiveReferences)
+          .insert(
+            ArchiveReferencesCompanion.insert(
+              id: 'archive-reference',
+              attachmentId: 'attachment-archived',
+              destinationType: 'userSelectedFile',
+              logicalKey: 'preserved.timelinearchive',
+              originalByteSize: 12,
+              originalSha256: 'original-sha256',
+              archiveByteSize: 24,
+              archiveSha256: 'archive-sha256',
+              encryptionAlgorithm: 'aes-256-gcm+argon2id',
+              formatVersion: 1,
+              archivedAt: now,
+              verifiedAt: now,
+            ),
+          );
+      await deleteMemory.moveToTrash(id);
+
+      await deleteMemory.permanentlyDelete(id);
+
+      expect(
+        await (database.select(database.attachments)
+              ..where((row) => row.id.equals('attachment-archived')))
+            .getSingleOrNull(),
+        isNotNull,
+      );
+      expect(attachmentCleanup.deleted, isEmpty);
+    },
+  );
+
+  test(
     'permanent delete preserves evidence shared by another memory',
     () async {
       final firstId = await saveMemory(_draft());

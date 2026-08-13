@@ -56,10 +56,20 @@ final class DriftTimelineRepository implements TimelineRepository {
           readsFrom: {_database.events},
         )
         .get();
+    if (rows.isEmpty) return const [];
+    final eventIds = [for (final row in rows) row.read<String>('event_id')];
+    final placeholders = List.filled(eventIds.length, '?').join(', ');
+    final memoryRows = await _memoryQuery(
+      whereSql: "e.lifecycle = 'confirmed' AND e.id IN ($placeholders)",
+      variables: [for (final id in eventIds) Variable.withString(id)],
+    ).get();
+    final memoriesById = {
+      for (final row in memoryRows) row.read<String>('id'): _memoryFromRow(row),
+    };
     final normalizedQuery = query.trim().toLowerCase();
     final results = <MemorySearchResult>[];
-    for (final row in rows) {
-      final memory = await memoryById(row.read<String>('event_id'));
+    for (final eventId in eventIds) {
+      final memory = memoriesById[eventId];
       if (memory != null) {
         results.add(
           MemorySearchResult(
@@ -572,7 +582,17 @@ final class DriftTimelineRepository implements TimelineRepository {
               (row) => row.read(_database.fieldProvenanceRows.id.count()) ?? 0,
             )
             .getSingle();
-    if (linkCount != 0 || provenanceCount != 0) return;
+    final archiveReferenceCount =
+        await (_database.selectOnly(_database.archiveReferences)
+              ..addColumns([_database.archiveReferences.id.count()])
+              ..where(
+                _database.archiveReferences.attachmentId.equals(attachmentId),
+              ))
+            .map((row) => row.read(_database.archiveReferences.id.count()) ?? 0)
+            .getSingle();
+    if (linkCount != 0 || provenanceCount != 0 || archiveReferenceCount != 0) {
+      return;
+    }
     final attachment = await (_database.select(
       _database.attachments,
     )..where((row) => row.id.equals(attachmentId))).getSingleOrNull();

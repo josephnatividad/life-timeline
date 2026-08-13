@@ -53,12 +53,11 @@ final class DriftBackupDataSource implements BackupDataSource {
 
   @override
   Future<bool> hasUserData() async {
-    for (final table in const [
-      'entities',
-      'events',
-      'evidence',
-      'attachments',
-    ]) {
+    // Restore replaces the entire local snapshot, so every exported table is
+    // user state for replacement-confirmation purposes. Checking only the
+    // timeline aggregate would silently discard candidate-, reminder-, or
+    // preference-only databases.
+    for (final table in _tablesInInsertOrder) {
       final row = await _database
           .customSelect(
             'SELECT EXISTS(SELECT 1 FROM "$table" LIMIT 1) AS present',

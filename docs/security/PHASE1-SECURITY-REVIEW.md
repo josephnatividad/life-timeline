@@ -83,8 +83,10 @@ byte comparison come from the cryptographic package.
   lockout, unavailability, enrollment changes, and failure return to PIN
   without changing the verifier.
 - Lifecycle events are advisory. A killed process restarts locked when app lock
-  is enabled; the operating system remains responsible for hiding snapshots
-  and protecting device storage.
+  is enabled. Inactive, hidden, paused, and detached Flutter states now render a
+  generic privacy cover so ordinary task-switcher snapshots do not expose the
+  timeline. Platform snapshot timing and compromised-device behavior remain OS
+  concerns and require physical-device validation.
 
 The PIN protects local UI access; it is deliberately not a backup decryption
 secret. This separation prevents a lost original device or its secure storage
@@ -241,6 +243,11 @@ content, or attachments.
 - The Android build still uses Flutter's temporary legacy Kotlin Gradle Plugin
   compatibility. A future Flutter upgrade must migrate the app and plugins to
   built-in Kotlin before that compatibility is removed.
+- Google documents performance/utilization and diagnostic data collection for
+  the native ML Kit SDK used by OCR. Android release removes network permissions,
+  but iOS has no equivalent manifest gate. This conflicts with the unqualified
+  no-analytics product promise and is a P0 product/privacy decision. See
+  `PRIVATE-INTELLIGENCE-REVIEW.md`.
 - Restore retains obsolete app-managed attachment generations after a
   successful replacement. They are app-private but consume space until a
   separately designed, transaction-aware cleanup policy exists.
@@ -251,7 +258,8 @@ content, or attachments.
 ## Future hardening opportunities
 
 - benchmark and version KDF parameters across minimum-supported devices;
-- add platform snapshot obscuring and device-level security-state guidance;
+- validate privacy-cover behavior against task-switcher snapshots and screen
+  capture timing on supported Android and iOS devices;
 - evaluate application-level database encryption under a separate ADR and
   migration/recovery design;
 - add an authenticated streaming format that avoids temporary plaintext ZIP
@@ -267,6 +275,9 @@ content, or attachments.
 ## Review conclusion
 
 The design preserves the central recovery invariant: restoration does not
-depend on the original device or device-bound secure storage. The remaining
-risks above are non-blocking for this Phase 1 foundation but are release gates
-for claims beyond local app locking and user-managed encrypted backup.
+depend on the original device or device-bound secure storage. App-lock and
+backup foundations have no known automated-test blocker. The ML Kit metrics
+conflict is separately blocking for an external release that includes OCR
+under the current privacy promise; the remaining device/platform checks are
+release gates for claims beyond local app locking and user-managed encrypted
+backup.

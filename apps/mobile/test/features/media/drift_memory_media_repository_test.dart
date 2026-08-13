@@ -155,6 +155,51 @@ void main() {
     expect(results.single.memory.event.metadata.id, 'event-a');
     expect(results.single.matchedField, MemoryMatchField.mediaCaption);
   });
+
+  for (final count in const [1, 10, 50]) {
+    test(
+      '$count-photo aggregate preserves order, hero, and mixed metadata',
+      () async {
+        for (var index = 0; index < count; index++) {
+          await repository.add(
+            attachment: _attachment(
+              'stress-$index',
+              byteSize: (index + 1) * 1024,
+              pixelWidth: index.isEven ? 800 : 4032,
+              pixelHeight: index.isEven ? 600 : 3024,
+            ),
+            link: _link(
+              'stress-link-$index',
+              'stress-$index',
+              sortOrder: index,
+            ),
+          );
+        }
+
+        final media = await repository.forEvent('event-a');
+        expect(media, hasLength(count));
+        expect(media.where((item) => item.isHero), hasLength(1));
+        expect(media.first.link.id, 'stress-link-0');
+        expect(media.last.attachment.byteSize, count * 1024);
+
+        if (count > 1) {
+          final reversed = media
+              .map((item) => item.link.id)
+              .toList(growable: false)
+              .reversed
+              .toList(growable: false);
+          await repository.reorder(
+            eventId: 'event-a',
+            orderedLinkIds: reversed,
+          );
+          expect(
+            (await repository.forEvent('event-a')).map((item) => item.link.id),
+            reversed,
+          );
+        }
+      },
+    );
+  }
 }
 
 RecordMetadata _metadata(String id) => RecordMetadata(
@@ -165,12 +210,19 @@ RecordMetadata _metadata(String id) => RecordMetadata(
   updatedAt: DateTime.utc(2026),
 );
 
-Attachment _attachment(String id) => Attachment(
+Attachment _attachment(
+  String id, {
+  int byteSize = 10,
+  int? pixelWidth,
+  int? pixelHeight,
+}) => Attachment(
   metadata: _metadata(id),
   storageState: AttachmentStorageState.local,
   importMode: AttachmentImportMode.preserveOriginal,
   mimeType: 'image/jpeg',
-  byteSize: 10,
+  byteSize: byteSize,
+  pixelWidth: pixelWidth,
+  pixelHeight: pixelHeight,
   checksum: 'checksum-$id',
   relativePath: 'media/$id.jpg',
   thumbnailRelativePath: 'thumbs/$id.jpg',

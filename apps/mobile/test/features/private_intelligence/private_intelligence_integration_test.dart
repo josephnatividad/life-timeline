@@ -7,7 +7,7 @@ import 'package:life_timeline/features/private_intelligence/domain/document_inte
 import 'package:life_timeline/features/private_intelligence/domain/intelligence_models.dart';
 import 'package:life_timeline/features/private_intelligence/infrastructure/drift_intelligence_services.dart';
 import 'package:life_timeline/shared/database/app_database.dart'
-    hide Attachment, Event, MemoryCandidate;
+    hide Attachment, Entity, Event, MemoryCandidate, Relationship;
 import 'package:life_timeline/shared/database/repositories/drift_memory_candidate_repository.dart';
 import 'package:life_timeline/shared/database/repositories/drift_timeline_repository.dart';
 import 'package:life_timeline/shared/domain/model/field_provenance.dart';
@@ -140,6 +140,48 @@ void main() {
     },
   );
 
+  test('confirmation indexes an existing linked entity', () async {
+    const existingEntityId = 'existing-entity';
+    final at = DateTime.utc(2026, 8, 10);
+    await timeline.saveEntity(
+      Entity(
+        metadata: RecordMetadata(
+          id: existingEntityId,
+          privacyClassification: PrivacyClassification.personal,
+          lifecycle: RecordLifecycle.confirmed,
+          createdAt: at,
+          updatedAt: at,
+        ),
+        name: 'Asteria Clinic',
+        entityType: 'organization',
+      ),
+    );
+    final captured = await _capture(
+      candidates: candidates,
+      timeline: timeline,
+      usage: usage,
+      preparation: _Preparation(),
+      attachments: _Attachments(),
+    )(CaptureSource.scan);
+    final candidate = await candidates.candidateById(captured.candidateId!);
+
+    final eventId =
+        await ConfirmCandidateUseCase(
+          candidates: candidates,
+          timeline: timeline,
+        ).call(
+          captured.candidateId!,
+          CandidateReviewDraft(
+            title: 'Annual checkup',
+            fields: candidate!.extractedFields,
+            linkedEntityId: existingEntityId,
+          ),
+        );
+
+    final search = await timeline.searchMemories('Asteria');
+    expect(search.single.memory.event.metadata.id, eventId);
+  });
+
   test('complimentary limit blocks OCR before image acquisition', () async {
     await usage.increment(ProFeature.aiCapture, DateTime.utc(2026));
     final acquisition = _Acquisition();
@@ -183,6 +225,96 @@ void main() {
       expect(preparation.discarded, isTrue);
       expect(attachments.removed, isTrue);
       expect(await usage.usageCount(ProFeature.aiCapture), 0);
+    },
+  );
+
+  test(
+    'OCR interruption cleans temporary work without consuming usage',
+    () async {
+      final acquisition = _Acquisition();
+      final preparation = _Preparation();
+      final useCase = CaptureIntelligenceUseCase(
+        acquisition: acquisition,
+        preparation: preparation,
+        attachments: _Attachments(),
+        recognizer: const _FailingRecognizer(),
+        candidates: candidates,
+        timeline: timeline,
+        usage: usage,
+        entitlements: const _Entitlements(),
+        usagePolicy: const ComplimentaryUsagePolicy(aiCaptureActions: 1),
+      );
+
+      await expectLater(useCase(CaptureSource.camera), throwsStateError);
+      expect(preparation.discarded, isTrue);
+      expect(acquisition.released, isTrue);
+      expect(await usage.usageCount(ProFeature.aiCapture), 0);
+      expect(await candidates.pendingCandidates(), isEmpty);
+    },
+  );
+
+  test(
+    'failed confirmation rolls back a partially inserted timeline graph',
+    () async {
+      final captured = await _capture(
+        candidates: candidates,
+        timeline: timeline,
+        usage: usage,
+        preparation: _Preparation(),
+        attachments: _Attachments(),
+      )(CaptureSource.scan);
+      final candidate = await candidates.candidateById(captured.candidateId!);
+      final confirmedAt = DateTime.now().toUtc();
+      final failedEvent = Event(
+        metadata: RecordMetadata(
+          id: 'event-halfway-failure',
+          privacyClassification: PrivacyClassification.sensitive,
+          lifecycle: RecordLifecycle.confirmed,
+          createdAt: confirmedAt,
+          updatedAt: confirmedAt,
+        ),
+        title: 'Must roll back',
+        temporalValue: TemporalValue.unknown(),
+        eventType: 'receipt',
+      );
+
+      await expectLater(
+        candidates.confirmCandidate(
+          candidateId: captured.candidateId!,
+          confirmedEvent: failedEvent,
+          confirmedAt: confirmedAt,
+          relationships: [
+            Relationship(
+              metadata: RecordMetadata(
+                id: 'relationship-invalid-target',
+                privacyClassification: PrivacyClassification.sensitive,
+                lifecycle: RecordLifecycle.confirmed,
+                createdAt: confirmedAt,
+                updatedAt: confirmedAt,
+              ),
+              source: TimelineRecordReference(
+                type: TimelineRecordType.event,
+                id: failedEvent.metadata.id,
+              ),
+              target: TimelineRecordReference(
+                type: TimelineRecordType.entity,
+                id: 'missing-entity',
+              ),
+              relationshipType: 'involves',
+            ),
+          ],
+        ),
+        throwsA(anything),
+      );
+
+      expect(await timeline.eventById(failedEvent.metadata.id), isNull);
+      expect(
+        (await candidates.candidateById(
+          candidate!.metadata.id,
+        ))?.metadata.lifecycle,
+        RecordLifecycle.candidate,
+      );
+      expect(await database.select(database.relationships).get(), isEmpty);
     },
   );
 
@@ -238,6 +370,7 @@ final class _Acquisition implements ImageAcquisitionService {
   _Acquisition({this.cancel = false});
   final bool cancel;
   int calls = 0;
+  bool released = false;
 
   @override
   Future<CapturedImage?> acquire(CaptureSource source) async {
@@ -246,7 +379,7 @@ final class _Acquisition implements ImageAcquisitionService {
   }
 
   @override
-  Future<void> release(CapturedImage image) async {}
+  Future<void> release(CapturedImage image) async => released = true;
 }
 
 final class _Preparation implements ImagePreparationService {
@@ -290,6 +423,17 @@ final class _Recognizer implements TextRecognitionEngine {
             OcrLine(text: 'TOTAL USD 10.80'),
           ],
         );
+  @override
+  Future<void> close() async {}
+}
+
+final class _FailingRecognizer implements TextRecognitionEngine {
+  const _FailingRecognizer();
+
+  @override
+  Future<OcrDocument> recognize(String imagePath) =>
+      throw StateError('simulated OCR interruption');
+
   @override
   Future<void> close() async {}
 }

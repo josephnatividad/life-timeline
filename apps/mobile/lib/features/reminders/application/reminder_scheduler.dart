@@ -84,6 +84,24 @@ final class ReminderScheduler {
     await _notifications.cancel(reminder.notificationId);
   }
 
+  /// Records that the user opened the delivered notification.
+  ///
+  /// Opening is intentionally distinct from completing the underlying task.
+  /// The persisted acknowledgement prevents an elapsed, user-opened reminder
+  /// from being presented as though it was ignored.
+  Future<Reminder?> acknowledgeNotification(String reminderId) async {
+    final reminder = await _repository.byId(reminderId);
+    if (reminder == null) return null;
+    final acknowledgedAt = _now().toUtc();
+    final acknowledged = reminder.copyWith(
+      dismissedAt: acknowledgedAt,
+      updatedAt: acknowledgedAt,
+    );
+    await _repository.save(acknowledged);
+    await _notifications.cancel(acknowledged.notificationId);
+    return acknowledged;
+  }
+
   Future<NotificationPermissionState> requestPermission() async {
     final state = await _notifications.requestPermission();
     if (state == NotificationPermissionState.granted) {

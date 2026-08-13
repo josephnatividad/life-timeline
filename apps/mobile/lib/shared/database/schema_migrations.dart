@@ -374,6 +374,25 @@ Future<void> createEventSearchSchema(GeneratedDatabase database) async {
 }
 
 Future<void> rebuildEventSearchIndex(GeneratedDatabase database) async {
+  final attachmentLinksExist =
+      (await database.customSelect('''
+        SELECT EXISTS(
+          SELECT 1 FROM sqlite_master
+          WHERE type = 'table' AND name = 'attachment_links'
+        ) AS present
+      ''').getSingle()).read<int>('present') ==
+      1;
+  final mediaCaptionsExpression = attachmentLinksExist
+      ? '''
+        COALESCE((
+          SELECT group_concat(al.caption, ' ')
+          FROM attachment_links al
+          WHERE al.event_id = e.id
+            AND al.role IN ('hero_media', 'memory_media')
+            AND al.caption IS NOT NULL
+        ), '')
+      '''
+      : "''";
   await database.customStatement('DELETE FROM event_search');
   await database.customStatement('''
     INSERT INTO event_search(
@@ -407,13 +426,7 @@ Future<void> rebuildEventSearchIndex(GeneratedDatabase database) async {
         WHERE ec.event_id = e.id
           AND c.lifecycle <> 'soft_deleted'
       ), ''),
-      COALESCE((
-        SELECT group_concat(al.caption, ' ')
-        FROM attachment_links al
-        WHERE al.event_id = e.id
-          AND al.role IN ('hero_media', 'memory_media')
-          AND al.caption IS NOT NULL
-      ), '')
+      $mediaCaptionsExpression
     FROM events e
     WHERE e.lifecycle <> 'soft_deleted'
   ''');

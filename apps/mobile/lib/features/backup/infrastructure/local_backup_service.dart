@@ -523,8 +523,12 @@ final class LocalBackupService implements BackupBuilder, BackupRestoreService {
       final target = File(
         p.join(await _attachmentStorage.rootPath(), relative),
       );
+      final staged = File(p.join(payload.path, p.fromUri(entry.path)));
+      if (!await staged.exists() || await staged.length() != entry.byteSize) {
+        throw const BackupFailure('attachment_restore_checksum_failed');
+      }
       await target.parent.create(recursive: true);
-      await File(p.join(payload.path, p.fromUri(entry.path))).copy(target.path);
+      await staged.copy(target.path);
       if (await _encryption.sha256File(target.path) != entry.sha256) {
         throw const BackupFailure('attachment_restore_checksum_failed');
       }

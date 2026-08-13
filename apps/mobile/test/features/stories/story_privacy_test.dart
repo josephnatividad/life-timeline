@@ -34,6 +34,24 @@ void main() {
           'BOOKING-SECRET',
           PrivacyClassification.neverShare,
         ),
+        _field(
+          'address',
+          'Home address',
+          'HOME-ADDRESS-SECRET',
+          PrivacyClassification.neverShare,
+        ),
+        _field(
+          'passport',
+          'Passport number',
+          'PASSPORT-SECRET',
+          PrivacyClassification.neverShare,
+        ),
+        _field(
+          'receipt',
+          'Receipt details',
+          'RECEIPT-PERSONAL',
+          PrivacyClassification.sensitive,
+        ),
       ],
       media: [
         StoryMedia(
@@ -99,7 +117,7 @@ void main() {
     final protected = result.excludedFields.where(
       (field) => field.reason == StoryExclusionReason.protectedAlways,
     );
-    expect(protected, hasLength(2));
+    expect(protected, hasLength(4));
   });
 
   test('composition carries sanitized values and configurable branding', () {
@@ -122,6 +140,62 @@ void main() {
     );
     expect(composition.branding.attribution, 'Replaceable brand');
   });
+
+  test(
+    'every template enforces the same forged-selection privacy boundary',
+    () {
+      for (final template in StoryTemplateId.values) {
+        final templateSource = template == StoryTemplateId.thenNow
+            ? StorySource(
+                id: 'then-now:attack',
+                sourceType: StorySourceType.thenNow,
+                title: source.title,
+                sourceRecordIds: source.sourceRecordIds,
+                fields: source.fields,
+                media: source.media,
+              )
+            : source;
+        final composition = const DefaultStoryComposer(sanitizer).compose(
+          source: templateSource,
+          selection: StoryPrivacySelection(
+            includedFieldIds: templateSource.fields
+                .map((field) => field.id)
+                .toSet(),
+            includedMediaIds: templateSource.media
+                .map((media) => media.id)
+                .toSet(),
+          ),
+          templateId: template,
+          themeVariant: StoryThemeVariant.paper,
+          branding: const StoryBrandingConfig(),
+        );
+        final values = composition.fields.map((field) => field.value).toSet();
+        final paths = composition.media.map((media) => media.localPath).toSet();
+
+        expect(values, contains('Japan'), reason: template.name);
+        expect(values, contains('August 11, 2026'), reason: template.name);
+        expect(values, contains('SERIAL-SECRET'), reason: template.name);
+        expect(values, contains('RECEIPT-PERSONAL'), reason: template.name);
+        expect(
+          values,
+          isNot(contains('BOOKING-SECRET')),
+          reason: template.name,
+        );
+        expect(
+          values,
+          isNot(contains('HOME-ADDRESS-SECRET')),
+          reason: template.name,
+        );
+        expect(
+          values,
+          isNot(contains('PASSPORT-SECRET')),
+          reason: template.name,
+        );
+        expect(paths, contains('private.jpg'), reason: template.name);
+        expect(paths, isNot(contains('protected.jpg')), reason: template.name);
+      }
+    },
+  );
 }
 
 StoryField _field(

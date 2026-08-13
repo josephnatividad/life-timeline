@@ -74,7 +74,7 @@ final class _CompactReminderRow extends StatelessWidget {
       leading: const AppIcon(icon: AppIcons.reminder),
       title: Text(MaterialLocalizations.of(context).formatFullDate(date)),
       subtitle: Text(
-        '${reminderLeadLabel(reminder.leadTime)} · ${reminder.status == ReminderStatus.scheduled ? 'Scheduled' : 'Inactive'}',
+        '${reminderLeadLabel(reminder.leadTime)} · ${reminderStatusLabel(reminder)}',
       ),
       trailing: const Text('Edit'),
       onTap: () => context.pushNamed(

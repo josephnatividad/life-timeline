@@ -64,6 +64,23 @@ void main() {
   });
 
   test(
+    'notification acknowledgement is durable without completing task',
+    () async {
+      final scheduler = _scheduler(repository, notifications, timeZones);
+      await repository.save(_reminder());
+
+      final acknowledged = await scheduler.acknowledgeNotification(
+        'reminder-1',
+      );
+
+      expect(acknowledged?.dismissedAt, DateTime.utc(2026));
+      expect(acknowledged?.status, ReminderStatus.scheduled);
+      expect((await repository.byId('reminder-1'))?.dismissedAt, isNotNull);
+      expect(notifications.cancelled, contains(1));
+    },
+  );
+
+  test(
     'reconciliation repairs missing, cancels orphan, and updates zone',
     () async {
       await repository.save(_reminder());

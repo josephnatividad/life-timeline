@@ -15,6 +15,8 @@ final class AppLockGate extends ConsumerStatefulWidget {
 
 final class _AppLockGateState extends ConsumerState<AppLockGate>
     with WidgetsBindingObserver {
+  bool _obscureForSystemSnapshot = false;
+
   @override
   void initState() {
     super.initState();
@@ -34,16 +36,35 @@ final class _AppLockGateState extends ConsumerState<AppLockGate>
       case AppLifecycleState.paused ||
           AppLifecycleState.inactive ||
           AppLifecycleState.hidden:
+        if (!_obscureForSystemSnapshot && mounted) {
+          setState(() => _obscureForSystemSnapshot = true);
+        }
         controller.onBackgrounded();
       case AppLifecycleState.resumed:
         controller.onResumed();
+        if (_obscureForSystemSnapshot && mounted) {
+          setState(() => _obscureForSystemSnapshot = false);
+        }
       case AppLifecycleState.detached:
-        break;
+        if (!_obscureForSystemSnapshot && mounted) {
+          setState(() => _obscureForSystemSnapshot = true);
+        }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_obscureForSystemSnapshot) {
+      return Semantics(
+        label: 'Privacy screen',
+        child: ColoredBox(
+          color: Theme.of(context).colorScheme.surface,
+          child: const Center(
+            child: AppIcon(icon: AppIcons.privacy, size: AppIconSize.signature),
+          ),
+        ),
+      );
+    }
     final security = ref.watch(securityControllerProvider);
     return security.when(
       loading: () => const ColoredBox(

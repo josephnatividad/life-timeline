@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:archive/archive_io.dart';
 import 'package:drift/drift.dart' show Variable, driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,11 +8,21 @@ import 'package:life_timeline/features/backup/domain/backup_models.dart';
 import 'package:life_timeline/features/backup/domain/backup_ports.dart';
 import 'package:life_timeline/features/backup/infrastructure/local_backup_service.dart';
 import 'package:life_timeline/features/media/infrastructure/drift_memory_media_repository.dart';
+import 'package:life_timeline/features/reminders/domain/reminder.dart';
+import 'package:life_timeline/features/reminders/infrastructure/drift_reminder_repository.dart';
 import 'package:life_timeline/shared/crypto/aes_gcm_file_encryption_service.dart';
 import 'package:life_timeline/shared/crypto/crypto_models.dart';
 import 'package:life_timeline/shared/crypto/cryptography_password_key_deriver.dart';
 import 'package:life_timeline/shared/database/app_database.dart'
-    hide Attachment, AttachmentLink, Category, Event, MemoryCandidate;
+    hide
+        Attachment,
+        AttachmentLink,
+        Category,
+        Entity,
+        Event,
+        MemoryCandidate,
+        Relationship,
+        Reminder;
 import 'package:life_timeline/shared/database/backup/drift_backup_data_source.dart';
 import 'package:life_timeline/shared/database/repositories/drift_memory_candidate_repository.dart';
 import 'package:life_timeline/shared/database/repositories/drift_timeline_repository.dart';
@@ -168,6 +179,64 @@ void main() {
       ).readAsString(),
       'graduation original',
     );
+    expect(
+      (await repository.eventById('event-exact'))?.temporalValue,
+      TemporalValue.exactDate(year: 2021, month: 5, day: 14),
+    );
+    expect(
+      (await repository.eventById('event-approximate'))?.temporalValue,
+      TemporalValue.approximate(TemporalPoint(year: 2017, month: 6)),
+    );
+    expect(
+      (await repository.eventById('event-range'))?.temporalValue,
+      TemporalValue.range(
+        start: TemporalPoint(year: 2015, month: 2),
+        end: TemporalPoint(year: 2016, month: 9),
+      ),
+    );
+    expect(
+      (await repository.eventById('event-archived'))?.metadata.lifecycle,
+      RecordLifecycle.archived,
+    );
+    expect(
+      (await repository.eventById(
+        'event-trash',
+        includeDeleted: true,
+      ))?.metadata.lifecycle,
+      RecordLifecycle.softDeleted,
+    );
+    expect(
+      (await repository.entityById('entity-university'))?.name,
+      'Example University',
+    );
+    expect(
+      await repository.relationshipsFor(
+        TimelineRecordReference(type: TimelineRecordType.event, id: 'event-1'),
+      ),
+      hasLength(2),
+    );
+    final restoredReminder = await DriftReminderRepository(
+      targetDatabase,
+    ).byId('reminder-graduation');
+    expect(restoredReminder?.linkedEventId, 'event-1');
+    expect(
+      restoredReminder?.privacyClassification,
+      PrivacyClassification.sensitive,
+    );
+    expect(restoredReminder?.reminderDate, LocalDate(2029, 5, 14));
+    expect(
+      (await repository.searchMemories(
+        'approximate',
+      )).single.memory.event.metadata.id,
+      'event-approximate',
+    );
+    final snapshot = await DriftBackupDataSource(
+      targetDatabase,
+    ).exportSnapshot();
+    expect(snapshot.tables['events'], hasLength(6));
+    expect(snapshot.tables['relationships'], hasLength(2));
+    expect(snapshot.tables['reminders'], hasLength(1));
+    expect(snapshot.tables['memory_candidates'], hasLength(1));
   });
 
   test('wrong password leaves an existing timeline unchanged', () async {
@@ -202,6 +271,40 @@ void main() {
       'Existing timeline',
     );
   });
+
+  test(
+    'replacement detection includes candidate- and reminder-only data',
+    () async {
+      final dataSource = DriftBackupDataSource(targetDatabase);
+      await _seedCandidateProvenance(targetDatabase);
+      expect(await dataSource.hasUserData(), isTrue);
+
+      await targetDatabase.delete(targetDatabase.fieldProvenanceRows).go();
+      await targetDatabase.delete(targetDatabase.memoryCandidates).go();
+      expect(await dataSource.hasUserData(), isFalse);
+
+      final at = DateTime.utc(2026, 8, 10);
+      await DriftReminderRepository(targetDatabase).save(
+        Reminder(
+          id: 'standalone-reminder',
+          title: 'Private reminder',
+          targetDate: LocalDate(2030, 1, 1),
+          reminderDate: LocalDate(2029, 12, 1),
+          reminderTime: LocalTimeOfDay(9, 0),
+          timeZoneId: 'UTC',
+          scheduledAtUtc: DateTime.utc(2029, 12, 1, 9),
+          type: ReminderType.custom,
+          leadTime: ReminderLeadTime.custom,
+          status: ReminderStatus.scheduled,
+          notificationId: 7,
+          privacyClassification: PrivacyClassification.sensitive,
+          createdAt: at,
+          updatedAt: at,
+        ),
+      );
+      expect(await dataSource.hasUserData(), isTrue);
+    },
+  );
 
   test('transaction failure does not corrupt an existing timeline', () async {
     await _seedTimeline(sourceDatabase, sourceAttachments);
@@ -253,7 +356,131 @@ void main() {
       ).memoryById('existing'))?.event.title,
       'Existing timeline',
     );
+    expect(
+      await Directory(
+        p.join(targetAttachments.path, 'restored', invalid.id),
+      ).exists(),
+      isFalse,
+    );
   });
+
+  test(
+    'truncated or modified ciphertext never changes existing data',
+    () async {
+      await _seedTimeline(sourceDatabase, sourceAttachments);
+      await _seedExistingTarget(targetDatabase);
+      await _service(
+        sourceDatabase,
+        sourceAttachments,
+        backupPath,
+        testKdf,
+      ).create(recoveryPassword: password, onProgress: (_) {});
+      final original = await File(backupPath).readAsBytes();
+      final cases = <String, List<int>>{
+        'truncated': original.sublist(0, original.length ~/ 2),
+        'modified': [...original]..[original.length - 1] ^= 0xff,
+      };
+      final targetService = _service(
+        targetDatabase,
+        targetAttachments,
+        backupPath,
+        testKdf,
+      );
+
+      for (final entry in cases.entries) {
+        final path = p.join(temporary.path, '${entry.key}.timelinebackup');
+        await File(path).writeAsBytes(entry.value, flush: true);
+        await expectLater(
+          targetService.prepare(
+            path: path,
+            recoveryPassword: password,
+            onProgress: (_) {},
+          ),
+          throwsA(anything),
+        );
+        expect(
+          (await DriftTimelineRepository(
+            targetDatabase,
+          ).memoryById('existing'))?.event.title,
+          'Existing timeline',
+        );
+      }
+    },
+  );
+
+  test(
+    'missing or corrupted staged attachment aborts restore safely',
+    () async {
+      await _seedTimeline(sourceDatabase, sourceAttachments);
+      await _seedExistingTarget(targetDatabase);
+      await _service(
+        sourceDatabase,
+        sourceAttachments,
+        backupPath,
+        testKdf,
+      ).create(recoveryPassword: password, onProgress: (_) {});
+      final targetService = _service(
+        targetDatabase,
+        targetAttachments,
+        backupPath,
+        testKdf,
+      );
+
+      for (final corrupt in [false, true]) {
+        final prepared = await targetService.prepare(
+          path: backupPath,
+          recoveryPassword: password,
+          onProgress: (_) {},
+        );
+        final attachmentEntry = prepared.manifest.files.firstWhere(
+          (entry) => entry.type == BackupEntryType.attachment,
+        );
+        final staged = File(
+          p.join(
+            prepared.stagingDirectory,
+            'payload',
+            p.fromUri(attachmentEntry.path),
+          ),
+        );
+        if (corrupt) {
+          await staged.writeAsString(
+            'corrupted after verification',
+            flush: true,
+          );
+        } else {
+          await staged.delete();
+        }
+
+        await expectLater(
+          targetService.commit(
+            prepared,
+            replaceExisting: true,
+            onProgress: (_) {},
+          ),
+          throwsA(
+            isA<BackupFailure>().having(
+              (failure) => failure.code,
+              'code',
+              'attachment_restore_checksum_failed',
+            ),
+          ),
+        );
+        expect(
+          (await DriftTimelineRepository(
+            targetDatabase,
+          ).memoryById('existing'))?.event.title,
+          'Existing timeline',
+        );
+        expect(
+          await Directory(
+            p.join(targetAttachments.path, 'restored', prepared.id),
+          ).exists(),
+          isFalse,
+        );
+        await targetService.discard(prepared);
+      }
+    },
+  );
 
   test('newer database backup is refused before restore', () async {
     final payload = File(p.join(temporary.path, 'payload.zip'))
@@ -379,6 +606,60 @@ void main() {
       ),
     );
   });
+
+  test(
+    'authenticated archive with invalid manifest is refused safely',
+    () async {
+      await _seedExistingTarget(targetDatabase);
+      final payload = Directory(p.join(temporary.path, 'invalid_manifest'));
+      await File(p.join(payload.path, 'manifest.json'))
+          .create(recursive: true)
+          .then((file) => file.writeAsString('{not-json', flush: true));
+      await File(p.join(payload.path, 'database', 'timeline.json'))
+          .create(recursive: true)
+          .then((file) => file.writeAsString('{}', flush: true));
+      final archivePath = p.join(temporary.path, 'invalid-manifest.zip');
+      await ZipFileEncoder().zipDirectory(payload, filename: archivePath);
+      const encryption = AesGcmFileEncryptionService(
+        CryptographyPasswordKeyDeriver(),
+      );
+      await encryption.encryptFile(
+        inputPath: archivePath,
+        outputPath: backupPath,
+        password: password,
+        createdAt: DateTime.utc(2026, 8, 10),
+        databaseSchemaVersion: 8,
+        attachmentCount: 0,
+        kdf: testKdf,
+      );
+
+      await expectLater(
+        _service(
+          targetDatabase,
+          targetAttachments,
+          backupPath,
+          testKdf,
+        ).prepare(
+          path: backupPath,
+          recoveryPassword: password,
+          onProgress: (_) {},
+        ),
+        throwsA(
+          isA<BackupFailure>().having(
+            (failure) => failure.code,
+            'code',
+            'manifest_invalid',
+          ),
+        ),
+      );
+      expect(
+        (await DriftTimelineRepository(
+          targetDatabase,
+        ).memoryById('existing'))?.event.title,
+        'Existing timeline',
+      );
+    },
+  );
 }
 
 LocalBackupService _service(
@@ -418,6 +699,72 @@ Future<void> _seedTimeline(
         eventType: 'Education',
       ),
       category: Category(metadata: metadata('category-1'), name: 'Education'),
+    ),
+  );
+  RecordMetadata eventMetadata(
+    String id, {
+    PrivacyClassification privacy = PrivacyClassification.personal,
+    RecordLifecycle lifecycle = RecordLifecycle.confirmed,
+  }) => RecordMetadata(
+    id: id,
+    privacyClassification: privacy,
+    lifecycle: lifecycle,
+    createdAt: at,
+    updatedAt: at,
+    deletedAt: lifecycle == RecordLifecycle.softDeleted ? at : null,
+  );
+  for (final event in [
+    Event(
+      metadata: eventMetadata('event-exact'),
+      title: 'Exact ceremony date',
+      temporalValue: TemporalValue.exactDate(year: 2021, month: 5, day: 14),
+      eventType: 'Milestone',
+    ),
+    Event(
+      metadata: eventMetadata('event-approximate'),
+      title: 'Approximate move',
+      temporalValue: TemporalValue.approximate(
+        TemporalPoint(year: 2017, month: 6),
+      ),
+      eventType: 'Move',
+    ),
+    Event(
+      metadata: eventMetadata('event-range'),
+      title: 'Worked abroad',
+      temporalValue: TemporalValue.range(
+        start: TemporalPoint(year: 2015, month: 2),
+        end: TemporalPoint(year: 2016, month: 9),
+      ),
+      eventType: 'Work',
+    ),
+    Event(
+      metadata: eventMetadata(
+        'event-archived',
+        privacy: PrivacyClassification.sensitive,
+        lifecycle: RecordLifecycle.archived,
+      ),
+      title: 'Archived private trip',
+      temporalValue: TemporalValue.year(2014),
+      eventType: 'Travel',
+    ),
+    Event(
+      metadata: eventMetadata(
+        'event-trash',
+        privacy: PrivacyClassification.neverShare,
+        lifecycle: RecordLifecycle.softDeleted,
+      ),
+      title: 'Trashed private record',
+      temporalValue: TemporalValue.unknown(),
+      eventType: 'Private',
+    ),
+  ]) {
+    await repository.saveEvent(event);
+  }
+  await repository.saveEntity(
+    Entity(
+      metadata: metadata('entity-university'),
+      name: 'Example University',
+      entityType: 'organization',
     ),
   );
   final localPath = p.join('documents', 'certificate.txt');
@@ -467,6 +814,34 @@ Future<void> _seedTimeline(
       ),
     ],
   );
+  for (final relationship in [
+    Relationship(
+      metadata: metadata('relationship-university'),
+      source: TimelineRecordReference(
+        type: TimelineRecordType.event,
+        id: 'event-1',
+      ),
+      target: TimelineRecordReference(
+        type: TimelineRecordType.entity,
+        id: 'entity-university',
+      ),
+      relationshipType: 'involves',
+    ),
+    Relationship(
+      metadata: metadata('relationship-certificate'),
+      source: TimelineRecordReference(
+        type: TimelineRecordType.event,
+        id: 'event-1',
+      ),
+      target: TimelineRecordReference(
+        type: TimelineRecordType.evidence,
+        id: 'evidence-1',
+      ),
+      relationshipType: 'supported_by',
+    ),
+  ]) {
+    await repository.saveRelationship(relationship);
+  }
   final mediaDisplayPath = p.join('media', 'display', 'graduation.jpg');
   final mediaDisplay = File(p.join(attachmentRoot.path, mediaDisplayPath));
   await mediaDisplay.parent.create(recursive: true);
@@ -520,6 +895,26 @@ Future<void> _seedTimeline(
           verifiedAt: at,
         ),
       );
+  await DriftReminderRepository(database).save(
+    Reminder(
+      id: 'reminder-graduation',
+      linkedEventId: 'event-1',
+      title: 'Renew certificate copy',
+      note: 'Private document note',
+      targetDate: LocalDate(2029, 6, 14),
+      reminderDate: LocalDate(2029, 5, 14),
+      reminderTime: LocalTimeOfDay(9, 30),
+      timeZoneId: 'Asia/Shanghai',
+      scheduledAtUtc: DateTime.utc(2029, 5, 14, 1, 30),
+      type: ReminderType.renewal,
+      leadTime: ReminderLeadTime.thirtyDays,
+      status: ReminderStatus.scheduled,
+      notificationId: 31,
+      privacyClassification: PrivacyClassification.sensitive,
+      createdAt: at,
+      updatedAt: at,
+    ),
+  );
 }
 
 Future<void> _seedExistingTarget(AppDatabase database) async {

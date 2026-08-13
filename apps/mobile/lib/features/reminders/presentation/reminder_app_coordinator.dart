@@ -66,16 +66,36 @@ final class _ReminderAppCoordinatorState
 
   Future<void> _openReminder(String reminderId) async {
     try {
+      // Let startup/resume reconciliation settle first so acknowledgement is
+      // the final durable write for this notification interaction.
+      try {
+        await ref.read(reminderBootstrapProvider.future);
+      } on Object {
+        // Platform scheduling failure must not block local navigation.
+      }
+      try {
+        await ref
+            .read(reminderSchedulerProvider)
+            .acknowledgeNotification(reminderId);
+      } on Object {
+        // The destination remains usable even if acknowledgement cannot be
+        // persisted; a later reconciliation can still repair scheduling.
+      }
       final reminder = await ref.read(reminderStoreProvider).byId(reminderId);
       if (!mounted) return;
       final router = ref.read(appRouterProvider);
+      // Notification launches may start with no Navigator history. Establish a
+      // safe Timeline destination so system Back never exits unexpectedly.
+      router.goNamed(AppRoute.timeline.name);
       if (reminder?.linkedEventId case final eventId?) {
-        router.goNamed(
-          AppRoute.memoryDetail.name,
-          pathParameters: {'memoryId': eventId},
+        unawaited(
+          router.pushNamed(
+            AppRoute.memoryDetail.name,
+            pathParameters: {'memoryId': eventId},
+          ),
         );
       } else {
-        router.goNamed(AppRoute.reminders.name);
+        unawaited(router.pushNamed(AppRoute.reminders.name));
       }
       ref.read(pendingReminderIntentProvider.notifier).clear();
     } finally {

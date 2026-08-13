@@ -132,7 +132,7 @@ final class _ReminderRow extends StatelessWidget {
       reminder.reminderDate.day,
     );
     final dateLabel = MaterialLocalizations.of(context).formatFullDate(date);
-    final status = _statusLabel(reminder.status);
+    final status = reminderStatusLabel(reminder);
     return Semantics(
       button: true,
       label: '${reminder.title}, $dateLabel, $status',
@@ -166,10 +166,12 @@ String _leadLabel(ReminderLeadTime value) => switch (value) {
   ReminderLeadTime.custom => 'Custom date',
 };
 
-String _statusLabel(ReminderStatus value) => switch (value) {
-  ReminderStatus.scheduled => 'Scheduled',
-  ReminderStatus.disabled => 'Notifications off',
+String reminderStatusLabel(Reminder reminder) => switch (reminder.status) {
   ReminderStatus.completed => 'Completed',
-  ReminderStatus.missed => 'Missed',
   ReminderStatus.cancelled => 'Cancelled',
+  ReminderStatus.disabled => 'Notifications off',
+  ReminderStatus.scheduled ||
+  ReminderStatus.missed when reminder.dismissedAt != null => 'Opened',
+  ReminderStatus.scheduled => 'Scheduled',
+  ReminderStatus.missed => 'Missed',
 };

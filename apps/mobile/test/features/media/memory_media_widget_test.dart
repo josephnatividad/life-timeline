@@ -104,6 +104,27 @@ void main() {
     expect(find.byType(ManagedMemoryImage), findsOneWidget);
     expect(find.text('Photo memory'), findsOneWidget);
   });
+
+  testWidgets('50-photo gallery remains scrollable without eager originals', (
+    tester,
+  ) async {
+    final largeGallery = [
+      for (var index = 0; index < 50; index++) _media(index, hero: index == 0),
+    ];
+    await tester.pumpWidget(
+      _app(
+        media: largeGallery,
+        child: const SingleChildScrollView(
+          child: MemoryMediaGallery(memoryId: 'event-1'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('50 photos'), findsOneWidget);
+    expect(find.byType(GridView), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }
 
 Widget _app({
