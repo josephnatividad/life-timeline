@@ -6,6 +6,7 @@ import 'package:life_timeline/design_system/design_system.dart';
 import 'package:life_timeline/features/private_intelligence/application/confirm_candidate_use_case.dart';
 import 'package:life_timeline/features/private_intelligence/application/intelligence_providers.dart';
 import 'package:life_timeline/features/private_intelligence/domain/intelligence_models.dart';
+import 'package:life_timeline/features/reminders/domain/reminder.dart';
 import 'package:life_timeline/shared/domain/model/memory_candidate.dart';
 import 'package:life_timeline/shared/domain/model/record_metadata.dart';
 
@@ -59,6 +60,7 @@ final class _CandidateReviewFormState
   String? _linkedEntityId;
   bool _saving = false;
   bool _ignored = false;
+  bool _addReminder = false;
 
   @override
   void initState() {
@@ -103,6 +105,10 @@ final class _CandidateReviewFormState
     final proposal = candidate.entityProposals.isEmpty
         ? null
         : candidate.entityProposals.first;
+    final reminderSuggestion = CandidateReminderSuggestion.from(
+      candidate.documentType,
+      candidate.extractedFields,
+    );
     return SingleChildScrollView(
       child: ScreenContainer(
         maxWidth: 720,
@@ -189,6 +195,24 @@ final class _CandidateReviewFormState
                   label: 'Related item name',
                 ),
             ],
+            if (reminderSuggestion != null) ...[
+              const SizedBox(height: AppSpacing.xl),
+              IntelligenceCard(
+                title: 'Reminder suggestion',
+                body:
+                    '${_fieldLabel(reminderSuggestion.type.name)} date found. ${_reminderLeadLabel(reminderSuggestion.leadTime)} is a useful starting point.',
+              ),
+              SwitchListTile.adaptive(
+                key: const Key('candidate-add-reminder'),
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Add reminder when confirmed'),
+                subtitle: const Text(
+                  'Nothing is scheduled until you choose this option.',
+                ),
+                value: _addReminder,
+                onChanged: (value) => setState(() => _addReminder = value),
+              ),
+            ],
             const SizedBox(height: AppSpacing.xl),
             AppButton(
               key: const Key('confirm-candidate'),
@@ -237,6 +261,7 @@ final class _CandidateReviewFormState
               createEntityName: _linkedEntityId == null
                   ? _newEntity.text
                   : null,
+              createSuggestedReminder: _addReminder,
             ),
           );
       ref.invalidate(pendingCandidatesProvider);
@@ -282,6 +307,13 @@ final class _CandidateReviewFormState
     if (mounted) setState(() => _ignored = false);
   }
 }
+
+String _reminderLeadLabel(ReminderLeadTime value) => switch (value) {
+  ReminderLeadTime.thirtyDays => '30 days before',
+  ReminderLeadTime.ninetyDays => '90 days before',
+  ReminderLeadTime.sixMonths => '6 months before',
+  _ => 'A reminder',
+};
 
 String _confidenceCopy(double? confidence) {
   if (confidence == null || confidence < 0.55) {

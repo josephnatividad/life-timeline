@@ -42,7 +42,12 @@ final class LocalArchiveService implements ArchiveService {
     }
     final stored = await _repository.attachmentById(attachmentId);
     final attachment = stored?.attachment;
-    final relativePath = attachment?.relativePath;
+    final sourceKind = attachment?.preservedOriginalRelativePath != null
+        ? ArchiveSourceKind.preservedOriginal
+        : ArchiveSourceKind.main;
+    final relativePath = sourceKind == ArchiveSourceKind.preservedOriginal
+        ? attachment?.preservedOriginalRelativePath
+        : attachment?.relativePath;
     if (attachment == null ||
         attachment.storageState != AttachmentStorageState.local ||
         relativePath == null ||
@@ -58,12 +63,18 @@ final class LocalArchiveService implements ArchiveService {
     }
     final sourceSize = await source.length();
     final sourceHash = await _encryption.sha256File(source.path);
-    if (attachment.checksum != null && attachment.checksum != sourceHash) {
+    final expectedSourceHash = sourceKind == ArchiveSourceKind.preservedOriginal
+        ? attachment.preservedOriginalChecksum
+        : attachment.checksum;
+    if (expectedSourceHash != null && expectedSourceHash != sourceHash) {
       throw const ArchiveFailure('source_checksum_mismatch');
     }
 
     onProgress(const ArchiveProgress(phase: ArchivePhase.preparingPreview));
-    final thumbnail = await _ensureThumbnail(root, attachment, source.path);
+    final previewPath = attachment.relativePath == null
+        ? source.path
+        : _resolveManaged(root, attachment.relativePath!);
+    final thumbnail = await _ensureThumbnail(root, attachment, previewPath);
     final operation = await _operationDirectory('archive');
     final encrypted = File(p.join(operation.path, 'storage-archive.bin'));
     var archiveReferenceRecorded = false;
@@ -106,6 +117,7 @@ final class LocalArchiveService implements ArchiveService {
         archiveSha256: archiveHash,
         encryptionAlgorithm: _encryptionAlgorithm,
         formatVersion: _formatVersion,
+        sourceKind: sourceKind,
         archivedAt: now,
         verifiedAt: now,
       );
@@ -131,6 +143,7 @@ final class LocalArchiveService implements ArchiveService {
           await _repository.completeArchiveRemoval(
             attachmentId,
             _now().toUtc(),
+            sourceKind: sourceKind,
           );
           removed = true;
         }
@@ -219,6 +232,7 @@ final class LocalArchiveService implements ArchiveService {
         relativePath: relative,
         byteSize: reference.originalByteSize,
         checksum: reference.originalSha256,
+        sourceKind: reference.sourceKind,
         at: _now().toUtc(),
       );
       onProgress(const ArchiveProgress(phase: ArchivePhase.complete));

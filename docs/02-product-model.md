@@ -42,12 +42,24 @@ Information supporting an event or entity.
 Examples:
 
 -   Receipt
--   Photo
--   PDF
+-   Warranty
+-   Official document or PDF
 -   Certificate
 -   Ticket
--   Screenshot
--   Imported metadata
+
+Evidence answers "what supports or proves this memory?" It is not the
+ordinary home for photographs that depict the memory itself.
+
+### Memory Media
+
+Curated visual media attached to an Event answers "what did this moment look
+like?" V1 supports images, an optional hero designation, gallery ordering,
+captions, import time, optional captured time, privacy, and storage state.
+
+Memory Media and Evidence share attachment assets, checksums, thumbnails,
+backup, archive, and integrity handling. Their contextual roles remain
+different. One physical attachment asset may be linked from more than one
+context without duplicating domain ownership or silently deleting the file.
 
 ### Relationship
 

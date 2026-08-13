@@ -178,7 +178,6 @@ final class CaptureIntelligenceUseCase {
           createdAt: now,
           updatedAt: now,
         ),
-        evidenceId: evidenceId,
         storageState: AttachmentStorageState.local,
         importMode: AttachmentImportMode.optimizedCopy,
         mimeType: prepared.mimeType,
@@ -360,7 +359,7 @@ TemporalValue _temporalFrom(List<ExtractedField> fields) {
 EvidenceType _evidenceType(DocumentType type) => switch (type) {
   DocumentType.receipt => EvidenceType.receipt,
   DocumentType.travel => EvidenceType.ticket,
-  _ => EvidenceType.document,
+  _ => EvidenceType.officialDocument,
 };
 
 String _label(DocumentType type) => switch (type) {

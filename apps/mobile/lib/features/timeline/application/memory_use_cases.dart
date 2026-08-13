@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_initializing_formals
+
 import 'dart:math';
 
 import 'package:life_timeline/features/timeline/application/memory_editor_draft.dart';
@@ -198,15 +200,20 @@ final class DeleteMemoryUseCase {
   const DeleteMemoryUseCase(
     this._repository,
     this._attachmentCleanup, {
+    Future<void> Function()? onReminderLifecycleChanged,
     DateTime Function()? now,
-  }) : _now = now ?? DateTime.now;
+  }) : _now = now ?? DateTime.now,
+       _onReminderLifecycleChanged = onReminderLifecycleChanged;
 
   final ManagedAttachmentCleanup _attachmentCleanup;
   final DateTime Function() _now;
+  final Future<void> Function()? _onReminderLifecycleChanged;
   final TimelineRepository _repository;
 
-  Future<void> moveToTrash(String id) =>
-      _repository.softDeleteEvent(id, _now().toUtc());
+  Future<void> moveToTrash(String id) async {
+    await _repository.softDeleteEvent(id, _now().toUtc());
+    await _reconcileRemindersBestEffort();
+  }
 
   Future<void> restoreFromTrash(String id) =>
       _repository.restoreSoftDeletedEvent(id, _now().toUtc());
@@ -218,6 +225,7 @@ final class DeleteMemoryUseCase {
   /// a database transaction was rolled back after it already committed.
   Future<bool> permanentlyDelete(String id) async {
     final deletion = await _repository.permanentlyDeleteEvent(id);
+    await _reconcileRemindersBestEffort();
     try {
       await _attachmentCleanup.deleteManagedFiles(
         deletion.managedRelativePaths,
@@ -225,6 +233,15 @@ final class DeleteMemoryUseCase {
       return true;
     } on Object {
       return false;
+    }
+  }
+
+  Future<void> _reconcileRemindersBestEffort() async {
+    try {
+      await _onReminderLifecycleChanged?.call();
+    } on Object {
+      // The database lifecycle transition remains authoritative. A later app
+      // resume runs reconciliation again and removes orphan OS notifications.
     }
   }
 }

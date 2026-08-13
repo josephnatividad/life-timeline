@@ -3,6 +3,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:life_timeline/shared/database/schema_migrations.dart';
 import 'package:life_timeline/shared/database/tables/candidate_provenance_tables.dart';
 import 'package:life_timeline/shared/database/tables/insight_tables.dart';
+import 'package:life_timeline/shared/database/tables/reminder_tables.dart';
 import 'package:life_timeline/shared/database/tables/schema_constraints.dart';
 import 'package:life_timeline/shared/database/tables/storage_tables.dart';
 import 'package:life_timeline/shared/database/tables/taxonomy_tables.dart';
@@ -17,6 +18,7 @@ part 'app_database.g.dart';
     EvidenceRecords,
     Relationships,
     Attachments,
+    AttachmentLinks,
     ArchiveReferences,
     FieldProvenanceRows,
     MemoryCandidates,
@@ -32,6 +34,7 @@ part 'app_database.g.dart';
     EventCategories,
     EvidenceCategories,
     InsightDismissals,
+    Reminders,
   ],
 )
 final class AppDatabase extends _$AppDatabase {
@@ -40,12 +43,13 @@ final class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (migrator) async {
       await migrator.createAll();
+      await createAttachmentLinkIndexes(this);
       await createEventSearchSchema(this);
     },
     onUpgrade: (migrator, from, to) =>

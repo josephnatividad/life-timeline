@@ -28,6 +28,7 @@ Implemented foundation:
 - Manual fresh-install restore
 - System file picker / user-selected destination
 - Verified attachment, thumbnail, and preserved-original payloads
+- Memory Media roles, hero/order links, captions, privacy, and checksums
 - Portable archive-reference metadata
 
 Future: - Automatic user-owned backup - Google Drive or other provider
@@ -62,6 +63,13 @@ The archive reference is committed while the original still exists. Local
 removal is off by default and occurs only after successful destination
 verification and explicit confirmation. Cancellation and pre-commit failure
 leave the local original unchanged.
+
+For optimized Memory Media, archive prefers the preserved original while the
+display image and thumbnail remain local previews. The archive reference
+records whether its source was the main file or `preserved_original`, so
+retrieval restores the correct slot without overwriting gallery ordering or
+captions. Story export requests retrieval when only an archived original can
+provide full-resolution output.
 
 ## Storage Manager V1
 

@@ -53,13 +53,11 @@ final class Event {
 }
 
 enum EvidenceType {
-  photo,
-  document,
   receipt,
+  warranty,
   certificate,
   ticket,
-  screenshot,
-  metadata,
+  officialDocument,
   other,
 }
 
@@ -115,7 +113,6 @@ enum AttachmentImportMode { referenceOriginal, optimizedCopy, preserveOriginal }
 final class Attachment {
   Attachment({
     required this.metadata,
-    required this.evidenceId,
     required this.storageState,
     required this.importMode,
     required this.mimeType,
@@ -125,11 +122,13 @@ final class Attachment {
     this.relativePath,
     this.thumbnailRelativePath,
     this.preservedOriginalRelativePath,
+    this.preservedOriginalByteSize,
+    this.preservedOriginalChecksum,
     this.pixelWidth,
     this.pixelHeight,
   }) {
-    if (evidenceId.trim().isEmpty || mimeType.trim().isEmpty) {
-      throw ArgumentError('Evidence ID and MIME type must not be empty.');
+    if (mimeType.trim().isEmpty) {
+      throw ArgumentError('MIME type must not be empty.');
     }
     if (byteSize < 0) {
       throw ArgumentError.value(byteSize, 'byteSize', 'Must not be negative.');
@@ -138,21 +137,89 @@ final class Attachment {
         (pixelHeight != null && pixelHeight! <= 0)) {
       throw ArgumentError('Attachment dimensions must be positive.');
     }
+    if (preservedOriginalByteSize != null && preservedOriginalByteSize! < 0) {
+      throw ArgumentError('Preserved-original size must not be negative.');
+    }
+    if (preservedOriginalRelativePath == null &&
+        (preservedOriginalByteSize != null ||
+            preservedOriginalChecksum != null)) {
+      throw ArgumentError(
+        'Preserved-original metadata requires a preserved-original path.',
+      );
+    }
   }
 
   final int byteSize;
   final String? checksum;
   final String? displayName;
-  final String evidenceId;
   final AttachmentImportMode importMode;
   final RecordMetadata metadata;
   final String mimeType;
   final String? relativePath;
   final String? preservedOriginalRelativePath;
+  final int? preservedOriginalByteSize;
+  final String? preservedOriginalChecksum;
   final int? pixelHeight;
   final int? pixelWidth;
   final AttachmentStorageState storageState;
   final String? thumbnailRelativePath;
+}
+
+enum AttachmentRole { heroMedia, memoryMedia, evidence }
+
+final class AttachmentLink {
+  AttachmentLink({
+    required this.id,
+    required this.attachmentId,
+    required this.role,
+    required this.sortOrder,
+    required DateTime importedAt,
+    this.eventId,
+    this.evidenceId,
+    this.caption,
+    DateTime? capturedAt,
+  }) : importedAt = importedAt.toUtc(),
+       capturedAt = capturedAt?.toUtc() {
+    final hasEvent = eventId?.trim().isNotEmpty ?? false;
+    final hasEvidence = evidenceId?.trim().isNotEmpty ?? false;
+    if (id.trim().isEmpty ||
+        attachmentId.trim().isEmpty ||
+        hasEvent == hasEvidence ||
+        sortOrder < 0) {
+      throw ArgumentError('Attachment link metadata is invalid.');
+    }
+    if ((role == AttachmentRole.evidence) != hasEvidence) {
+      throw ArgumentError(
+        'Evidence roles require evidence; media roles require an event.',
+      );
+    }
+  }
+
+  final String attachmentId;
+  final DateTime? capturedAt;
+  final String? caption;
+  final String? eventId;
+  final String? evidenceId;
+  final String id;
+  final DateTime importedAt;
+  final AttachmentRole role;
+  final int sortOrder;
+}
+
+final class MemoryMedia {
+  MemoryMedia({required this.attachment, required this.link}) {
+    if (link.attachmentId != attachment.metadata.id ||
+        link.eventId == null ||
+        link.role == AttachmentRole.evidence) {
+      throw ArgumentError('Memory media requires a matching event-media link.');
+    }
+  }
+
+  final Attachment attachment;
+  final AttachmentLink link;
+
+  bool get isHero => link.role == AttachmentRole.heroMedia;
+  bool get isImage => attachment.mimeType.toLowerCase().startsWith('image/');
 }
 
 final class Tag {
@@ -196,7 +263,14 @@ final class TimelineMemory {
   final Relationship? relatedEntityRelationship;
 }
 
-enum MemoryMatchField { title, description, eventType, entity, category }
+enum MemoryMatchField {
+  title,
+  description,
+  eventType,
+  entity,
+  category,
+  mediaCaption,
+}
 
 final class MemorySearchResult {
   const MemorySearchResult({required this.memory, required this.matchedField});

@@ -1,11 +1,14 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:life_timeline/app/life_timeline_app.dart';
 import 'package:life_timeline/features/insights/application/explore_overview.dart';
 import 'package:life_timeline/features/insights/application/insights_providers.dart';
+import 'package:life_timeline/features/reminders/application/reminder_providers.dart';
 import 'package:life_timeline/features/security/application/security_providers.dart';
 import 'package:life_timeline/features/timeline/application/timeline_providers.dart';
 
+import '../helpers/reminder_test_services.dart';
 import '../helpers/security_test_controller.dart';
 
 void main() {
@@ -20,6 +23,13 @@ void main() {
             (ref) async => _emptyExploreOverview(),
           ),
           timelineMemoriesProvider.overrideWith((ref) => Stream.value([])),
+          localNotificationServiceProvider.overrideWithValue(
+            TestLocalNotificationService(),
+          ),
+          deviceTimeZoneServiceProvider.overrideWithValue(
+            TestDeviceTimeZoneService(),
+          ),
+          reminderStoreProvider.overrideWithValue(TestReminderRepository()),
         ],
         child: const LifeTimelineApp(),
       ),
@@ -47,6 +57,13 @@ void main() {
             (ref) async => _emptyExploreOverview(),
           ),
           timelineMemoriesProvider.overrideWith((ref) => Stream.value([])),
+          localNotificationServiceProvider.overrideWithValue(
+            TestLocalNotificationService(),
+          ),
+          deviceTimeZoneServiceProvider.overrideWithValue(
+            TestDeviceTimeZoneService(),
+          ),
+          reminderStoreProvider.overrideWithValue(TestReminderRepository()),
         ],
         child: const LifeTimelineApp(),
       ),
@@ -59,7 +76,10 @@ void main() {
 
     await tester.tap(find.text('Capture'));
     await tester.pumpAndSettle();
-    expect(find.text('Add memory manually'), findsOneWidget);
+    expect(find.byKey(const Key('capture-manual-memory')), findsOneWidget);
+    expect(find.text('Add Memory'), findsOneWidget);
+    expect(find.text('Add Photos'), findsOneWidget);
+    expect(find.text('Scan Document'), findsOneWidget);
 
     await tester.tapAt(const Offset(8, 8));
     await tester.pumpAndSettle();

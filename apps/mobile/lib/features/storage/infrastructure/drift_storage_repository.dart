@@ -23,11 +23,19 @@ final class DriftStorageRepository implements StorageRepository {
     final archives = {
       for (final row in archiveRows) row.attachmentId: _archiveFromRow(row),
     };
+    final links = await _database.select(_database.attachmentLinks).get();
+    final roles = <String, Set<AttachmentRole>>{};
+    for (final link in links) {
+      roles
+          .putIfAbsent(link.attachmentId, () => <AttachmentRole>{})
+          .add(TimelineMapper.attachmentLinkFromRow(link).role);
+    }
     return [
       for (final row in attachmentRows)
         StoredAttachment(
           attachment: TimelineMapper.attachmentFromRow(row),
           archiveReference: archives[row.id],
+          roles: Set.unmodifiable(roles[row.id] ?? const {}),
         ),
     ];
   }
@@ -43,9 +51,17 @@ final class DriftStorageRepository implements StorageRepository {
     final archive = await (_database.select(
       _database.archiveReferences,
     )..where((row) => row.attachmentId.equals(id))).getSingleOrNull();
+    final linkRows = await (_database.select(
+      _database.attachmentLinks,
+    )..where((row) => row.attachmentId.equals(id))).get();
     return StoredAttachment(
       attachment: TimelineMapper.attachmentFromRow(attachment),
       archiveReference: archive == null ? null : _archiveFromRow(archive),
+      roles: Set.unmodifiable(
+        linkRows
+            .map((row) => TimelineMapper.attachmentLinkFromRow(row).role)
+            .toSet(),
+      ),
     );
   }
 
@@ -104,13 +120,31 @@ final class DriftStorageRepository implements StorageRepository {
       );
 
   @override
-  Future<void> completeArchiveRemoval(String attachmentId, DateTime at) =>
+  Future<void> completeArchiveRemoval(
+    String attachmentId,
+    DateTime at, {
+    required ArchiveSourceKind sourceKind,
+  }) =>
       (_database.update(
         _database.attachments,
       )..where((row) => row.id.equals(attachmentId))).write(
         db.AttachmentsCompanion(
           storageState: const Value('archived'),
-          relativePath: const Value(null),
+          relativePath: sourceKind == ArchiveSourceKind.main
+              ? const Value(null)
+              : const Value.absent(),
+          preservedOriginalRelativePath:
+              sourceKind == ArchiveSourceKind.preservedOriginal
+              ? const Value(null)
+              : const Value.absent(),
+          preservedOriginalByteSize:
+              sourceKind == ArchiveSourceKind.preservedOriginal
+              ? const Value(null)
+              : const Value.absent(),
+          preservedOriginalChecksum:
+              sourceKind == ArchiveSourceKind.preservedOriginal
+              ? const Value(null)
+              : const Value.absent(),
           updatedAt: Value(at.toUtc()),
         ),
       );
@@ -132,6 +166,7 @@ final class DriftStorageRepository implements StorageRepository {
     required String relativePath,
     required int byteSize,
     required String checksum,
+    required ArchiveSourceKind sourceKind,
     required DateTime at,
   }) =>
       (_database.update(
@@ -139,9 +174,27 @@ final class DriftStorageRepository implements StorageRepository {
       )..where((row) => row.id.equals(attachmentId))).write(
         db.AttachmentsCompanion(
           storageState: const Value('local'),
-          relativePath: Value(relativePath),
-          byteSize: Value(byteSize),
-          checksum: Value(checksum),
+          relativePath: sourceKind == ArchiveSourceKind.main
+              ? Value(relativePath)
+              : const Value.absent(),
+          byteSize: sourceKind == ArchiveSourceKind.main
+              ? Value(byteSize)
+              : const Value.absent(),
+          checksum: sourceKind == ArchiveSourceKind.main
+              ? Value(checksum)
+              : const Value.absent(),
+          preservedOriginalRelativePath:
+              sourceKind == ArchiveSourceKind.preservedOriginal
+              ? Value(relativePath)
+              : const Value.absent(),
+          preservedOriginalByteSize:
+              sourceKind == ArchiveSourceKind.preservedOriginal
+              ? Value(byteSize)
+              : const Value.absent(),
+          preservedOriginalChecksum:
+              sourceKind == ArchiveSourceKind.preservedOriginal
+              ? Value(checksum)
+              : const Value.absent(),
           updatedAt: Value(at.toUtc()),
         ),
       );
@@ -162,6 +215,9 @@ final class DriftStorageRepository implements StorageRepository {
     archiveSha256: row.archiveSha256,
     encryptionAlgorithm: row.encryptionAlgorithm,
     formatVersion: row.formatVersion,
+    sourceKind: row.sourceKind == 'preserved_original'
+        ? ArchiveSourceKind.preservedOriginal
+        : ArchiveSourceKind.main,
     archivedAt: row.archivedAt,
     verifiedAt: row.verifiedAt,
   );
@@ -178,6 +234,11 @@ final class DriftStorageRepository implements StorageRepository {
         archiveSha256: Value(value.archiveSha256),
         encryptionAlgorithm: Value(value.encryptionAlgorithm),
         formatVersion: Value(value.formatVersion),
+        sourceKind: Value(
+          value.sourceKind == ArchiveSourceKind.preservedOriginal
+              ? 'preserved_original'
+              : 'main',
+        ),
         archivedAt: Value(value.archivedAt),
         verifiedAt: Value(value.verifiedAt),
       );

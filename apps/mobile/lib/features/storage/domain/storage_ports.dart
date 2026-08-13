@@ -11,13 +11,18 @@ abstract interface class StorageRepository {
     String? thumbnailRelativePath,
   });
   Future<void> markArchiveRemovalStarted(String attachmentId, DateTime at);
-  Future<void> completeArchiveRemoval(String attachmentId, DateTime at);
+  Future<void> completeArchiveRemoval(
+    String attachmentId,
+    DateTime at, {
+    required ArchiveSourceKind sourceKind,
+  });
   Future<void> revertArchiveRemoval(String attachmentId, DateTime at);
   Future<void> restoreArchivedAttachment({
     required String attachmentId,
     required String relativePath,
     required int byteSize,
     required String checksum,
+    required ArchiveSourceKind sourceKind,
     required DateTime at,
   });
   Future<void> updateOptimizedAttachment(Attachment attachment);

@@ -1,3 +1,4 @@
+import 'package:life_timeline/features/media/domain/memory_media_repository.dart';
 import 'package:life_timeline/features/stories/domain/milestone_models.dart';
 import 'package:life_timeline/features/stories/domain/story_models.dart';
 import 'package:life_timeline/shared/domain/formatting/temporal_label.dart';
@@ -18,8 +19,13 @@ abstract interface class StorySourceFactory {
 }
 
 final class LocalStorySourceFactory implements StorySourceFactory {
-  const LocalStorySourceFactory(this._timeline, this._pathResolver);
+  const LocalStorySourceFactory(
+    this._timeline,
+    this._memoryMedia,
+    this._pathResolver,
+  );
 
+  final MemoryMediaRepository _memoryMedia;
   final StoryAttachmentPathResolver _pathResolver;
   final TimelineRepository _timeline;
 
@@ -133,13 +139,15 @@ final class LocalStorySourceFactory implements StorySourceFactory {
           ),
         ),
     ];
+    final storyMedia = await _mediaForEvent(event, classification);
     return StorySource(
       id: 'event:$eventId',
       sourceType: StorySourceType.event,
       title: event.title,
       sourceRecordIds: [eventId],
       fields: fields,
-      media: await _mediaForEvent(event, classification),
+      media: storyMedia.available,
+      unavailableMedia: storyMedia.unavailable,
       temporalPrecision: event.temporalValue.precision,
     );
   }
@@ -239,14 +247,15 @@ final class LocalStorySourceFactory implements StorySourceFactory {
         ),
     ];
     final media = <StoryMedia>[];
+    final unavailableMedia = <StoryUnavailableMedia>[];
     for (final link in eventLinks) {
-      media.addAll(
-        await _mediaForEvent(
-          link.event,
-          _strictest(classification, link.relationshipPrivacy),
-        ),
+      final selection = await _mediaForEvent(
+        link.event,
+        _strictest(classification, link.relationshipPrivacy),
       );
-      if (media.isNotEmpty) break;
+      media.addAll(selection.available);
+      unavailableMedia.addAll(selection.unavailable);
+      if (media.isNotEmpty || unavailableMedia.isNotEmpty) break;
     }
     return StorySource(
       id: 'entity:$entityId',
@@ -255,6 +264,7 @@ final class LocalStorySourceFactory implements StorySourceFactory {
       sourceRecordIds: [entityId, ...events.map((event) => event.metadata.id)],
       fields: fields,
       media: media,
+      unavailableMedia: unavailableMedia,
       temporalPrecision: events.firstOrNull?.temporalValue.precision,
     );
   }
@@ -290,6 +300,7 @@ final class LocalStorySourceFactory implements StorySourceFactory {
       sourceRecordIds: milestone.sourceRecordIds,
       fields: fields,
       media: eventSource.media,
+      unavailableMedia: eventSource.unavailableMedia,
       temporalPrecision: eventSource.temporalPrecision,
     );
   }
@@ -335,6 +346,7 @@ final class LocalStorySourceFactory implements StorySourceFactory {
             suggestedByDefault: media.suggestedByDefault,
           ),
       ],
+      unavailableMedia: [...first.unavailableMedia, ...second.unavailableMedia],
     );
   }
 
@@ -371,62 +383,55 @@ final class LocalStorySourceFactory implements StorySourceFactory {
     ];
   }
 
-  Future<List<StoryMedia>> _mediaForEvent(
+  Future<
+    ({List<StoryMedia> available, List<StoryUnavailableMedia> unavailable})
+  >
+  _mediaForEvent(
     Event event,
     PrivacyClassification sourceClassification,
   ) async {
-    final relationships = await _timeline.relationshipsFor(
-      TimelineRecordReference(
-        type: TimelineRecordType.event,
-        id: event.metadata.id,
-      ),
-    );
-    final media = <StoryMedia>[];
-    for (final relationship in relationships) {
-      if (relationship.metadata.lifecycle != RecordLifecycle.confirmed) {
+    final available = <StoryMedia>[];
+    final unavailable = <StoryUnavailableMedia>[];
+    for (final memoryMedia in await _memoryMedia.forEvent(event.metadata.id)) {
+      final attachment = memoryMedia.attachment;
+      if (!memoryMedia.isImage ||
+          attachment.metadata.lifecycle == RecordLifecycle.softDeleted) {
         continue;
       }
-      final evidenceId = _otherId(
-        relationship,
-        TimelineRecordType.evidence,
-        event.metadata.id,
+      final classification = _strictest(
+        sourceClassification,
+        attachment.metadata.privacyClassification,
       );
-      if (evidenceId == null) continue;
-      final evidence = await _timeline.evidenceById(evidenceId);
-      if (evidence == null ||
-          evidence.metadata.lifecycle != RecordLifecycle.confirmed) {
+      if (classification == PrivacyClassification.neverShare) continue;
+      final localPath = await _pathResolver.resolve(attachment);
+      if (localPath == null) {
+        if (attachment.storageState == AttachmentStorageState.archived) {
+          unavailable.add(
+            StoryUnavailableMedia(
+              attachmentId: attachment.metadata.id,
+              label: memoryMedia.link.caption ?? 'Archived memory photo',
+              privacyClassification: classification,
+              reason: 'Retrieve the original before high-resolution export.',
+            ),
+          );
+        }
         continue;
       }
-      for (final attachment in await _timeline.attachmentsForEvidence(
-        evidenceId,
-      )) {
-        if (!attachment.mimeType.toLowerCase().startsWith('image/')) continue;
-        final localPath = await _pathResolver.resolve(attachment);
-        if (localPath == null) continue;
-        final classification = _strictest(
-          sourceClassification,
-          _strictest(
-            relationship.metadata.privacyClassification,
-            _strictest(
-              evidence.metadata.privacyClassification,
-              attachment.metadata.privacyClassification,
-            ),
-          ),
-        );
-        media.add(
-          StoryMedia(
-            id: 'attachment:${attachment.metadata.id}',
-            label: 'Selected photo',
-            kind: StoryMediaKind.image,
-            localPath: localPath,
-            privacyClassification: classification,
-            suggestedByDefault:
-                classification == PrivacyClassification.shareSafe,
-          ),
-        );
-      }
+      available.add(
+        StoryMedia(
+          id: 'memory-media:${memoryMedia.link.id}',
+          label: memoryMedia.link.caption ?? 'Memory photo',
+          kind: StoryMediaKind.image,
+          localPath: localPath,
+          privacyClassification: classification,
+          suggestedByDefault: classification == PrivacyClassification.shareSafe,
+        ),
+      );
     }
-    return media;
+    return (
+      available: List<StoryMedia>.unmodifiable(available),
+      unavailable: List<StoryUnavailableMedia>.unmodifiable(unavailable),
+    );
   }
 
   String? _otherId(

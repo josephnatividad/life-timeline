@@ -77,6 +77,26 @@ final class StoryMedia {
   final bool suggestedByDefault;
 }
 
+final class StoryUnavailableMedia {
+  StoryUnavailableMedia({
+    required this.attachmentId,
+    required this.label,
+    required this.privacyClassification,
+    required this.reason,
+  }) {
+    if (attachmentId.trim().isEmpty ||
+        label.trim().isEmpty ||
+        reason.trim().isEmpty) {
+      throw ArgumentError('Unavailable Story media metadata is required.');
+    }
+  }
+
+  final String attachmentId;
+  final String label;
+  final PrivacyClassification privacyClassification;
+  final String reason;
+}
+
 final class StorySource {
   StorySource({
     required this.id,
@@ -85,9 +105,11 @@ final class StorySource {
     required List<String> sourceRecordIds,
     List<StoryField> fields = const [],
     List<StoryMedia> media = const [],
+    List<StoryUnavailableMedia> unavailableMedia = const [],
     this.temporalPrecision,
   }) : fields = List.unmodifiable(fields),
        media = List.unmodifiable(media),
+       unavailableMedia = List.unmodifiable(unavailableMedia),
        sourceRecordIds = List.unmodifiable(sourceRecordIds) {
     if (id.trim().isEmpty || title.trim().isEmpty || sourceRecordIds.isEmpty) {
       throw ArgumentError('A Story source requires identity and records.');
@@ -97,6 +119,7 @@ final class StorySource {
   final List<StoryField> fields;
   final String id;
   final List<StoryMedia> media;
+  final List<StoryUnavailableMedia> unavailableMedia;
   final List<String> sourceRecordIds;
   final StorySourceType sourceType;
   final TemporalPrecision? temporalPrecision;

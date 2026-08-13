@@ -127,7 +127,6 @@ Attachment _attachment({
     createdAt: DateTime.utc(2026, 8, 1),
     updatedAt: DateTime.utc(2026, 8, 1),
   ),
-  evidenceId: 'evidence-1',
   storageState: AttachmentStorageState.local,
   importMode: AttachmentImportMode.preserveOriginal,
   mimeType: mimeType,
@@ -182,8 +181,11 @@ final class _OptimizationRepository implements StorageRepository {
   }
 
   @override
-  Future<void> completeArchiveRemoval(String attachmentId, DateTime at) =>
-      throw UnimplementedError();
+  Future<void> completeArchiveRemoval(
+    String attachmentId,
+    DateTime at, {
+    required ArchiveSourceKind sourceKind,
+  }) => throw UnimplementedError();
 
   @override
   Future<DateTime?> latestContentChangeAt() async => value.metadata.updatedAt;
@@ -198,6 +200,7 @@ final class _OptimizationRepository implements StorageRepository {
     required String relativePath,
     required int byteSize,
     required String checksum,
+    required ArchiveSourceKind sourceKind,
     required DateTime at,
   }) => throw UnimplementedError();
 

@@ -14,6 +14,7 @@ final class DriftBackupDataSource implements BackupDataSource {
     'categories',
     'relationships',
     'attachments',
+    'attachment_links',
     'archive_references',
     'memory_candidates',
     'candidate_extracted_fields',
@@ -21,6 +22,7 @@ final class DriftBackupDataSource implements BackupDataSource {
     'field_provenance',
     'feature_usage',
     'insight_dismissals',
+    'reminders',
     'entity_tags',
     'event_tags',
     'evidence_tags',
@@ -74,6 +76,7 @@ final class DriftBackupDataSource implements BackupDataSource {
     if (snapshot.schemaVersion < 1 || snapshot.schemaVersion > schemaVersion) {
       throw const BackupFailure('unsupported_database_version');
     }
+    final upgraded = _upgradePortableSnapshot(snapshot);
     await _database.transaction(() async {
       final allowedColumns = <String, Set<String>>{};
       for (final table in _tablesInInsertOrder) {
@@ -88,13 +91,58 @@ final class DriftBackupDataSource implements BackupDataSource {
         await _database.customStatement('DELETE FROM "$table"');
       }
       for (final table in _tablesInInsertOrder) {
-        final rows = snapshot.tables[table] ?? const [];
+        final rows = upgraded.tables[table] ?? const [];
         for (final row in rows) {
           await _insertValidated(table, row, allowedColumns[table]!);
         }
       }
       await rebuildEventSearchIndex(_database);
     });
+  }
+
+  DatabaseSnapshot _upgradePortableSnapshot(DatabaseSnapshot source) {
+    if (source.schemaVersion >= 8) return source;
+    if (source.schemaVersion == 7) {
+      return DatabaseSnapshot(
+        schemaVersion: 8,
+        tables: {...source.tables, 'reminders': const <Map<String, Object?>>[]},
+      );
+    }
+    final tables = <String, List<Map<String, Object?>>>{
+      for (final table in source.tables.entries)
+        table.key: table.value
+            .map((row) => Map<String, Object?>.from(row))
+            .toList(growable: false),
+    };
+    final links = <Map<String, Object?>>[];
+    for (final attachment
+        in tables['attachments'] ?? const <Map<String, Object?>>[]) {
+      final id = attachment['id'];
+      final evidenceId = attachment.remove('evidence_id');
+      if (id is String && evidenceId is String) {
+        links.add({
+          'id': 'evidence-link:$evidenceId:$id',
+          'attachment_id': id,
+          'event_id': null,
+          'evidence_id': evidenceId,
+          'role': 'evidence',
+          'caption': null,
+          'sort_order': 0,
+          'captured_at': null,
+          'imported_at': attachment['created_at'],
+        });
+      }
+    }
+    tables['attachment_links'] = links;
+    for (final evidence
+        in tables['evidence'] ?? const <Map<String, Object?>>[]) {
+      evidence['evidence_type'] = switch (evidence['evidence_type']) {
+        'document' => 'official_document',
+        'photo' || 'screenshot' || 'metadata' => 'other',
+        final value => value,
+      };
+    }
+    return DatabaseSnapshot(schemaVersion: 8, tables: tables);
   }
 
   Future<void> _insertValidated(

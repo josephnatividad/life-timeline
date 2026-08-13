@@ -147,7 +147,7 @@ void main() {
     final id = await saveMemory(_draft());
     final evidence = Evidence(
       metadata: _metadata('evidence-owned'),
-      evidenceType: EvidenceType.photo,
+      evidenceType: EvidenceType.other,
       title: 'Owned evidence',
     );
     await repository.saveEvidence(
@@ -155,7 +155,6 @@ void main() {
       attachments: [
         Attachment(
           metadata: _metadata('attachment-owned'),
-          evidenceId: evidence.metadata.id,
           storageState: AttachmentStorageState.local,
           importMode: AttachmentImportMode.optimizedCopy,
           mimeType: 'image/jpeg',
@@ -201,7 +200,7 @@ void main() {
       );
       final evidence = Evidence(
         metadata: _metadata('evidence-shared'),
-        evidenceType: EvidenceType.document,
+        evidenceType: EvidenceType.officialDocument,
         title: 'Shared evidence',
       );
       await repository.saveEvidence(
@@ -209,7 +208,6 @@ void main() {
         attachments: [
           Attachment(
             metadata: _metadata('attachment-shared'),
-            evidenceId: evidence.metadata.id,
             storageState: AttachmentStorageState.local,
             importMode: AttachmentImportMode.preserveOriginal,
             mimeType: 'application/pdf',
@@ -258,7 +256,7 @@ void main() {
       );
       final evidence = Evidence(
         metadata: _metadata('evidence-provenance'),
-        evidenceType: EvidenceType.document,
+        evidenceType: EvidenceType.officialDocument,
         title: 'Provenance source',
       );
       await repository.saveEvidence(evidence);

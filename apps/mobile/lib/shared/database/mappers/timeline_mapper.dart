@@ -148,11 +148,12 @@ abstract final class TimelineMapper {
     createdAt: Value(value.metadata.createdAt),
     updatedAt: Value(value.metadata.updatedAt),
     deletedAt: Value(value.metadata.deletedAt),
-    evidenceId: Value(value.evidenceId),
     displayName: Value(value.displayName),
     relativePath: Value(value.relativePath),
     thumbnailRelativePath: Value(value.thumbnailRelativePath),
     preservedOriginalRelativePath: Value(value.preservedOriginalRelativePath),
+    preservedOriginalByteSize: Value(value.preservedOriginalByteSize),
+    preservedOriginalChecksum: Value(value.preservedOriginalChecksum),
     mimeType: Value(value.mimeType),
     byteSize: Value(value.byteSize),
     pixelWidth: Value(value.pixelWidth),
@@ -176,7 +177,6 @@ abstract final class TimelineMapper {
           updatedAt: row.updatedAt,
           deletedAt: row.deletedAt,
         ),
-        evidenceId: row.evidenceId,
         storageState: PersistenceValueCodec.attachmentStateFromStorage(
           row.storageState,
         ),
@@ -190,8 +190,37 @@ abstract final class TimelineMapper {
         relativePath: row.relativePath,
         thumbnailRelativePath: row.thumbnailRelativePath,
         preservedOriginalRelativePath: row.preservedOriginalRelativePath,
+        preservedOriginalByteSize: row.preservedOriginalByteSize,
+        preservedOriginalChecksum: row.preservedOriginalChecksum,
         pixelWidth: row.pixelWidth,
         pixelHeight: row.pixelHeight,
+      );
+
+  static db.AttachmentLinksCompanion attachmentLinkToCompanion(
+    domain.AttachmentLink value,
+  ) => db.AttachmentLinksCompanion(
+    id: Value(value.id),
+    attachmentId: Value(value.attachmentId),
+    eventId: Value(value.eventId),
+    evidenceId: Value(value.evidenceId),
+    role: Value(PersistenceValueCodec.attachmentRoleToStorage(value.role)),
+    caption: Value(value.caption),
+    sortOrder: Value(value.sortOrder),
+    capturedAt: Value(value.capturedAt),
+    importedAt: Value(value.importedAt),
+  );
+
+  static domain.AttachmentLink attachmentLinkFromRow(db.AttachmentLink row) =>
+      domain.AttachmentLink(
+        id: row.id,
+        attachmentId: row.attachmentId,
+        eventId: row.eventId,
+        evidenceId: row.evidenceId,
+        role: PersistenceValueCodec.attachmentRoleFromStorage(row.role),
+        caption: row.caption,
+        sortOrder: row.sortOrder,
+        capturedAt: row.capturedAt,
+        importedAt: row.importedAt,
       );
 
   static db.RelationshipsCompanion relationshipToCompanion(

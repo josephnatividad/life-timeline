@@ -26,7 +26,6 @@ void main() {
           TimelineMapper.attachmentToCompanion(
             Attachment(
               metadata: TestRecordFactory.metadata('attachment-1'),
-              evidenceId: 'evidence-1',
               storageState: AttachmentStorageState.local,
               importMode: AttachmentImportMode.preserveOriginal,
               mimeType: 'image/jpeg',
@@ -70,7 +69,11 @@ void main() {
     expect(await storage.latestContentChangeAt(), archivedAt);
 
     await storage.markArchiveRemovalStarted('attachment-1', archivedAt);
-    await storage.completeArchiveRemoval('attachment-1', archivedAt);
+    await storage.completeArchiveRemoval(
+      'attachment-1',
+      archivedAt,
+      sourceKind: ArchiveSourceKind.main,
+    );
     final archived = await storage.attachmentById('attachment-1');
     expect(archived?.attachment.storageState, AttachmentStorageState.archived);
     expect(archived?.attachment.relativePath, isNull);
@@ -80,6 +83,7 @@ void main() {
       relativePath: 'retrieved/attachment-1/original.jpg',
       byteSize: 20,
       checksum: 'original-sha',
+      sourceKind: ArchiveSourceKind.main,
       at: archivedAt.add(const Duration(minutes: 1)),
     );
     final restored = await storage.attachmentById('attachment-1');

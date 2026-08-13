@@ -1,4 +1,5 @@
 import 'package:life_timeline/features/private_intelligence/domain/intelligence_models.dart';
+import 'package:life_timeline/features/reminders/domain/reminder.dart';
 import 'package:life_timeline/shared/domain/model/field_provenance.dart';
 import 'package:life_timeline/shared/domain/model/memory_candidate.dart';
 import 'package:life_timeline/shared/domain/model/timeline_models.dart';
@@ -76,6 +77,7 @@ abstract interface class MemoryCandidateRepository {
     List<FieldProvenance> provenance = const [],
     List<Entity> entities = const [],
     List<Relationship> relationships = const [],
+    Reminder? reminder,
   });
 
   Future<void> setReviewStatus(

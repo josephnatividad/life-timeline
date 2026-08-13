@@ -3195,20 +3195,6 @@ class $AttachmentsTable extends Attachments
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _evidenceIdMeta = const VerificationMeta(
-    'evidenceId',
-  );
-  @override
-  late final GeneratedColumn<String> evidenceId = GeneratedColumn<String>(
-    'evidence_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES evidence (id) ON DELETE RESTRICT',
-    ),
-  );
   static const VerificationMeta _displayNameMeta = const VerificationMeta(
     'displayName',
   );
@@ -3248,6 +3234,30 @@ class $AttachmentsTable extends Attachments
   late final GeneratedColumn<String> preservedOriginalRelativePath =
       GeneratedColumn<String>(
         'preserved_original_relative_path',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _preservedOriginalByteSizeMeta =
+      const VerificationMeta('preservedOriginalByteSize');
+  @override
+  late final GeneratedColumn<int> preservedOriginalByteSize =
+      GeneratedColumn<int>(
+        'preserved_original_byte_size',
+        aliasedName,
+        true,
+        check: () =>
+            ComparableExpr(preservedOriginalByteSize).isBiggerOrEqualValue(0),
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _preservedOriginalChecksumMeta =
+      const VerificationMeta('preservedOriginalChecksum');
+  @override
+  late final GeneratedColumn<String> preservedOriginalChecksum =
+      GeneratedColumn<String>(
+        'preserved_original_checksum',
         aliasedName,
         true,
         type: DriftSqlType.string,
@@ -3352,11 +3362,12 @@ class $AttachmentsTable extends Attachments
     createdAt,
     updatedAt,
     deletedAt,
-    evidenceId,
     displayName,
     relativePath,
     thumbnailRelativePath,
     preservedOriginalRelativePath,
+    preservedOriginalByteSize,
+    preservedOriginalChecksum,
     mimeType,
     byteSize,
     pixelWidth,
@@ -3423,14 +3434,6 @@ class $AttachmentsTable extends Attachments
         deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
       );
     }
-    if (data.containsKey('evidence_id')) {
-      context.handle(
-        _evidenceIdMeta,
-        evidenceId.isAcceptableOrUnknown(data['evidence_id']!, _evidenceIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_evidenceIdMeta);
-    }
     if (data.containsKey('display_name')) {
       context.handle(
         _displayNameMeta,
@@ -3464,6 +3467,24 @@ class $AttachmentsTable extends Attachments
         preservedOriginalRelativePath.isAcceptableOrUnknown(
           data['preserved_original_relative_path']!,
           _preservedOriginalRelativePathMeta,
+        ),
+      );
+    }
+    if (data.containsKey('preserved_original_byte_size')) {
+      context.handle(
+        _preservedOriginalByteSizeMeta,
+        preservedOriginalByteSize.isAcceptableOrUnknown(
+          data['preserved_original_byte_size']!,
+          _preservedOriginalByteSizeMeta,
+        ),
+      );
+    }
+    if (data.containsKey('preserved_original_checksum')) {
+      context.handle(
+        _preservedOriginalChecksumMeta,
+        preservedOriginalChecksum.isAcceptableOrUnknown(
+          data['preserved_original_checksum']!,
+          _preservedOriginalChecksumMeta,
         ),
       );
     }
@@ -3556,10 +3577,6 @@ class $AttachmentsTable extends Attachments
         DriftSqlType.dateTime,
         data['${effectivePrefix}deleted_at'],
       ),
-      evidenceId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}evidence_id'],
-      )!,
       displayName: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}display_name'],
@@ -3575,6 +3592,14 @@ class $AttachmentsTable extends Attachments
       preservedOriginalRelativePath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}preserved_original_relative_path'],
+      ),
+      preservedOriginalByteSize: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}preserved_original_byte_size'],
+      ),
+      preservedOriginalChecksum: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}preserved_original_checksum'],
       ),
       mimeType: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -3620,11 +3645,12 @@ class Attachment extends DataClass implements Insertable<Attachment> {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
-  final String evidenceId;
   final String? displayName;
   final String? relativePath;
   final String? thumbnailRelativePath;
   final String? preservedOriginalRelativePath;
+  final int? preservedOriginalByteSize;
+  final String? preservedOriginalChecksum;
   final String mimeType;
   final int byteSize;
   final int? pixelWidth;
@@ -3639,11 +3665,12 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     required this.createdAt,
     required this.updatedAt,
     this.deletedAt,
-    required this.evidenceId,
     this.displayName,
     this.relativePath,
     this.thumbnailRelativePath,
     this.preservedOriginalRelativePath,
+    this.preservedOriginalByteSize,
+    this.preservedOriginalChecksum,
     required this.mimeType,
     required this.byteSize,
     this.pixelWidth,
@@ -3663,7 +3690,6 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     if (!nullToAbsent || deletedAt != null) {
       map['deleted_at'] = Variable<DateTime>(deletedAt);
     }
-    map['evidence_id'] = Variable<String>(evidenceId);
     if (!nullToAbsent || displayName != null) {
       map['display_name'] = Variable<String>(displayName);
     }
@@ -3676,6 +3702,16 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     if (!nullToAbsent || preservedOriginalRelativePath != null) {
       map['preserved_original_relative_path'] = Variable<String>(
         preservedOriginalRelativePath,
+      );
+    }
+    if (!nullToAbsent || preservedOriginalByteSize != null) {
+      map['preserved_original_byte_size'] = Variable<int>(
+        preservedOriginalByteSize,
+      );
+    }
+    if (!nullToAbsent || preservedOriginalChecksum != null) {
+      map['preserved_original_checksum'] = Variable<String>(
+        preservedOriginalChecksum,
       );
     }
     map['mime_type'] = Variable<String>(mimeType);
@@ -3704,7 +3740,6 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       deletedAt: deletedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(deletedAt),
-      evidenceId: Value(evidenceId),
       displayName: displayName == null && nullToAbsent
           ? const Value.absent()
           : Value(displayName),
@@ -3718,6 +3753,14 @@ class Attachment extends DataClass implements Insertable<Attachment> {
           preservedOriginalRelativePath == null && nullToAbsent
           ? const Value.absent()
           : Value(preservedOriginalRelativePath),
+      preservedOriginalByteSize:
+          preservedOriginalByteSize == null && nullToAbsent
+          ? const Value.absent()
+          : Value(preservedOriginalByteSize),
+      preservedOriginalChecksum:
+          preservedOriginalChecksum == null && nullToAbsent
+          ? const Value.absent()
+          : Value(preservedOriginalChecksum),
       mimeType: Value(mimeType),
       byteSize: Value(byteSize),
       pixelWidth: pixelWidth == null && nullToAbsent
@@ -3748,7 +3791,6 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
-      evidenceId: serializer.fromJson<String>(json['evidenceId']),
       displayName: serializer.fromJson<String?>(json['displayName']),
       relativePath: serializer.fromJson<String?>(json['relativePath']),
       thumbnailRelativePath: serializer.fromJson<String?>(
@@ -3756,6 +3798,12 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       ),
       preservedOriginalRelativePath: serializer.fromJson<String?>(
         json['preservedOriginalRelativePath'],
+      ),
+      preservedOriginalByteSize: serializer.fromJson<int?>(
+        json['preservedOriginalByteSize'],
+      ),
+      preservedOriginalChecksum: serializer.fromJson<String?>(
+        json['preservedOriginalChecksum'],
       ),
       mimeType: serializer.fromJson<String>(json['mimeType']),
       byteSize: serializer.fromJson<int>(json['byteSize']),
@@ -3776,7 +3824,6 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
-      'evidenceId': serializer.toJson<String>(evidenceId),
       'displayName': serializer.toJson<String?>(displayName),
       'relativePath': serializer.toJson<String?>(relativePath),
       'thumbnailRelativePath': serializer.toJson<String?>(
@@ -3784,6 +3831,12 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       ),
       'preservedOriginalRelativePath': serializer.toJson<String?>(
         preservedOriginalRelativePath,
+      ),
+      'preservedOriginalByteSize': serializer.toJson<int?>(
+        preservedOriginalByteSize,
+      ),
+      'preservedOriginalChecksum': serializer.toJson<String?>(
+        preservedOriginalChecksum,
       ),
       'mimeType': serializer.toJson<String>(mimeType),
       'byteSize': serializer.toJson<int>(byteSize),
@@ -3802,11 +3855,12 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<DateTime?> deletedAt = const Value.absent(),
-    String? evidenceId,
     Value<String?> displayName = const Value.absent(),
     Value<String?> relativePath = const Value.absent(),
     Value<String?> thumbnailRelativePath = const Value.absent(),
     Value<String?> preservedOriginalRelativePath = const Value.absent(),
+    Value<int?> preservedOriginalByteSize = const Value.absent(),
+    Value<String?> preservedOriginalChecksum = const Value.absent(),
     String? mimeType,
     int? byteSize,
     Value<int?> pixelWidth = const Value.absent(),
@@ -3821,7 +3875,6 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
-    evidenceId: evidenceId ?? this.evidenceId,
     displayName: displayName.present ? displayName.value : this.displayName,
     relativePath: relativePath.present ? relativePath.value : this.relativePath,
     thumbnailRelativePath: thumbnailRelativePath.present
@@ -3830,6 +3883,12 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     preservedOriginalRelativePath: preservedOriginalRelativePath.present
         ? preservedOriginalRelativePath.value
         : this.preservedOriginalRelativePath,
+    preservedOriginalByteSize: preservedOriginalByteSize.present
+        ? preservedOriginalByteSize.value
+        : this.preservedOriginalByteSize,
+    preservedOriginalChecksum: preservedOriginalChecksum.present
+        ? preservedOriginalChecksum.value
+        : this.preservedOriginalChecksum,
     mimeType: mimeType ?? this.mimeType,
     byteSize: byteSize ?? this.byteSize,
     pixelWidth: pixelWidth.present ? pixelWidth.value : this.pixelWidth,
@@ -3848,9 +3907,6 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
-      evidenceId: data.evidenceId.present
-          ? data.evidenceId.value
-          : this.evidenceId,
       displayName: data.displayName.present
           ? data.displayName.value
           : this.displayName,
@@ -3863,6 +3919,12 @@ class Attachment extends DataClass implements Insertable<Attachment> {
       preservedOriginalRelativePath: data.preservedOriginalRelativePath.present
           ? data.preservedOriginalRelativePath.value
           : this.preservedOriginalRelativePath,
+      preservedOriginalByteSize: data.preservedOriginalByteSize.present
+          ? data.preservedOriginalByteSize.value
+          : this.preservedOriginalByteSize,
+      preservedOriginalChecksum: data.preservedOriginalChecksum.present
+          ? data.preservedOriginalChecksum.value
+          : this.preservedOriginalChecksum,
       mimeType: data.mimeType.present ? data.mimeType.value : this.mimeType,
       byteSize: data.byteSize.present ? data.byteSize.value : this.byteSize,
       pixelWidth: data.pixelWidth.present
@@ -3890,13 +3952,14 @@ class Attachment extends DataClass implements Insertable<Attachment> {
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
-          ..write('evidenceId: $evidenceId, ')
           ..write('displayName: $displayName, ')
           ..write('relativePath: $relativePath, ')
           ..write('thumbnailRelativePath: $thumbnailRelativePath, ')
           ..write(
             'preservedOriginalRelativePath: $preservedOriginalRelativePath, ',
           )
+          ..write('preservedOriginalByteSize: $preservedOriginalByteSize, ')
+          ..write('preservedOriginalChecksum: $preservedOriginalChecksum, ')
           ..write('mimeType: $mimeType, ')
           ..write('byteSize: $byteSize, ')
           ..write('pixelWidth: $pixelWidth, ')
@@ -3916,11 +3979,12 @@ class Attachment extends DataClass implements Insertable<Attachment> {
     createdAt,
     updatedAt,
     deletedAt,
-    evidenceId,
     displayName,
     relativePath,
     thumbnailRelativePath,
     preservedOriginalRelativePath,
+    preservedOriginalByteSize,
+    preservedOriginalChecksum,
     mimeType,
     byteSize,
     pixelWidth,
@@ -3939,12 +4003,13 @@ class Attachment extends DataClass implements Insertable<Attachment> {
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
-          other.evidenceId == this.evidenceId &&
           other.displayName == this.displayName &&
           other.relativePath == this.relativePath &&
           other.thumbnailRelativePath == this.thumbnailRelativePath &&
           other.preservedOriginalRelativePath ==
               this.preservedOriginalRelativePath &&
+          other.preservedOriginalByteSize == this.preservedOriginalByteSize &&
+          other.preservedOriginalChecksum == this.preservedOriginalChecksum &&
           other.mimeType == this.mimeType &&
           other.byteSize == this.byteSize &&
           other.pixelWidth == this.pixelWidth &&
@@ -3961,11 +4026,12 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
-  final Value<String> evidenceId;
   final Value<String?> displayName;
   final Value<String?> relativePath;
   final Value<String?> thumbnailRelativePath;
   final Value<String?> preservedOriginalRelativePath;
+  final Value<int?> preservedOriginalByteSize;
+  final Value<String?> preservedOriginalChecksum;
   final Value<String> mimeType;
   final Value<int> byteSize;
   final Value<int?> pixelWidth;
@@ -3981,11 +4047,12 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
-    this.evidenceId = const Value.absent(),
     this.displayName = const Value.absent(),
     this.relativePath = const Value.absent(),
     this.thumbnailRelativePath = const Value.absent(),
     this.preservedOriginalRelativePath = const Value.absent(),
+    this.preservedOriginalByteSize = const Value.absent(),
+    this.preservedOriginalChecksum = const Value.absent(),
     this.mimeType = const Value.absent(),
     this.byteSize = const Value.absent(),
     this.pixelWidth = const Value.absent(),
@@ -4002,11 +4069,12 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     required DateTime createdAt,
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
-    required String evidenceId,
     this.displayName = const Value.absent(),
     this.relativePath = const Value.absent(),
     this.thumbnailRelativePath = const Value.absent(),
     this.preservedOriginalRelativePath = const Value.absent(),
+    this.preservedOriginalByteSize = const Value.absent(),
+    this.preservedOriginalChecksum = const Value.absent(),
     required String mimeType,
     required int byteSize,
     this.pixelWidth = const Value.absent(),
@@ -4020,7 +4088,6 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
        lifecycle = Value(lifecycle),
        createdAt = Value(createdAt),
        updatedAt = Value(updatedAt),
-       evidenceId = Value(evidenceId),
        mimeType = Value(mimeType),
        byteSize = Value(byteSize),
        storageState = Value(storageState),
@@ -4032,11 +4099,12 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
-    Expression<String>? evidenceId,
     Expression<String>? displayName,
     Expression<String>? relativePath,
     Expression<String>? thumbnailRelativePath,
     Expression<String>? preservedOriginalRelativePath,
+    Expression<int>? preservedOriginalByteSize,
+    Expression<String>? preservedOriginalChecksum,
     Expression<String>? mimeType,
     Expression<int>? byteSize,
     Expression<int>? pixelWidth,
@@ -4054,13 +4122,16 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
-      if (evidenceId != null) 'evidence_id': evidenceId,
       if (displayName != null) 'display_name': displayName,
       if (relativePath != null) 'relative_path': relativePath,
       if (thumbnailRelativePath != null)
         'thumbnail_relative_path': thumbnailRelativePath,
       if (preservedOriginalRelativePath != null)
         'preserved_original_relative_path': preservedOriginalRelativePath,
+      if (preservedOriginalByteSize != null)
+        'preserved_original_byte_size': preservedOriginalByteSize,
+      if (preservedOriginalChecksum != null)
+        'preserved_original_checksum': preservedOriginalChecksum,
       if (mimeType != null) 'mime_type': mimeType,
       if (byteSize != null) 'byte_size': byteSize,
       if (pixelWidth != null) 'pixel_width': pixelWidth,
@@ -4079,11 +4150,12 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<DateTime?>? deletedAt,
-    Value<String>? evidenceId,
     Value<String?>? displayName,
     Value<String?>? relativePath,
     Value<String?>? thumbnailRelativePath,
     Value<String?>? preservedOriginalRelativePath,
+    Value<int?>? preservedOriginalByteSize,
+    Value<String?>? preservedOriginalChecksum,
     Value<String>? mimeType,
     Value<int>? byteSize,
     Value<int?>? pixelWidth,
@@ -4101,13 +4173,16 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
-      evidenceId: evidenceId ?? this.evidenceId,
       displayName: displayName ?? this.displayName,
       relativePath: relativePath ?? this.relativePath,
       thumbnailRelativePath:
           thumbnailRelativePath ?? this.thumbnailRelativePath,
       preservedOriginalRelativePath:
           preservedOriginalRelativePath ?? this.preservedOriginalRelativePath,
+      preservedOriginalByteSize:
+          preservedOriginalByteSize ?? this.preservedOriginalByteSize,
+      preservedOriginalChecksum:
+          preservedOriginalChecksum ?? this.preservedOriginalChecksum,
       mimeType: mimeType ?? this.mimeType,
       byteSize: byteSize ?? this.byteSize,
       pixelWidth: pixelWidth ?? this.pixelWidth,
@@ -4142,9 +4217,6 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     if (deletedAt.present) {
       map['deleted_at'] = Variable<DateTime>(deletedAt.value);
     }
-    if (evidenceId.present) {
-      map['evidence_id'] = Variable<String>(evidenceId.value);
-    }
     if (displayName.present) {
       map['display_name'] = Variable<String>(displayName.value);
     }
@@ -4159,6 +4231,16 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
     if (preservedOriginalRelativePath.present) {
       map['preserved_original_relative_path'] = Variable<String>(
         preservedOriginalRelativePath.value,
+      );
+    }
+    if (preservedOriginalByteSize.present) {
+      map['preserved_original_byte_size'] = Variable<int>(
+        preservedOriginalByteSize.value,
+      );
+    }
+    if (preservedOriginalChecksum.present) {
+      map['preserved_original_checksum'] = Variable<String>(
+        preservedOriginalChecksum.value,
       );
     }
     if (mimeType.present) {
@@ -4197,13 +4279,14 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
-          ..write('evidenceId: $evidenceId, ')
           ..write('displayName: $displayName, ')
           ..write('relativePath: $relativePath, ')
           ..write('thumbnailRelativePath: $thumbnailRelativePath, ')
           ..write(
             'preservedOriginalRelativePath: $preservedOriginalRelativePath, ',
           )
+          ..write('preservedOriginalByteSize: $preservedOriginalByteSize, ')
+          ..write('preservedOriginalChecksum: $preservedOriginalChecksum, ')
           ..write('mimeType: $mimeType, ')
           ..write('byteSize: $byteSize, ')
           ..write('pixelWidth: $pixelWidth, ')
@@ -4211,6 +4294,590 @@ class AttachmentsCompanion extends UpdateCompanion<Attachment> {
           ..write('checksum: $checksum, ')
           ..write('storageState: $storageState, ')
           ..write('importMode: $importMode, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $AttachmentLinksTable extends AttachmentLinks
+    with TableInfo<$AttachmentLinksTable, AttachmentLink> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AttachmentLinksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _attachmentIdMeta = const VerificationMeta(
+    'attachmentId',
+  );
+  @override
+  late final GeneratedColumn<String> attachmentId = GeneratedColumn<String>(
+    'attachment_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES attachments (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _eventIdMeta = const VerificationMeta(
+    'eventId',
+  );
+  @override
+  late final GeneratedColumn<String> eventId = GeneratedColumn<String>(
+    'event_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES events (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _evidenceIdMeta = const VerificationMeta(
+    'evidenceId',
+  );
+  @override
+  late final GeneratedColumn<String> evidenceId = GeneratedColumn<String>(
+    'evidence_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES evidence (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _roleMeta = const VerificationMeta('role');
+  @override
+  late final GeneratedColumn<String> role = GeneratedColumn<String>(
+    'role',
+    aliasedName,
+    false,
+    check: () => role.isIn(const ['hero_media', 'memory_media', 'evidence']),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _captionMeta = const VerificationMeta(
+    'caption',
+  );
+  @override
+  late final GeneratedColumn<String> caption = GeneratedColumn<String>(
+    'caption',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    check: () => ComparableExpr(sortOrder).isBiggerOrEqualValue(0),
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _capturedAtMeta = const VerificationMeta(
+    'capturedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> capturedAt = GeneratedColumn<DateTime>(
+    'captured_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _importedAtMeta = const VerificationMeta(
+    'importedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> importedAt = GeneratedColumn<DateTime>(
+    'imported_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    attachmentId,
+    eventId,
+    evidenceId,
+    role,
+    caption,
+    sortOrder,
+    capturedAt,
+    importedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'attachment_links';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AttachmentLink> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('attachment_id')) {
+      context.handle(
+        _attachmentIdMeta,
+        attachmentId.isAcceptableOrUnknown(
+          data['attachment_id']!,
+          _attachmentIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_attachmentIdMeta);
+    }
+    if (data.containsKey('event_id')) {
+      context.handle(
+        _eventIdMeta,
+        eventId.isAcceptableOrUnknown(data['event_id']!, _eventIdMeta),
+      );
+    }
+    if (data.containsKey('evidence_id')) {
+      context.handle(
+        _evidenceIdMeta,
+        evidenceId.isAcceptableOrUnknown(data['evidence_id']!, _evidenceIdMeta),
+      );
+    }
+    if (data.containsKey('role')) {
+      context.handle(
+        _roleMeta,
+        role.isAcceptableOrUnknown(data['role']!, _roleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_roleMeta);
+    }
+    if (data.containsKey('caption')) {
+      context.handle(
+        _captionMeta,
+        caption.isAcceptableOrUnknown(data['caption']!, _captionMeta),
+      );
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    if (data.containsKey('captured_at')) {
+      context.handle(
+        _capturedAtMeta,
+        capturedAt.isAcceptableOrUnknown(data['captured_at']!, _capturedAtMeta),
+      );
+    }
+    if (data.containsKey('imported_at')) {
+      context.handle(
+        _importedAtMeta,
+        importedAt.isAcceptableOrUnknown(data['imported_at']!, _importedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_importedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AttachmentLink map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AttachmentLink(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      attachmentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}attachment_id'],
+      )!,
+      eventId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}event_id'],
+      ),
+      evidenceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}evidence_id'],
+      ),
+      role: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}role'],
+      )!,
+      caption: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}caption'],
+      ),
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      capturedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}captured_at'],
+      ),
+      importedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}imported_at'],
+      )!,
+    );
+  }
+
+  @override
+  $AttachmentLinksTable createAlias(String alias) {
+    return $AttachmentLinksTable(attachedDatabase, alias);
+  }
+}
+
+class AttachmentLink extends DataClass implements Insertable<AttachmentLink> {
+  final String id;
+  final String attachmentId;
+  final String? eventId;
+  final String? evidenceId;
+  final String role;
+  final String? caption;
+  final int sortOrder;
+  final DateTime? capturedAt;
+  final DateTime importedAt;
+  const AttachmentLink({
+    required this.id,
+    required this.attachmentId,
+    this.eventId,
+    this.evidenceId,
+    required this.role,
+    this.caption,
+    required this.sortOrder,
+    this.capturedAt,
+    required this.importedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['attachment_id'] = Variable<String>(attachmentId);
+    if (!nullToAbsent || eventId != null) {
+      map['event_id'] = Variable<String>(eventId);
+    }
+    if (!nullToAbsent || evidenceId != null) {
+      map['evidence_id'] = Variable<String>(evidenceId);
+    }
+    map['role'] = Variable<String>(role);
+    if (!nullToAbsent || caption != null) {
+      map['caption'] = Variable<String>(caption);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || capturedAt != null) {
+      map['captured_at'] = Variable<DateTime>(capturedAt);
+    }
+    map['imported_at'] = Variable<DateTime>(importedAt);
+    return map;
+  }
+
+  AttachmentLinksCompanion toCompanion(bool nullToAbsent) {
+    return AttachmentLinksCompanion(
+      id: Value(id),
+      attachmentId: Value(attachmentId),
+      eventId: eventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(eventId),
+      evidenceId: evidenceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(evidenceId),
+      role: Value(role),
+      caption: caption == null && nullToAbsent
+          ? const Value.absent()
+          : Value(caption),
+      sortOrder: Value(sortOrder),
+      capturedAt: capturedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(capturedAt),
+      importedAt: Value(importedAt),
+    );
+  }
+
+  factory AttachmentLink.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AttachmentLink(
+      id: serializer.fromJson<String>(json['id']),
+      attachmentId: serializer.fromJson<String>(json['attachmentId']),
+      eventId: serializer.fromJson<String?>(json['eventId']),
+      evidenceId: serializer.fromJson<String?>(json['evidenceId']),
+      role: serializer.fromJson<String>(json['role']),
+      caption: serializer.fromJson<String?>(json['caption']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      capturedAt: serializer.fromJson<DateTime?>(json['capturedAt']),
+      importedAt: serializer.fromJson<DateTime>(json['importedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'attachmentId': serializer.toJson<String>(attachmentId),
+      'eventId': serializer.toJson<String?>(eventId),
+      'evidenceId': serializer.toJson<String?>(evidenceId),
+      'role': serializer.toJson<String>(role),
+      'caption': serializer.toJson<String?>(caption),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'capturedAt': serializer.toJson<DateTime?>(capturedAt),
+      'importedAt': serializer.toJson<DateTime>(importedAt),
+    };
+  }
+
+  AttachmentLink copyWith({
+    String? id,
+    String? attachmentId,
+    Value<String?> eventId = const Value.absent(),
+    Value<String?> evidenceId = const Value.absent(),
+    String? role,
+    Value<String?> caption = const Value.absent(),
+    int? sortOrder,
+    Value<DateTime?> capturedAt = const Value.absent(),
+    DateTime? importedAt,
+  }) => AttachmentLink(
+    id: id ?? this.id,
+    attachmentId: attachmentId ?? this.attachmentId,
+    eventId: eventId.present ? eventId.value : this.eventId,
+    evidenceId: evidenceId.present ? evidenceId.value : this.evidenceId,
+    role: role ?? this.role,
+    caption: caption.present ? caption.value : this.caption,
+    sortOrder: sortOrder ?? this.sortOrder,
+    capturedAt: capturedAt.present ? capturedAt.value : this.capturedAt,
+    importedAt: importedAt ?? this.importedAt,
+  );
+  AttachmentLink copyWithCompanion(AttachmentLinksCompanion data) {
+    return AttachmentLink(
+      id: data.id.present ? data.id.value : this.id,
+      attachmentId: data.attachmentId.present
+          ? data.attachmentId.value
+          : this.attachmentId,
+      eventId: data.eventId.present ? data.eventId.value : this.eventId,
+      evidenceId: data.evidenceId.present
+          ? data.evidenceId.value
+          : this.evidenceId,
+      role: data.role.present ? data.role.value : this.role,
+      caption: data.caption.present ? data.caption.value : this.caption,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      capturedAt: data.capturedAt.present
+          ? data.capturedAt.value
+          : this.capturedAt,
+      importedAt: data.importedAt.present
+          ? data.importedAt.value
+          : this.importedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AttachmentLink(')
+          ..write('id: $id, ')
+          ..write('attachmentId: $attachmentId, ')
+          ..write('eventId: $eventId, ')
+          ..write('evidenceId: $evidenceId, ')
+          ..write('role: $role, ')
+          ..write('caption: $caption, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('importedAt: $importedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    attachmentId,
+    eventId,
+    evidenceId,
+    role,
+    caption,
+    sortOrder,
+    capturedAt,
+    importedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AttachmentLink &&
+          other.id == this.id &&
+          other.attachmentId == this.attachmentId &&
+          other.eventId == this.eventId &&
+          other.evidenceId == this.evidenceId &&
+          other.role == this.role &&
+          other.caption == this.caption &&
+          other.sortOrder == this.sortOrder &&
+          other.capturedAt == this.capturedAt &&
+          other.importedAt == this.importedAt);
+}
+
+class AttachmentLinksCompanion extends UpdateCompanion<AttachmentLink> {
+  final Value<String> id;
+  final Value<String> attachmentId;
+  final Value<String?> eventId;
+  final Value<String?> evidenceId;
+  final Value<String> role;
+  final Value<String?> caption;
+  final Value<int> sortOrder;
+  final Value<DateTime?> capturedAt;
+  final Value<DateTime> importedAt;
+  final Value<int> rowid;
+  const AttachmentLinksCompanion({
+    this.id = const Value.absent(),
+    this.attachmentId = const Value.absent(),
+    this.eventId = const Value.absent(),
+    this.evidenceId = const Value.absent(),
+    this.role = const Value.absent(),
+    this.caption = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.capturedAt = const Value.absent(),
+    this.importedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AttachmentLinksCompanion.insert({
+    required String id,
+    required String attachmentId,
+    this.eventId = const Value.absent(),
+    this.evidenceId = const Value.absent(),
+    required String role,
+    this.caption = const Value.absent(),
+    required int sortOrder,
+    this.capturedAt = const Value.absent(),
+    required DateTime importedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       attachmentId = Value(attachmentId),
+       role = Value(role),
+       sortOrder = Value(sortOrder),
+       importedAt = Value(importedAt);
+  static Insertable<AttachmentLink> custom({
+    Expression<String>? id,
+    Expression<String>? attachmentId,
+    Expression<String>? eventId,
+    Expression<String>? evidenceId,
+    Expression<String>? role,
+    Expression<String>? caption,
+    Expression<int>? sortOrder,
+    Expression<DateTime>? capturedAt,
+    Expression<DateTime>? importedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (attachmentId != null) 'attachment_id': attachmentId,
+      if (eventId != null) 'event_id': eventId,
+      if (evidenceId != null) 'evidence_id': evidenceId,
+      if (role != null) 'role': role,
+      if (caption != null) 'caption': caption,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (capturedAt != null) 'captured_at': capturedAt,
+      if (importedAt != null) 'imported_at': importedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AttachmentLinksCompanion copyWith({
+    Value<String>? id,
+    Value<String>? attachmentId,
+    Value<String?>? eventId,
+    Value<String?>? evidenceId,
+    Value<String>? role,
+    Value<String?>? caption,
+    Value<int>? sortOrder,
+    Value<DateTime?>? capturedAt,
+    Value<DateTime>? importedAt,
+    Value<int>? rowid,
+  }) {
+    return AttachmentLinksCompanion(
+      id: id ?? this.id,
+      attachmentId: attachmentId ?? this.attachmentId,
+      eventId: eventId ?? this.eventId,
+      evidenceId: evidenceId ?? this.evidenceId,
+      role: role ?? this.role,
+      caption: caption ?? this.caption,
+      sortOrder: sortOrder ?? this.sortOrder,
+      capturedAt: capturedAt ?? this.capturedAt,
+      importedAt: importedAt ?? this.importedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (attachmentId.present) {
+      map['attachment_id'] = Variable<String>(attachmentId.value);
+    }
+    if (eventId.present) {
+      map['event_id'] = Variable<String>(eventId.value);
+    }
+    if (evidenceId.present) {
+      map['evidence_id'] = Variable<String>(evidenceId.value);
+    }
+    if (role.present) {
+      map['role'] = Variable<String>(role.value);
+    }
+    if (caption.present) {
+      map['caption'] = Variable<String>(caption.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (capturedAt.present) {
+      map['captured_at'] = Variable<DateTime>(capturedAt.value);
+    }
+    if (importedAt.present) {
+      map['imported_at'] = Variable<DateTime>(importedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AttachmentLinksCompanion(')
+          ..write('id: $id, ')
+          ..write('attachmentId: $attachmentId, ')
+          ..write('eventId: $eventId, ')
+          ..write('evidenceId: $evidenceId, ')
+          ..write('role: $role, ')
+          ..write('caption: $caption, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('importedAt: $importedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4276,7 +4943,7 @@ class $ArchiveReferencesTable extends ArchiveReferences
     'original_byte_size',
     aliasedName,
     false,
-    check: () => ComparableExpr(originalByteSize).isBiggerOrEqualValue(0),
+    check: () => const CustomExpression<bool>('original_byte_size >= 0'),
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
@@ -4299,7 +4966,7 @@ class $ArchiveReferencesTable extends ArchiveReferences
     'archive_byte_size',
     aliasedName,
     false,
-    check: () => ComparableExpr(archiveByteSize).isBiggerOrEqualValue(0),
+    check: () => const CustomExpression<bool>('archive_byte_size >= 0'),
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
@@ -4325,6 +4992,21 @@ class $ArchiveReferencesTable extends ArchiveReferences
         type: DriftSqlType.string,
         requiredDuringInsert: true,
       );
+  static const VerificationMeta _sourceKindMeta = const VerificationMeta(
+    'sourceKind',
+  );
+  @override
+  late final GeneratedColumn<String> sourceKind = GeneratedColumn<String>(
+    'source_kind',
+    aliasedName,
+    false,
+    check: () => const CustomExpression<bool>(
+      "source_kind IN ('main', 'preserved_original')",
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('main'),
+  );
   static const VerificationMeta _formatVersionMeta = const VerificationMeta(
     'formatVersion',
   );
@@ -4333,7 +5015,7 @@ class $ArchiveReferencesTable extends ArchiveReferences
     'format_version',
     aliasedName,
     false,
-    check: () => ComparableExpr(formatVersion).isBiggerOrEqualValue(1),
+    check: () => const CustomExpression<bool>('format_version >= 1'),
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
@@ -4370,6 +5052,7 @@ class $ArchiveReferencesTable extends ArchiveReferences
     archiveByteSize,
     archiveSha256,
     encryptionAlgorithm,
+    sourceKind,
     formatVersion,
     archivedAt,
     verifiedAt,
@@ -4476,6 +5159,12 @@ class $ArchiveReferencesTable extends ArchiveReferences
     } else if (isInserting) {
       context.missing(_encryptionAlgorithmMeta);
     }
+    if (data.containsKey('source_kind')) {
+      context.handle(
+        _sourceKindMeta,
+        sourceKind.isAcceptableOrUnknown(data['source_kind']!, _sourceKindMeta),
+      );
+    }
     if (data.containsKey('format_version')) {
       context.handle(
         _formatVersionMeta,
@@ -4548,6 +5237,10 @@ class $ArchiveReferencesTable extends ArchiveReferences
         DriftSqlType.string,
         data['${effectivePrefix}encryption_algorithm'],
       )!,
+      sourceKind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_kind'],
+      )!,
       formatVersion: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}format_version'],
@@ -4580,6 +5273,7 @@ class ArchiveReference extends DataClass
   final int archiveByteSize;
   final String archiveSha256;
   final String encryptionAlgorithm;
+  final String sourceKind;
   final int formatVersion;
   final DateTime archivedAt;
   final DateTime verifiedAt;
@@ -4593,6 +5287,7 @@ class ArchiveReference extends DataClass
     required this.archiveByteSize,
     required this.archiveSha256,
     required this.encryptionAlgorithm,
+    required this.sourceKind,
     required this.formatVersion,
     required this.archivedAt,
     required this.verifiedAt,
@@ -4609,6 +5304,7 @@ class ArchiveReference extends DataClass
     map['archive_byte_size'] = Variable<int>(archiveByteSize);
     map['archive_sha256'] = Variable<String>(archiveSha256);
     map['encryption_algorithm'] = Variable<String>(encryptionAlgorithm);
+    map['source_kind'] = Variable<String>(sourceKind);
     map['format_version'] = Variable<int>(formatVersion);
     map['archived_at'] = Variable<DateTime>(archivedAt);
     map['verified_at'] = Variable<DateTime>(verifiedAt);
@@ -4626,6 +5322,7 @@ class ArchiveReference extends DataClass
       archiveByteSize: Value(archiveByteSize),
       archiveSha256: Value(archiveSha256),
       encryptionAlgorithm: Value(encryptionAlgorithm),
+      sourceKind: Value(sourceKind),
       formatVersion: Value(formatVersion),
       archivedAt: Value(archivedAt),
       verifiedAt: Value(verifiedAt),
@@ -4649,6 +5346,7 @@ class ArchiveReference extends DataClass
       encryptionAlgorithm: serializer.fromJson<String>(
         json['encryptionAlgorithm'],
       ),
+      sourceKind: serializer.fromJson<String>(json['sourceKind']),
       formatVersion: serializer.fromJson<int>(json['formatVersion']),
       archivedAt: serializer.fromJson<DateTime>(json['archivedAt']),
       verifiedAt: serializer.fromJson<DateTime>(json['verifiedAt']),
@@ -4667,6 +5365,7 @@ class ArchiveReference extends DataClass
       'archiveByteSize': serializer.toJson<int>(archiveByteSize),
       'archiveSha256': serializer.toJson<String>(archiveSha256),
       'encryptionAlgorithm': serializer.toJson<String>(encryptionAlgorithm),
+      'sourceKind': serializer.toJson<String>(sourceKind),
       'formatVersion': serializer.toJson<int>(formatVersion),
       'archivedAt': serializer.toJson<DateTime>(archivedAt),
       'verifiedAt': serializer.toJson<DateTime>(verifiedAt),
@@ -4683,6 +5382,7 @@ class ArchiveReference extends DataClass
     int? archiveByteSize,
     String? archiveSha256,
     String? encryptionAlgorithm,
+    String? sourceKind,
     int? formatVersion,
     DateTime? archivedAt,
     DateTime? verifiedAt,
@@ -4696,6 +5396,7 @@ class ArchiveReference extends DataClass
     archiveByteSize: archiveByteSize ?? this.archiveByteSize,
     archiveSha256: archiveSha256 ?? this.archiveSha256,
     encryptionAlgorithm: encryptionAlgorithm ?? this.encryptionAlgorithm,
+    sourceKind: sourceKind ?? this.sourceKind,
     formatVersion: formatVersion ?? this.formatVersion,
     archivedAt: archivedAt ?? this.archivedAt,
     verifiedAt: verifiedAt ?? this.verifiedAt,
@@ -4727,6 +5428,9 @@ class ArchiveReference extends DataClass
       encryptionAlgorithm: data.encryptionAlgorithm.present
           ? data.encryptionAlgorithm.value
           : this.encryptionAlgorithm,
+      sourceKind: data.sourceKind.present
+          ? data.sourceKind.value
+          : this.sourceKind,
       formatVersion: data.formatVersion.present
           ? data.formatVersion.value
           : this.formatVersion,
@@ -4751,6 +5455,7 @@ class ArchiveReference extends DataClass
           ..write('archiveByteSize: $archiveByteSize, ')
           ..write('archiveSha256: $archiveSha256, ')
           ..write('encryptionAlgorithm: $encryptionAlgorithm, ')
+          ..write('sourceKind: $sourceKind, ')
           ..write('formatVersion: $formatVersion, ')
           ..write('archivedAt: $archivedAt, ')
           ..write('verifiedAt: $verifiedAt')
@@ -4769,6 +5474,7 @@ class ArchiveReference extends DataClass
     archiveByteSize,
     archiveSha256,
     encryptionAlgorithm,
+    sourceKind,
     formatVersion,
     archivedAt,
     verifiedAt,
@@ -4786,6 +5492,7 @@ class ArchiveReference extends DataClass
           other.archiveByteSize == this.archiveByteSize &&
           other.archiveSha256 == this.archiveSha256 &&
           other.encryptionAlgorithm == this.encryptionAlgorithm &&
+          other.sourceKind == this.sourceKind &&
           other.formatVersion == this.formatVersion &&
           other.archivedAt == this.archivedAt &&
           other.verifiedAt == this.verifiedAt);
@@ -4801,6 +5508,7 @@ class ArchiveReferencesCompanion extends UpdateCompanion<ArchiveReference> {
   final Value<int> archiveByteSize;
   final Value<String> archiveSha256;
   final Value<String> encryptionAlgorithm;
+  final Value<String> sourceKind;
   final Value<int> formatVersion;
   final Value<DateTime> archivedAt;
   final Value<DateTime> verifiedAt;
@@ -4815,6 +5523,7 @@ class ArchiveReferencesCompanion extends UpdateCompanion<ArchiveReference> {
     this.archiveByteSize = const Value.absent(),
     this.archiveSha256 = const Value.absent(),
     this.encryptionAlgorithm = const Value.absent(),
+    this.sourceKind = const Value.absent(),
     this.formatVersion = const Value.absent(),
     this.archivedAt = const Value.absent(),
     this.verifiedAt = const Value.absent(),
@@ -4830,6 +5539,7 @@ class ArchiveReferencesCompanion extends UpdateCompanion<ArchiveReference> {
     required int archiveByteSize,
     required String archiveSha256,
     required String encryptionAlgorithm,
+    this.sourceKind = const Value.absent(),
     required int formatVersion,
     required DateTime archivedAt,
     required DateTime verifiedAt,
@@ -4856,6 +5566,7 @@ class ArchiveReferencesCompanion extends UpdateCompanion<ArchiveReference> {
     Expression<int>? archiveByteSize,
     Expression<String>? archiveSha256,
     Expression<String>? encryptionAlgorithm,
+    Expression<String>? sourceKind,
     Expression<int>? formatVersion,
     Expression<DateTime>? archivedAt,
     Expression<DateTime>? verifiedAt,
@@ -4872,6 +5583,7 @@ class ArchiveReferencesCompanion extends UpdateCompanion<ArchiveReference> {
       if (archiveSha256 != null) 'archive_sha256': archiveSha256,
       if (encryptionAlgorithm != null)
         'encryption_algorithm': encryptionAlgorithm,
+      if (sourceKind != null) 'source_kind': sourceKind,
       if (formatVersion != null) 'format_version': formatVersion,
       if (archivedAt != null) 'archived_at': archivedAt,
       if (verifiedAt != null) 'verified_at': verifiedAt,
@@ -4889,6 +5601,7 @@ class ArchiveReferencesCompanion extends UpdateCompanion<ArchiveReference> {
     Value<int>? archiveByteSize,
     Value<String>? archiveSha256,
     Value<String>? encryptionAlgorithm,
+    Value<String>? sourceKind,
     Value<int>? formatVersion,
     Value<DateTime>? archivedAt,
     Value<DateTime>? verifiedAt,
@@ -4904,6 +5617,7 @@ class ArchiveReferencesCompanion extends UpdateCompanion<ArchiveReference> {
       archiveByteSize: archiveByteSize ?? this.archiveByteSize,
       archiveSha256: archiveSha256 ?? this.archiveSha256,
       encryptionAlgorithm: encryptionAlgorithm ?? this.encryptionAlgorithm,
+      sourceKind: sourceKind ?? this.sourceKind,
       formatVersion: formatVersion ?? this.formatVersion,
       archivedAt: archivedAt ?? this.archivedAt,
       verifiedAt: verifiedAt ?? this.verifiedAt,
@@ -4941,6 +5655,9 @@ class ArchiveReferencesCompanion extends UpdateCompanion<ArchiveReference> {
     if (encryptionAlgorithm.present) {
       map['encryption_algorithm'] = Variable<String>(encryptionAlgorithm.value);
     }
+    if (sourceKind.present) {
+      map['source_kind'] = Variable<String>(sourceKind.value);
+    }
     if (formatVersion.present) {
       map['format_version'] = Variable<int>(formatVersion.value);
     }
@@ -4968,6 +5685,7 @@ class ArchiveReferencesCompanion extends UpdateCompanion<ArchiveReference> {
           ..write('archiveByteSize: $archiveByteSize, ')
           ..write('archiveSha256: $archiveSha256, ')
           ..write('encryptionAlgorithm: $encryptionAlgorithm, ')
+          ..write('sourceKind: $sourceKind, ')
           ..write('formatVersion: $formatVersion, ')
           ..write('archivedAt: $archivedAt, ')
           ..write('verifiedAt: $verifiedAt, ')
@@ -11615,6 +12333,1467 @@ class InsightDismissalsCompanion extends UpdateCompanion<InsightDismissal> {
   }
 }
 
+class $RemindersTable extends Reminders
+    with TableInfo<$RemindersTable, Reminder> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RemindersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _linkedEventIdMeta = const VerificationMeta(
+    'linkedEventId',
+  );
+  @override
+  late final GeneratedColumn<String> linkedEventId = GeneratedColumn<String>(
+    'linked_event_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES events (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _linkedEntityIdMeta = const VerificationMeta(
+    'linkedEntityId',
+  );
+  @override
+  late final GeneratedColumn<String> linkedEntityId = GeneratedColumn<String>(
+    'linked_entity_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES entities (id) ON DELETE SET NULL',
+    ),
+  );
+  static const VerificationMeta _sourceEvidenceIdMeta = const VerificationMeta(
+    'sourceEvidenceId',
+  );
+  @override
+  late final GeneratedColumn<String> sourceEvidenceId = GeneratedColumn<String>(
+    'source_evidence_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES evidence (id) ON DELETE SET NULL',
+    ),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _targetYearMeta = const VerificationMeta(
+    'targetYear',
+  );
+  @override
+  late final GeneratedColumn<int> targetYear = GeneratedColumn<int>(
+    'target_year',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetMonthMeta = const VerificationMeta(
+    'targetMonth',
+  );
+  @override
+  late final GeneratedColumn<int> targetMonth = GeneratedColumn<int>(
+    'target_month',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _targetDayMeta = const VerificationMeta(
+    'targetDay',
+  );
+  @override
+  late final GeneratedColumn<int> targetDay = GeneratedColumn<int>(
+    'target_day',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _reminderYearMeta = const VerificationMeta(
+    'reminderYear',
+  );
+  @override
+  late final GeneratedColumn<int> reminderYear = GeneratedColumn<int>(
+    'reminder_year',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _reminderMonthMeta = const VerificationMeta(
+    'reminderMonth',
+  );
+  @override
+  late final GeneratedColumn<int> reminderMonth = GeneratedColumn<int>(
+    'reminder_month',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _reminderDayMeta = const VerificationMeta(
+    'reminderDay',
+  );
+  @override
+  late final GeneratedColumn<int> reminderDay = GeneratedColumn<int>(
+    'reminder_day',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _reminderHourMeta = const VerificationMeta(
+    'reminderHour',
+  );
+  @override
+  late final GeneratedColumn<int> reminderHour = GeneratedColumn<int>(
+    'reminder_hour',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _reminderMinuteMeta = const VerificationMeta(
+    'reminderMinute',
+  );
+  @override
+  late final GeneratedColumn<int> reminderMinute = GeneratedColumn<int>(
+    'reminder_minute',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _timeZoneIdMeta = const VerificationMeta(
+    'timeZoneId',
+  );
+  @override
+  late final GeneratedColumn<String> timeZoneId = GeneratedColumn<String>(
+    'time_zone_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _scheduledAtUtcMeta = const VerificationMeta(
+    'scheduledAtUtc',
+  );
+  @override
+  late final GeneratedColumn<DateTime> scheduledAtUtc =
+      GeneratedColumn<DateTime>(
+        'scheduled_at_utc',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _reminderTypeMeta = const VerificationMeta(
+    'reminderType',
+  );
+  @override
+  late final GeneratedColumn<String> reminderType = GeneratedColumn<String>(
+    'reminder_type',
+    aliasedName,
+    false,
+    check: () => reminderType.isIn(const [
+      'expiry',
+      'renewal',
+      'warranty',
+      'anniversary',
+      'follow_up',
+      'custom',
+    ]),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _leadTimeMeta = const VerificationMeta(
+    'leadTime',
+  );
+  @override
+  late final GeneratedColumn<String> leadTime = GeneratedColumn<String>(
+    'lead_time',
+    aliasedName,
+    false,
+    check: () => leadTime.isIn(const [
+      'on_day',
+      'one_day',
+      'seven_days',
+      'thirty_days',
+      'ninety_days',
+      'six_months',
+      'custom',
+    ]),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    check: () => status.isIn(const [
+      'scheduled',
+      'disabled',
+      'completed',
+      'missed',
+      'cancelled',
+    ]),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _notificationIdMeta = const VerificationMeta(
+    'notificationId',
+  );
+  @override
+  late final GeneratedColumn<int> notificationId = GeneratedColumn<int>(
+    'notification_id',
+    aliasedName,
+    false,
+    check: () => ComparableExpr(notificationId).isBiggerThanValue(0),
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _privacyClassificationMeta =
+      const VerificationMeta('privacyClassification');
+  @override
+  late final GeneratedColumn<String> privacyClassification =
+      GeneratedColumn<String>(
+        'privacy_classification',
+        aliasedName,
+        false,
+        check: () => privacyClassification.isIn(const [
+          'share_safe',
+          'personal',
+          'sensitive',
+          'never_share',
+        ]),
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _completedAtMeta = const VerificationMeta(
+    'completedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
+    'completed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _dismissedAtMeta = const VerificationMeta(
+    'dismissedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> dismissedAt = GeneratedColumn<DateTime>(
+    'dismissed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    linkedEventId,
+    linkedEntityId,
+    sourceEvidenceId,
+    title,
+    note,
+    targetYear,
+    targetMonth,
+    targetDay,
+    reminderYear,
+    reminderMonth,
+    reminderDay,
+    reminderHour,
+    reminderMinute,
+    timeZoneId,
+    scheduledAtUtc,
+    reminderType,
+    leadTime,
+    status,
+    notificationId,
+    privacyClassification,
+    createdAt,
+    updatedAt,
+    completedAt,
+    dismissedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reminders';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Reminder> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('linked_event_id')) {
+      context.handle(
+        _linkedEventIdMeta,
+        linkedEventId.isAcceptableOrUnknown(
+          data['linked_event_id']!,
+          _linkedEventIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('linked_entity_id')) {
+      context.handle(
+        _linkedEntityIdMeta,
+        linkedEntityId.isAcceptableOrUnknown(
+          data['linked_entity_id']!,
+          _linkedEntityIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source_evidence_id')) {
+      context.handle(
+        _sourceEvidenceIdMeta,
+        sourceEvidenceId.isAcceptableOrUnknown(
+          data['source_evidence_id']!,
+          _sourceEvidenceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('target_year')) {
+      context.handle(
+        _targetYearMeta,
+        targetYear.isAcceptableOrUnknown(data['target_year']!, _targetYearMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_targetYearMeta);
+    }
+    if (data.containsKey('target_month')) {
+      context.handle(
+        _targetMonthMeta,
+        targetMonth.isAcceptableOrUnknown(
+          data['target_month']!,
+          _targetMonthMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_targetMonthMeta);
+    }
+    if (data.containsKey('target_day')) {
+      context.handle(
+        _targetDayMeta,
+        targetDay.isAcceptableOrUnknown(data['target_day']!, _targetDayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_targetDayMeta);
+    }
+    if (data.containsKey('reminder_year')) {
+      context.handle(
+        _reminderYearMeta,
+        reminderYear.isAcceptableOrUnknown(
+          data['reminder_year']!,
+          _reminderYearMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_reminderYearMeta);
+    }
+    if (data.containsKey('reminder_month')) {
+      context.handle(
+        _reminderMonthMeta,
+        reminderMonth.isAcceptableOrUnknown(
+          data['reminder_month']!,
+          _reminderMonthMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_reminderMonthMeta);
+    }
+    if (data.containsKey('reminder_day')) {
+      context.handle(
+        _reminderDayMeta,
+        reminderDay.isAcceptableOrUnknown(
+          data['reminder_day']!,
+          _reminderDayMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_reminderDayMeta);
+    }
+    if (data.containsKey('reminder_hour')) {
+      context.handle(
+        _reminderHourMeta,
+        reminderHour.isAcceptableOrUnknown(
+          data['reminder_hour']!,
+          _reminderHourMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_reminderHourMeta);
+    }
+    if (data.containsKey('reminder_minute')) {
+      context.handle(
+        _reminderMinuteMeta,
+        reminderMinute.isAcceptableOrUnknown(
+          data['reminder_minute']!,
+          _reminderMinuteMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_reminderMinuteMeta);
+    }
+    if (data.containsKey('time_zone_id')) {
+      context.handle(
+        _timeZoneIdMeta,
+        timeZoneId.isAcceptableOrUnknown(
+          data['time_zone_id']!,
+          _timeZoneIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_timeZoneIdMeta);
+    }
+    if (data.containsKey('scheduled_at_utc')) {
+      context.handle(
+        _scheduledAtUtcMeta,
+        scheduledAtUtc.isAcceptableOrUnknown(
+          data['scheduled_at_utc']!,
+          _scheduledAtUtcMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_scheduledAtUtcMeta);
+    }
+    if (data.containsKey('reminder_type')) {
+      context.handle(
+        _reminderTypeMeta,
+        reminderType.isAcceptableOrUnknown(
+          data['reminder_type']!,
+          _reminderTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_reminderTypeMeta);
+    }
+    if (data.containsKey('lead_time')) {
+      context.handle(
+        _leadTimeMeta,
+        leadTime.isAcceptableOrUnknown(data['lead_time']!, _leadTimeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_leadTimeMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('notification_id')) {
+      context.handle(
+        _notificationIdMeta,
+        notificationId.isAcceptableOrUnknown(
+          data['notification_id']!,
+          _notificationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_notificationIdMeta);
+    }
+    if (data.containsKey('privacy_classification')) {
+      context.handle(
+        _privacyClassificationMeta,
+        privacyClassification.isAcceptableOrUnknown(
+          data['privacy_classification']!,
+          _privacyClassificationMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_privacyClassificationMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+        _completedAtMeta,
+        completedAt.isAcceptableOrUnknown(
+          data['completed_at']!,
+          _completedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('dismissed_at')) {
+      context.handle(
+        _dismissedAtMeta,
+        dismissedAt.isAcceptableOrUnknown(
+          data['dismissed_at']!,
+          _dismissedAtMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Reminder map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Reminder(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      linkedEventId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}linked_event_id'],
+      ),
+      linkedEntityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}linked_entity_id'],
+      ),
+      sourceEvidenceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source_evidence_id'],
+      ),
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
+      targetYear: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}target_year'],
+      )!,
+      targetMonth: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}target_month'],
+      )!,
+      targetDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}target_day'],
+      )!,
+      reminderYear: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_year'],
+      )!,
+      reminderMonth: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_month'],
+      )!,
+      reminderDay: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_day'],
+      )!,
+      reminderHour: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_hour'],
+      )!,
+      reminderMinute: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}reminder_minute'],
+      )!,
+      timeZoneId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}time_zone_id'],
+      )!,
+      scheduledAtUtc: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}scheduled_at_utc'],
+      )!,
+      reminderType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reminder_type'],
+      )!,
+      leadTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}lead_time'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      notificationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}notification_id'],
+      )!,
+      privacyClassification: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}privacy_classification'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      completedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}completed_at'],
+      ),
+      dismissedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}dismissed_at'],
+      ),
+    );
+  }
+
+  @override
+  $RemindersTable createAlias(String alias) {
+    return $RemindersTable(attachedDatabase, alias);
+  }
+}
+
+class Reminder extends DataClass implements Insertable<Reminder> {
+  final String id;
+  final String? linkedEventId;
+  final String? linkedEntityId;
+  final String? sourceEvidenceId;
+  final String title;
+  final String? note;
+  final int targetYear;
+  final int targetMonth;
+  final int targetDay;
+  final int reminderYear;
+  final int reminderMonth;
+  final int reminderDay;
+  final int reminderHour;
+  final int reminderMinute;
+  final String timeZoneId;
+  final DateTime scheduledAtUtc;
+  final String reminderType;
+  final String leadTime;
+  final String status;
+  final int notificationId;
+  final String privacyClassification;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? completedAt;
+  final DateTime? dismissedAt;
+  const Reminder({
+    required this.id,
+    this.linkedEventId,
+    this.linkedEntityId,
+    this.sourceEvidenceId,
+    required this.title,
+    this.note,
+    required this.targetYear,
+    required this.targetMonth,
+    required this.targetDay,
+    required this.reminderYear,
+    required this.reminderMonth,
+    required this.reminderDay,
+    required this.reminderHour,
+    required this.reminderMinute,
+    required this.timeZoneId,
+    required this.scheduledAtUtc,
+    required this.reminderType,
+    required this.leadTime,
+    required this.status,
+    required this.notificationId,
+    required this.privacyClassification,
+    required this.createdAt,
+    required this.updatedAt,
+    this.completedAt,
+    this.dismissedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || linkedEventId != null) {
+      map['linked_event_id'] = Variable<String>(linkedEventId);
+    }
+    if (!nullToAbsent || linkedEntityId != null) {
+      map['linked_entity_id'] = Variable<String>(linkedEntityId);
+    }
+    if (!nullToAbsent || sourceEvidenceId != null) {
+      map['source_evidence_id'] = Variable<String>(sourceEvidenceId);
+    }
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['target_year'] = Variable<int>(targetYear);
+    map['target_month'] = Variable<int>(targetMonth);
+    map['target_day'] = Variable<int>(targetDay);
+    map['reminder_year'] = Variable<int>(reminderYear);
+    map['reminder_month'] = Variable<int>(reminderMonth);
+    map['reminder_day'] = Variable<int>(reminderDay);
+    map['reminder_hour'] = Variable<int>(reminderHour);
+    map['reminder_minute'] = Variable<int>(reminderMinute);
+    map['time_zone_id'] = Variable<String>(timeZoneId);
+    map['scheduled_at_utc'] = Variable<DateTime>(scheduledAtUtc);
+    map['reminder_type'] = Variable<String>(reminderType);
+    map['lead_time'] = Variable<String>(leadTime);
+    map['status'] = Variable<String>(status);
+    map['notification_id'] = Variable<int>(notificationId);
+    map['privacy_classification'] = Variable<String>(privacyClassification);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || completedAt != null) {
+      map['completed_at'] = Variable<DateTime>(completedAt);
+    }
+    if (!nullToAbsent || dismissedAt != null) {
+      map['dismissed_at'] = Variable<DateTime>(dismissedAt);
+    }
+    return map;
+  }
+
+  RemindersCompanion toCompanion(bool nullToAbsent) {
+    return RemindersCompanion(
+      id: Value(id),
+      linkedEventId: linkedEventId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(linkedEventId),
+      linkedEntityId: linkedEntityId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(linkedEntityId),
+      sourceEvidenceId: sourceEvidenceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceEvidenceId),
+      title: Value(title),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      targetYear: Value(targetYear),
+      targetMonth: Value(targetMonth),
+      targetDay: Value(targetDay),
+      reminderYear: Value(reminderYear),
+      reminderMonth: Value(reminderMonth),
+      reminderDay: Value(reminderDay),
+      reminderHour: Value(reminderHour),
+      reminderMinute: Value(reminderMinute),
+      timeZoneId: Value(timeZoneId),
+      scheduledAtUtc: Value(scheduledAtUtc),
+      reminderType: Value(reminderType),
+      leadTime: Value(leadTime),
+      status: Value(status),
+      notificationId: Value(notificationId),
+      privacyClassification: Value(privacyClassification),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      completedAt: completedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completedAt),
+      dismissedAt: dismissedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dismissedAt),
+    );
+  }
+
+  factory Reminder.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Reminder(
+      id: serializer.fromJson<String>(json['id']),
+      linkedEventId: serializer.fromJson<String?>(json['linkedEventId']),
+      linkedEntityId: serializer.fromJson<String?>(json['linkedEntityId']),
+      sourceEvidenceId: serializer.fromJson<String?>(json['sourceEvidenceId']),
+      title: serializer.fromJson<String>(json['title']),
+      note: serializer.fromJson<String?>(json['note']),
+      targetYear: serializer.fromJson<int>(json['targetYear']),
+      targetMonth: serializer.fromJson<int>(json['targetMonth']),
+      targetDay: serializer.fromJson<int>(json['targetDay']),
+      reminderYear: serializer.fromJson<int>(json['reminderYear']),
+      reminderMonth: serializer.fromJson<int>(json['reminderMonth']),
+      reminderDay: serializer.fromJson<int>(json['reminderDay']),
+      reminderHour: serializer.fromJson<int>(json['reminderHour']),
+      reminderMinute: serializer.fromJson<int>(json['reminderMinute']),
+      timeZoneId: serializer.fromJson<String>(json['timeZoneId']),
+      scheduledAtUtc: serializer.fromJson<DateTime>(json['scheduledAtUtc']),
+      reminderType: serializer.fromJson<String>(json['reminderType']),
+      leadTime: serializer.fromJson<String>(json['leadTime']),
+      status: serializer.fromJson<String>(json['status']),
+      notificationId: serializer.fromJson<int>(json['notificationId']),
+      privacyClassification: serializer.fromJson<String>(
+        json['privacyClassification'],
+      ),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
+      dismissedAt: serializer.fromJson<DateTime?>(json['dismissedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'linkedEventId': serializer.toJson<String?>(linkedEventId),
+      'linkedEntityId': serializer.toJson<String?>(linkedEntityId),
+      'sourceEvidenceId': serializer.toJson<String?>(sourceEvidenceId),
+      'title': serializer.toJson<String>(title),
+      'note': serializer.toJson<String?>(note),
+      'targetYear': serializer.toJson<int>(targetYear),
+      'targetMonth': serializer.toJson<int>(targetMonth),
+      'targetDay': serializer.toJson<int>(targetDay),
+      'reminderYear': serializer.toJson<int>(reminderYear),
+      'reminderMonth': serializer.toJson<int>(reminderMonth),
+      'reminderDay': serializer.toJson<int>(reminderDay),
+      'reminderHour': serializer.toJson<int>(reminderHour),
+      'reminderMinute': serializer.toJson<int>(reminderMinute),
+      'timeZoneId': serializer.toJson<String>(timeZoneId),
+      'scheduledAtUtc': serializer.toJson<DateTime>(scheduledAtUtc),
+      'reminderType': serializer.toJson<String>(reminderType),
+      'leadTime': serializer.toJson<String>(leadTime),
+      'status': serializer.toJson<String>(status),
+      'notificationId': serializer.toJson<int>(notificationId),
+      'privacyClassification': serializer.toJson<String>(privacyClassification),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'completedAt': serializer.toJson<DateTime?>(completedAt),
+      'dismissedAt': serializer.toJson<DateTime?>(dismissedAt),
+    };
+  }
+
+  Reminder copyWith({
+    String? id,
+    Value<String?> linkedEventId = const Value.absent(),
+    Value<String?> linkedEntityId = const Value.absent(),
+    Value<String?> sourceEvidenceId = const Value.absent(),
+    String? title,
+    Value<String?> note = const Value.absent(),
+    int? targetYear,
+    int? targetMonth,
+    int? targetDay,
+    int? reminderYear,
+    int? reminderMonth,
+    int? reminderDay,
+    int? reminderHour,
+    int? reminderMinute,
+    String? timeZoneId,
+    DateTime? scheduledAtUtc,
+    String? reminderType,
+    String? leadTime,
+    String? status,
+    int? notificationId,
+    String? privacyClassification,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> completedAt = const Value.absent(),
+    Value<DateTime?> dismissedAt = const Value.absent(),
+  }) => Reminder(
+    id: id ?? this.id,
+    linkedEventId: linkedEventId.present
+        ? linkedEventId.value
+        : this.linkedEventId,
+    linkedEntityId: linkedEntityId.present
+        ? linkedEntityId.value
+        : this.linkedEntityId,
+    sourceEvidenceId: sourceEvidenceId.present
+        ? sourceEvidenceId.value
+        : this.sourceEvidenceId,
+    title: title ?? this.title,
+    note: note.present ? note.value : this.note,
+    targetYear: targetYear ?? this.targetYear,
+    targetMonth: targetMonth ?? this.targetMonth,
+    targetDay: targetDay ?? this.targetDay,
+    reminderYear: reminderYear ?? this.reminderYear,
+    reminderMonth: reminderMonth ?? this.reminderMonth,
+    reminderDay: reminderDay ?? this.reminderDay,
+    reminderHour: reminderHour ?? this.reminderHour,
+    reminderMinute: reminderMinute ?? this.reminderMinute,
+    timeZoneId: timeZoneId ?? this.timeZoneId,
+    scheduledAtUtc: scheduledAtUtc ?? this.scheduledAtUtc,
+    reminderType: reminderType ?? this.reminderType,
+    leadTime: leadTime ?? this.leadTime,
+    status: status ?? this.status,
+    notificationId: notificationId ?? this.notificationId,
+    privacyClassification: privacyClassification ?? this.privacyClassification,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    completedAt: completedAt.present ? completedAt.value : this.completedAt,
+    dismissedAt: dismissedAt.present ? dismissedAt.value : this.dismissedAt,
+  );
+  Reminder copyWithCompanion(RemindersCompanion data) {
+    return Reminder(
+      id: data.id.present ? data.id.value : this.id,
+      linkedEventId: data.linkedEventId.present
+          ? data.linkedEventId.value
+          : this.linkedEventId,
+      linkedEntityId: data.linkedEntityId.present
+          ? data.linkedEntityId.value
+          : this.linkedEntityId,
+      sourceEvidenceId: data.sourceEvidenceId.present
+          ? data.sourceEvidenceId.value
+          : this.sourceEvidenceId,
+      title: data.title.present ? data.title.value : this.title,
+      note: data.note.present ? data.note.value : this.note,
+      targetYear: data.targetYear.present
+          ? data.targetYear.value
+          : this.targetYear,
+      targetMonth: data.targetMonth.present
+          ? data.targetMonth.value
+          : this.targetMonth,
+      targetDay: data.targetDay.present ? data.targetDay.value : this.targetDay,
+      reminderYear: data.reminderYear.present
+          ? data.reminderYear.value
+          : this.reminderYear,
+      reminderMonth: data.reminderMonth.present
+          ? data.reminderMonth.value
+          : this.reminderMonth,
+      reminderDay: data.reminderDay.present
+          ? data.reminderDay.value
+          : this.reminderDay,
+      reminderHour: data.reminderHour.present
+          ? data.reminderHour.value
+          : this.reminderHour,
+      reminderMinute: data.reminderMinute.present
+          ? data.reminderMinute.value
+          : this.reminderMinute,
+      timeZoneId: data.timeZoneId.present
+          ? data.timeZoneId.value
+          : this.timeZoneId,
+      scheduledAtUtc: data.scheduledAtUtc.present
+          ? data.scheduledAtUtc.value
+          : this.scheduledAtUtc,
+      reminderType: data.reminderType.present
+          ? data.reminderType.value
+          : this.reminderType,
+      leadTime: data.leadTime.present ? data.leadTime.value : this.leadTime,
+      status: data.status.present ? data.status.value : this.status,
+      notificationId: data.notificationId.present
+          ? data.notificationId.value
+          : this.notificationId,
+      privacyClassification: data.privacyClassification.present
+          ? data.privacyClassification.value
+          : this.privacyClassification,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      completedAt: data.completedAt.present
+          ? data.completedAt.value
+          : this.completedAt,
+      dismissedAt: data.dismissedAt.present
+          ? data.dismissedAt.value
+          : this.dismissedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Reminder(')
+          ..write('id: $id, ')
+          ..write('linkedEventId: $linkedEventId, ')
+          ..write('linkedEntityId: $linkedEntityId, ')
+          ..write('sourceEvidenceId: $sourceEvidenceId, ')
+          ..write('title: $title, ')
+          ..write('note: $note, ')
+          ..write('targetYear: $targetYear, ')
+          ..write('targetMonth: $targetMonth, ')
+          ..write('targetDay: $targetDay, ')
+          ..write('reminderYear: $reminderYear, ')
+          ..write('reminderMonth: $reminderMonth, ')
+          ..write('reminderDay: $reminderDay, ')
+          ..write('reminderHour: $reminderHour, ')
+          ..write('reminderMinute: $reminderMinute, ')
+          ..write('timeZoneId: $timeZoneId, ')
+          ..write('scheduledAtUtc: $scheduledAtUtc, ')
+          ..write('reminderType: $reminderType, ')
+          ..write('leadTime: $leadTime, ')
+          ..write('status: $status, ')
+          ..write('notificationId: $notificationId, ')
+          ..write('privacyClassification: $privacyClassification, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('dismissedAt: $dismissedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hashAll([
+    id,
+    linkedEventId,
+    linkedEntityId,
+    sourceEvidenceId,
+    title,
+    note,
+    targetYear,
+    targetMonth,
+    targetDay,
+    reminderYear,
+    reminderMonth,
+    reminderDay,
+    reminderHour,
+    reminderMinute,
+    timeZoneId,
+    scheduledAtUtc,
+    reminderType,
+    leadTime,
+    status,
+    notificationId,
+    privacyClassification,
+    createdAt,
+    updatedAt,
+    completedAt,
+    dismissedAt,
+  ]);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Reminder &&
+          other.id == this.id &&
+          other.linkedEventId == this.linkedEventId &&
+          other.linkedEntityId == this.linkedEntityId &&
+          other.sourceEvidenceId == this.sourceEvidenceId &&
+          other.title == this.title &&
+          other.note == this.note &&
+          other.targetYear == this.targetYear &&
+          other.targetMonth == this.targetMonth &&
+          other.targetDay == this.targetDay &&
+          other.reminderYear == this.reminderYear &&
+          other.reminderMonth == this.reminderMonth &&
+          other.reminderDay == this.reminderDay &&
+          other.reminderHour == this.reminderHour &&
+          other.reminderMinute == this.reminderMinute &&
+          other.timeZoneId == this.timeZoneId &&
+          other.scheduledAtUtc == this.scheduledAtUtc &&
+          other.reminderType == this.reminderType &&
+          other.leadTime == this.leadTime &&
+          other.status == this.status &&
+          other.notificationId == this.notificationId &&
+          other.privacyClassification == this.privacyClassification &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.completedAt == this.completedAt &&
+          other.dismissedAt == this.dismissedAt);
+}
+
+class RemindersCompanion extends UpdateCompanion<Reminder> {
+  final Value<String> id;
+  final Value<String?> linkedEventId;
+  final Value<String?> linkedEntityId;
+  final Value<String?> sourceEvidenceId;
+  final Value<String> title;
+  final Value<String?> note;
+  final Value<int> targetYear;
+  final Value<int> targetMonth;
+  final Value<int> targetDay;
+  final Value<int> reminderYear;
+  final Value<int> reminderMonth;
+  final Value<int> reminderDay;
+  final Value<int> reminderHour;
+  final Value<int> reminderMinute;
+  final Value<String> timeZoneId;
+  final Value<DateTime> scheduledAtUtc;
+  final Value<String> reminderType;
+  final Value<String> leadTime;
+  final Value<String> status;
+  final Value<int> notificationId;
+  final Value<String> privacyClassification;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> completedAt;
+  final Value<DateTime?> dismissedAt;
+  final Value<int> rowid;
+  const RemindersCompanion({
+    this.id = const Value.absent(),
+    this.linkedEventId = const Value.absent(),
+    this.linkedEntityId = const Value.absent(),
+    this.sourceEvidenceId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.note = const Value.absent(),
+    this.targetYear = const Value.absent(),
+    this.targetMonth = const Value.absent(),
+    this.targetDay = const Value.absent(),
+    this.reminderYear = const Value.absent(),
+    this.reminderMonth = const Value.absent(),
+    this.reminderDay = const Value.absent(),
+    this.reminderHour = const Value.absent(),
+    this.reminderMinute = const Value.absent(),
+    this.timeZoneId = const Value.absent(),
+    this.scheduledAtUtc = const Value.absent(),
+    this.reminderType = const Value.absent(),
+    this.leadTime = const Value.absent(),
+    this.status = const Value.absent(),
+    this.notificationId = const Value.absent(),
+    this.privacyClassification = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.dismissedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RemindersCompanion.insert({
+    required String id,
+    this.linkedEventId = const Value.absent(),
+    this.linkedEntityId = const Value.absent(),
+    this.sourceEvidenceId = const Value.absent(),
+    required String title,
+    this.note = const Value.absent(),
+    required int targetYear,
+    required int targetMonth,
+    required int targetDay,
+    required int reminderYear,
+    required int reminderMonth,
+    required int reminderDay,
+    required int reminderHour,
+    required int reminderMinute,
+    required String timeZoneId,
+    required DateTime scheduledAtUtc,
+    required String reminderType,
+    required String leadTime,
+    required String status,
+    required int notificationId,
+    required String privacyClassification,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.completedAt = const Value.absent(),
+    this.dismissedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       title = Value(title),
+       targetYear = Value(targetYear),
+       targetMonth = Value(targetMonth),
+       targetDay = Value(targetDay),
+       reminderYear = Value(reminderYear),
+       reminderMonth = Value(reminderMonth),
+       reminderDay = Value(reminderDay),
+       reminderHour = Value(reminderHour),
+       reminderMinute = Value(reminderMinute),
+       timeZoneId = Value(timeZoneId),
+       scheduledAtUtc = Value(scheduledAtUtc),
+       reminderType = Value(reminderType),
+       leadTime = Value(leadTime),
+       status = Value(status),
+       notificationId = Value(notificationId),
+       privacyClassification = Value(privacyClassification),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<Reminder> custom({
+    Expression<String>? id,
+    Expression<String>? linkedEventId,
+    Expression<String>? linkedEntityId,
+    Expression<String>? sourceEvidenceId,
+    Expression<String>? title,
+    Expression<String>? note,
+    Expression<int>? targetYear,
+    Expression<int>? targetMonth,
+    Expression<int>? targetDay,
+    Expression<int>? reminderYear,
+    Expression<int>? reminderMonth,
+    Expression<int>? reminderDay,
+    Expression<int>? reminderHour,
+    Expression<int>? reminderMinute,
+    Expression<String>? timeZoneId,
+    Expression<DateTime>? scheduledAtUtc,
+    Expression<String>? reminderType,
+    Expression<String>? leadTime,
+    Expression<String>? status,
+    Expression<int>? notificationId,
+    Expression<String>? privacyClassification,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? completedAt,
+    Expression<DateTime>? dismissedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (linkedEventId != null) 'linked_event_id': linkedEventId,
+      if (linkedEntityId != null) 'linked_entity_id': linkedEntityId,
+      if (sourceEvidenceId != null) 'source_evidence_id': sourceEvidenceId,
+      if (title != null) 'title': title,
+      if (note != null) 'note': note,
+      if (targetYear != null) 'target_year': targetYear,
+      if (targetMonth != null) 'target_month': targetMonth,
+      if (targetDay != null) 'target_day': targetDay,
+      if (reminderYear != null) 'reminder_year': reminderYear,
+      if (reminderMonth != null) 'reminder_month': reminderMonth,
+      if (reminderDay != null) 'reminder_day': reminderDay,
+      if (reminderHour != null) 'reminder_hour': reminderHour,
+      if (reminderMinute != null) 'reminder_minute': reminderMinute,
+      if (timeZoneId != null) 'time_zone_id': timeZoneId,
+      if (scheduledAtUtc != null) 'scheduled_at_utc': scheduledAtUtc,
+      if (reminderType != null) 'reminder_type': reminderType,
+      if (leadTime != null) 'lead_time': leadTime,
+      if (status != null) 'status': status,
+      if (notificationId != null) 'notification_id': notificationId,
+      if (privacyClassification != null)
+        'privacy_classification': privacyClassification,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (dismissedAt != null) 'dismissed_at': dismissedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RemindersCompanion copyWith({
+    Value<String>? id,
+    Value<String?>? linkedEventId,
+    Value<String?>? linkedEntityId,
+    Value<String?>? sourceEvidenceId,
+    Value<String>? title,
+    Value<String?>? note,
+    Value<int>? targetYear,
+    Value<int>? targetMonth,
+    Value<int>? targetDay,
+    Value<int>? reminderYear,
+    Value<int>? reminderMonth,
+    Value<int>? reminderDay,
+    Value<int>? reminderHour,
+    Value<int>? reminderMinute,
+    Value<String>? timeZoneId,
+    Value<DateTime>? scheduledAtUtc,
+    Value<String>? reminderType,
+    Value<String>? leadTime,
+    Value<String>? status,
+    Value<int>? notificationId,
+    Value<String>? privacyClassification,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? completedAt,
+    Value<DateTime?>? dismissedAt,
+    Value<int>? rowid,
+  }) {
+    return RemindersCompanion(
+      id: id ?? this.id,
+      linkedEventId: linkedEventId ?? this.linkedEventId,
+      linkedEntityId: linkedEntityId ?? this.linkedEntityId,
+      sourceEvidenceId: sourceEvidenceId ?? this.sourceEvidenceId,
+      title: title ?? this.title,
+      note: note ?? this.note,
+      targetYear: targetYear ?? this.targetYear,
+      targetMonth: targetMonth ?? this.targetMonth,
+      targetDay: targetDay ?? this.targetDay,
+      reminderYear: reminderYear ?? this.reminderYear,
+      reminderMonth: reminderMonth ?? this.reminderMonth,
+      reminderDay: reminderDay ?? this.reminderDay,
+      reminderHour: reminderHour ?? this.reminderHour,
+      reminderMinute: reminderMinute ?? this.reminderMinute,
+      timeZoneId: timeZoneId ?? this.timeZoneId,
+      scheduledAtUtc: scheduledAtUtc ?? this.scheduledAtUtc,
+      reminderType: reminderType ?? this.reminderType,
+      leadTime: leadTime ?? this.leadTime,
+      status: status ?? this.status,
+      notificationId: notificationId ?? this.notificationId,
+      privacyClassification:
+          privacyClassification ?? this.privacyClassification,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      completedAt: completedAt ?? this.completedAt,
+      dismissedAt: dismissedAt ?? this.dismissedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (linkedEventId.present) {
+      map['linked_event_id'] = Variable<String>(linkedEventId.value);
+    }
+    if (linkedEntityId.present) {
+      map['linked_entity_id'] = Variable<String>(linkedEntityId.value);
+    }
+    if (sourceEvidenceId.present) {
+      map['source_evidence_id'] = Variable<String>(sourceEvidenceId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (targetYear.present) {
+      map['target_year'] = Variable<int>(targetYear.value);
+    }
+    if (targetMonth.present) {
+      map['target_month'] = Variable<int>(targetMonth.value);
+    }
+    if (targetDay.present) {
+      map['target_day'] = Variable<int>(targetDay.value);
+    }
+    if (reminderYear.present) {
+      map['reminder_year'] = Variable<int>(reminderYear.value);
+    }
+    if (reminderMonth.present) {
+      map['reminder_month'] = Variable<int>(reminderMonth.value);
+    }
+    if (reminderDay.present) {
+      map['reminder_day'] = Variable<int>(reminderDay.value);
+    }
+    if (reminderHour.present) {
+      map['reminder_hour'] = Variable<int>(reminderHour.value);
+    }
+    if (reminderMinute.present) {
+      map['reminder_minute'] = Variable<int>(reminderMinute.value);
+    }
+    if (timeZoneId.present) {
+      map['time_zone_id'] = Variable<String>(timeZoneId.value);
+    }
+    if (scheduledAtUtc.present) {
+      map['scheduled_at_utc'] = Variable<DateTime>(scheduledAtUtc.value);
+    }
+    if (reminderType.present) {
+      map['reminder_type'] = Variable<String>(reminderType.value);
+    }
+    if (leadTime.present) {
+      map['lead_time'] = Variable<String>(leadTime.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (notificationId.present) {
+      map['notification_id'] = Variable<int>(notificationId.value);
+    }
+    if (privacyClassification.present) {
+      map['privacy_classification'] = Variable<String>(
+        privacyClassification.value,
+      );
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<DateTime>(completedAt.value);
+    }
+    if (dismissedAt.present) {
+      map['dismissed_at'] = Variable<DateTime>(dismissedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RemindersCompanion(')
+          ..write('id: $id, ')
+          ..write('linkedEventId: $linkedEventId, ')
+          ..write('linkedEntityId: $linkedEntityId, ')
+          ..write('sourceEvidenceId: $sourceEvidenceId, ')
+          ..write('title: $title, ')
+          ..write('note: $note, ')
+          ..write('targetYear: $targetYear, ')
+          ..write('targetMonth: $targetMonth, ')
+          ..write('targetDay: $targetDay, ')
+          ..write('reminderYear: $reminderYear, ')
+          ..write('reminderMonth: $reminderMonth, ')
+          ..write('reminderDay: $reminderDay, ')
+          ..write('reminderHour: $reminderHour, ')
+          ..write('reminderMinute: $reminderMinute, ')
+          ..write('timeZoneId: $timeZoneId, ')
+          ..write('scheduledAtUtc: $scheduledAtUtc, ')
+          ..write('reminderType: $reminderType, ')
+          ..write('leadTime: $leadTime, ')
+          ..write('status: $status, ')
+          ..write('notificationId: $notificationId, ')
+          ..write('privacyClassification: $privacyClassification, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('dismissedAt: $dismissedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -11625,6 +13804,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $RelationshipsTable relationships = $RelationshipsTable(this);
   late final $AttachmentsTable attachments = $AttachmentsTable(this);
+  late final $AttachmentLinksTable attachmentLinks = $AttachmentLinksTable(
+    this,
+  );
   late final $ArchiveReferencesTable archiveReferences =
       $ArchiveReferencesTable(this);
   late final $MemoryCandidatesTable memoryCandidates = $MemoryCandidatesTable(
@@ -11652,6 +13834,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $EvidenceCategoriesTable(this);
   late final $InsightDismissalsTable insightDismissals =
       $InsightDismissalsTable(this);
+  late final $RemindersTable reminders = $RemindersTable(this);
   late final Index entitiesLifecycleIdx = Index(
     'entities_lifecycle_idx',
     'CREATE INDEX entities_lifecycle_idx ON entities (lifecycle)',
@@ -11712,10 +13895,6 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'relationships_type_idx',
     'CREATE INDEX relationships_type_idx ON relationships (relationship_type)',
   );
-  late final Index attachmentsEvidenceIdx = Index(
-    'attachments_evidence_idx',
-    'CREATE INDEX attachments_evidence_idx ON attachments (evidence_id)',
-  );
   late final Index attachmentsStorageStateIdx = Index(
     'attachments_storage_state_idx',
     'CREATE INDEX attachments_storage_state_idx ON attachments (storage_state)',
@@ -11723,6 +13902,26 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Index attachmentsChecksumIdx = Index(
     'attachments_checksum_idx',
     'CREATE INDEX attachments_checksum_idx ON attachments (checksum)',
+  );
+  late final Index attachmentLinksEventIdx = Index(
+    'attachment_links_event_idx',
+    'CREATE INDEX attachment_links_event_idx ON attachment_links (event_id, sort_order)',
+  );
+  late final Index attachmentLinksEvidenceIdx = Index(
+    'attachment_links_evidence_idx',
+    'CREATE INDEX attachment_links_evidence_idx ON attachment_links (evidence_id)',
+  );
+  late final Index attachmentLinksAttachmentIdx = Index(
+    'attachment_links_attachment_idx',
+    'CREATE INDEX attachment_links_attachment_idx ON attachment_links (attachment_id)',
+  );
+  late final Index attachmentLinksEventAttachmentIdx = Index(
+    'attachment_links_event_attachment_idx',
+    'CREATE UNIQUE INDEX attachment_links_event_attachment_idx ON attachment_links (event_id, attachment_id)',
+  );
+  late final Index attachmentLinksEvidenceAttachmentIdx = Index(
+    'attachment_links_evidence_attachment_idx',
+    'CREATE UNIQUE INDEX attachment_links_evidence_attachment_idx ON attachment_links (evidence_id, attachment_id)',
   );
   late final Index archiveReferencesAttachmentIdx = Index(
     'archive_references_attachment_idx',
@@ -11828,6 +14027,26 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'insight_dismissals_dismissed_at_idx',
     'CREATE INDEX insight_dismissals_dismissed_at_idx ON insight_dismissals (dismissed_at)',
   );
+  late final Index remindersStatusScheduleIdx = Index(
+    'reminders_status_schedule_idx',
+    'CREATE INDEX reminders_status_schedule_idx ON reminders (status, scheduled_at_utc)',
+  );
+  late final Index remindersEventIdx = Index(
+    'reminders_event_idx',
+    'CREATE INDEX reminders_event_idx ON reminders (linked_event_id)',
+  );
+  late final Index remindersEntityIdx = Index(
+    'reminders_entity_idx',
+    'CREATE INDEX reminders_entity_idx ON reminders (linked_entity_id)',
+  );
+  late final Index remindersEvidenceIdx = Index(
+    'reminders_evidence_idx',
+    'CREATE INDEX reminders_evidence_idx ON reminders (source_evidence_id)',
+  );
+  late final Index remindersNotificationIdIdx = Index(
+    'reminders_notification_id_idx',
+    'CREATE UNIQUE INDEX reminders_notification_id_idx ON reminders (notification_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -11838,6 +14057,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     evidenceRecords,
     relationships,
     attachments,
+    attachmentLinks,
     archiveReferences,
     memoryCandidates,
     fieldProvenanceRows,
@@ -11853,6 +14073,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     eventCategories,
     evidenceCategories,
     insightDismissals,
+    reminders,
     entitiesLifecycleIdx,
     entitiesNormalizedNameIdx,
     entitiesTypeIdx,
@@ -11868,9 +14089,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     relationshipsTargetEventIdx,
     relationshipsTargetEvidenceIdx,
     relationshipsTypeIdx,
-    attachmentsEvidenceIdx,
     attachmentsStorageStateIdx,
     attachmentsChecksumIdx,
+    attachmentLinksEventIdx,
+    attachmentLinksEvidenceIdx,
+    attachmentLinksAttachmentIdx,
+    attachmentLinksEventAttachmentIdx,
+    attachmentLinksEvidenceAttachmentIdx,
     archiveReferencesAttachmentIdx,
     archiveReferencesArchivedAtIdx,
     provenanceEntityIdx,
@@ -11897,9 +14122,35 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     eventCategoriesCategoryIdx,
     evidenceCategoriesCategoryIdx,
     insightDismissalsDismissedAtIdx,
+    remindersStatusScheduleIdx,
+    remindersEventIdx,
+    remindersEntityIdx,
+    remindersEvidenceIdx,
+    remindersNotificationIdIdx,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'attachments',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('attachment_links', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'events',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('attachment_links', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'evidence',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('attachment_links', kind: UpdateKind.delete)],
+    ),
     WritePropagation(
       on: TableUpdateQuery.onTableName(
         'attachments',
@@ -12067,6 +14318,27 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       ),
       result: [TableUpdate('evidence_categories', kind: UpdateKind.delete)],
     ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'events',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('reminders', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'entities',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('reminders', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'evidence',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('reminders', kind: UpdateKind.update)],
+    ),
   ]);
 }
 
@@ -12231,6 +14503,24 @@ final class $$EntitiesTableReferences
     final cache = $_typedResult.readTableOrNull(
       _entityCategoriesRefsTable($_db),
     );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$RemindersTable, List<Reminder>>
+  _remindersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.reminders,
+    aliasName: 'entities__id__reminders__linked_entity_id',
+  );
+
+  $$RemindersTableProcessedTableManager get remindersRefs {
+    final manager = $$RemindersTableTableManager(
+      $_db,
+      $_db.reminders,
+    ).filter((f) => f.linkedEntityId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_remindersRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -12439,6 +14729,31 @@ class $$EntitiesTableFilterComposer
           }) => $$EntityCategoriesTableFilterComposer(
             $db: $db,
             $table: $db.entityCategories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> remindersRefs(
+    Expression<bool> Function($$RemindersTableFilterComposer f) f,
+  ) {
+    final $$RemindersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.reminders,
+      getReferencedColumn: (t) => t.linkedEntityId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RemindersTableFilterComposer(
+            $db: $db,
+            $table: $db.reminders,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -12706,6 +15021,31 @@ class $$EntitiesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> remindersRefs<T extends Object>(
+    Expression<T> Function($$RemindersTableAnnotationComposer a) f,
+  ) {
+    final $$RemindersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.reminders,
+      getReferencedColumn: (t) => t.linkedEntityId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RemindersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.reminders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$EntitiesTableTableManager
@@ -12728,6 +15068,7 @@ class $$EntitiesTableTableManager
             bool candidateEntityProposalsRefs,
             bool entityTagsRefs,
             bool entityCategoriesRefs,
+            bool remindersRefs,
           })
         > {
   $$EntitiesTableTableManager(_$AppDatabase db, $EntitiesTable table)
@@ -12809,6 +15150,7 @@ class $$EntitiesTableTableManager
                 candidateEntityProposalsRefs = false,
                 entityTagsRefs = false,
                 entityCategoriesRefs = false,
+                remindersRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -12820,6 +15162,7 @@ class $$EntitiesTableTableManager
                       db.candidateEntityProposals,
                     if (entityTagsRefs) db.entityTags,
                     if (entityCategoriesRefs) db.entityCategories,
+                    if (remindersRefs) db.reminders,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -12950,6 +15293,27 @@ class $$EntitiesTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (remindersRefs)
+                        await $_getPrefetchedData<
+                          Entity,
+                          $EntitiesTable,
+                          Reminder
+                        >(
+                          currentTable: table,
+                          referencedTable: $$EntitiesTableReferences
+                              ._remindersRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$EntitiesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).remindersRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.linkedEntityId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -12977,6 +15341,7 @@ typedef $$EntitiesTableProcessedTableManager =
         bool candidateEntityProposalsRefs,
         bool entityTagsRefs,
         bool entityCategoriesRefs,
+        bool remindersRefs,
       })
     >;
 typedef $$EventsTableCreateCompanionBuilder =
@@ -13062,6 +15427,26 @@ final class $$EventsTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _targetEventRelationshipsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$AttachmentLinksTable, List<AttachmentLink>>
+  _attachmentLinksRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.attachmentLinks,
+    aliasName: 'events__id__attachment_links__event_id',
+  );
+
+  $$AttachmentLinksTableProcessedTableManager get attachmentLinksRefs {
+    final manager = $$AttachmentLinksTableTableManager(
+      $_db,
+      $_db.attachmentLinks,
+    ).filter((f) => f.eventId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _attachmentLinksRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -13168,6 +15553,24 @@ final class $$EventsTableReferences
     final cache = $_typedResult.readTableOrNull(
       _eventCategoriesRefsTable($_db),
     );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$RemindersTable, List<Reminder>>
+  _remindersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.reminders,
+    aliasName: 'events__id__reminders__linked_event_id',
+  );
+
+  $$RemindersTableProcessedTableManager get remindersRefs {
+    final manager = $$RemindersTableTableManager(
+      $_db,
+      $_db.reminders,
+    ).filter((f) => f.linkedEventId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_remindersRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -13318,6 +15721,31 @@ class $$EventsTableFilterComposer
     return f(composer);
   }
 
+  Expression<bool> attachmentLinksRefs(
+    Expression<bool> Function($$AttachmentLinksTableFilterComposer f) f,
+  ) {
+    final $$AttachmentLinksTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.attachmentLinks,
+      getReferencedColumn: (t) => t.eventId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AttachmentLinksTableFilterComposer(
+            $db: $db,
+            $table: $db.attachmentLinks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<bool> confirmedCandidates(
     Expression<bool> Function($$MemoryCandidatesTableFilterComposer f) f,
   ) {
@@ -13434,6 +15862,31 @@ class $$EventsTableFilterComposer
           }) => $$EventCategoriesTableFilterComposer(
             $db: $db,
             $table: $db.eventCategories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> remindersRefs(
+    Expression<bool> Function($$RemindersTableFilterComposer f) f,
+  ) {
+    final $$RemindersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.reminders,
+      getReferencedColumn: (t) => t.linkedEventId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RemindersTableFilterComposer(
+            $db: $db,
+            $table: $db.reminders,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -13659,6 +16112,31 @@ class $$EventsTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> attachmentLinksRefs<T extends Object>(
+    Expression<T> Function($$AttachmentLinksTableAnnotationComposer a) f,
+  ) {
+    final $$AttachmentLinksTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.attachmentLinks,
+      getReferencedColumn: (t) => t.eventId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AttachmentLinksTableAnnotationComposer(
+            $db: $db,
+            $table: $db.attachmentLinks,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> confirmedCandidates<T extends Object>(
     Expression<T> Function($$MemoryCandidatesTableAnnotationComposer a) f,
   ) {
@@ -13784,6 +16262,31 @@ class $$EventsTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> remindersRefs<T extends Object>(
+    Expression<T> Function($$RemindersTableAnnotationComposer a) f,
+  ) {
+    final $$RemindersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.reminders,
+      getReferencedColumn: (t) => t.linkedEventId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RemindersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.reminders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$EventsTableTableManager
@@ -13802,11 +16305,13 @@ class $$EventsTableTableManager
           PrefetchHooks Function({
             bool sourceEventRelationships,
             bool targetEventRelationships,
+            bool attachmentLinksRefs,
             bool confirmedCandidates,
             bool possibleDuplicateCandidates,
             bool fieldProvenanceRowsRefs,
             bool eventTagsRefs,
             bool eventCategoriesRefs,
+            bool remindersRefs,
           })
         > {
   $$EventsTableTableManager(_$AppDatabase db, $EventsTable table)
@@ -13910,22 +16415,26 @@ class $$EventsTableTableManager
               ({
                 sourceEventRelationships = false,
                 targetEventRelationships = false,
+                attachmentLinksRefs = false,
                 confirmedCandidates = false,
                 possibleDuplicateCandidates = false,
                 fieldProvenanceRowsRefs = false,
                 eventTagsRefs = false,
                 eventCategoriesRefs = false,
+                remindersRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (sourceEventRelationships) db.relationships,
                     if (targetEventRelationships) db.relationships,
+                    if (attachmentLinksRefs) db.attachmentLinks,
                     if (confirmedCandidates) db.memoryCandidates,
                     if (possibleDuplicateCandidates) db.memoryCandidates,
                     if (fieldProvenanceRowsRefs) db.fieldProvenanceRows,
                     if (eventTagsRefs) db.eventTags,
                     if (eventCategoriesRefs) db.eventCategories,
+                    if (remindersRefs) db.reminders,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -13969,6 +16478,27 @@ class $$EventsTableTableManager
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.targetEventId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (attachmentLinksRefs)
+                        await $_getPrefetchedData<
+                          Event,
+                          $EventsTable,
+                          AttachmentLink
+                        >(
+                          currentTable: table,
+                          referencedTable: $$EventsTableReferences
+                              ._attachmentLinksRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$EventsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).attachmentLinksRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.eventId == item.id,
                               ),
                           typedResults: items,
                         ),
@@ -14077,6 +16607,27 @@ class $$EventsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (remindersRefs)
+                        await $_getPrefetchedData<
+                          Event,
+                          $EventsTable,
+                          Reminder
+                        >(
+                          currentTable: table,
+                          referencedTable: $$EventsTableReferences
+                              ._remindersRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$EventsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).remindersRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.linkedEventId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -14100,11 +16651,13 @@ typedef $$EventsTableProcessedTableManager =
       PrefetchHooks Function({
         bool sourceEventRelationships,
         bool targetEventRelationships,
+        bool attachmentLinksRefs,
         bool confirmedCandidates,
         bool possibleDuplicateCandidates,
         bool fieldProvenanceRowsRefs,
         bool eventTagsRefs,
         bool eventCategoriesRefs,
+        bool remindersRefs,
       })
     >;
 typedef $$EvidenceRecordsTableCreateCompanionBuilder =
@@ -14187,19 +16740,21 @@ final class $$EvidenceRecordsTableReferences
     );
   }
 
-  static MultiTypedResultKey<$AttachmentsTable, List<Attachment>>
-  _attachmentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.attachments,
-    aliasName: 'evidence__id__attachments__evidence_id',
+  static MultiTypedResultKey<$AttachmentLinksTable, List<AttachmentLink>>
+  _attachmentLinksRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.attachmentLinks,
+    aliasName: 'evidence__id__attachment_links__evidence_id',
   );
 
-  $$AttachmentsTableProcessedTableManager get attachmentsRefs {
-    final manager = $$AttachmentsTableTableManager(
+  $$AttachmentLinksTableProcessedTableManager get attachmentLinksRefs {
+    final manager = $$AttachmentLinksTableTableManager(
       $_db,
-      $_db.attachments,
+      $_db.attachmentLinks,
     ).filter((f) => f.evidenceId.id.sqlEquals($_itemColumn<String>('id')!));
 
-    final cache = $_typedResult.readTableOrNull(_attachmentsRefsTable($_db));
+    final cache = $_typedResult.readTableOrNull(
+      _attachmentLinksRefsTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -14283,6 +16838,23 @@ final class $$EvidenceRecordsTableReferences
     final cache = $_typedResult.readTableOrNull(
       _evidenceCategoriesRefsTable($_db),
     );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$RemindersTable, List<Reminder>>
+  _remindersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.reminders,
+    aliasName: 'evidence__id__reminders__source_evidence_id',
+  );
+
+  $$RemindersTableProcessedTableManager get remindersRefs {
+    final manager = $$RemindersTableTableManager($_db, $_db.reminders).filter(
+      (f) => f.sourceEvidenceId.id.sqlEquals($_itemColumn<String>('id')!),
+    );
+
+    final cache = $_typedResult.readTableOrNull(_remindersRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -14398,22 +16970,22 @@ class $$EvidenceRecordsTableFilterComposer
     return f(composer);
   }
 
-  Expression<bool> attachmentsRefs(
-    Expression<bool> Function($$AttachmentsTableFilterComposer f) f,
+  Expression<bool> attachmentLinksRefs(
+    Expression<bool> Function($$AttachmentLinksTableFilterComposer f) f,
   ) {
-    final $$AttachmentsTableFilterComposer composer = $composerBuilder(
+    final $$AttachmentLinksTableFilterComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.attachments,
+      referencedTable: $db.attachmentLinks,
       getReferencedColumn: (t) => t.evidenceId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$AttachmentsTableFilterComposer(
+          }) => $$AttachmentLinksTableFilterComposer(
             $db: $db,
-            $table: $db.attachments,
+            $table: $db.attachmentLinks,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -14514,6 +17086,31 @@ class $$EvidenceRecordsTableFilterComposer
           }) => $$EvidenceCategoriesTableFilterComposer(
             $db: $db,
             $table: $db.evidenceCategories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> remindersRefs(
+    Expression<bool> Function($$RemindersTableFilterComposer f) f,
+  ) {
+    final $$RemindersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.reminders,
+      getReferencedColumn: (t) => t.sourceEvidenceId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RemindersTableFilterComposer(
+            $db: $db,
+            $table: $db.reminders,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -14679,22 +17276,22 @@ class $$EvidenceRecordsTableAnnotationComposer
     return f(composer);
   }
 
-  Expression<T> attachmentsRefs<T extends Object>(
-    Expression<T> Function($$AttachmentsTableAnnotationComposer a) f,
+  Expression<T> attachmentLinksRefs<T extends Object>(
+    Expression<T> Function($$AttachmentLinksTableAnnotationComposer a) f,
   ) {
-    final $$AttachmentsTableAnnotationComposer composer = $composerBuilder(
+    final $$AttachmentLinksTableAnnotationComposer composer = $composerBuilder(
       composer: this,
       getCurrentColumn: (t) => t.id,
-      referencedTable: $db.attachments,
+      referencedTable: $db.attachmentLinks,
       getReferencedColumn: (t) => t.evidenceId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$AttachmentsTableAnnotationComposer(
+          }) => $$AttachmentLinksTableAnnotationComposer(
             $db: $db,
-            $table: $db.attachments,
+            $table: $db.attachmentLinks,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -14805,6 +17402,31 @@ class $$EvidenceRecordsTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> remindersRefs<T extends Object>(
+    Expression<T> Function($$RemindersTableAnnotationComposer a) f,
+  ) {
+    final $$RemindersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.reminders,
+      getReferencedColumn: (t) => t.sourceEvidenceId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RemindersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.reminders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$EvidenceRecordsTableTableManager
@@ -14823,11 +17445,12 @@ class $$EvidenceRecordsTableTableManager
           PrefetchHooks Function({
             bool sourceEvidenceRelationships,
             bool targetEvidenceRelationships,
-            bool attachmentsRefs,
+            bool attachmentLinksRefs,
             bool memoryCandidatesRefs,
             bool fieldProvenanceRowsRefs,
             bool evidenceTagsRefs,
             bool evidenceCategoriesRefs,
+            bool remindersRefs,
           })
         > {
   $$EvidenceRecordsTableTableManager(
@@ -14907,22 +17530,24 @@ class $$EvidenceRecordsTableTableManager
               ({
                 sourceEvidenceRelationships = false,
                 targetEvidenceRelationships = false,
-                attachmentsRefs = false,
+                attachmentLinksRefs = false,
                 memoryCandidatesRefs = false,
                 fieldProvenanceRowsRefs = false,
                 evidenceTagsRefs = false,
                 evidenceCategoriesRefs = false,
+                remindersRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (sourceEvidenceRelationships) db.relationships,
                     if (targetEvidenceRelationships) db.relationships,
-                    if (attachmentsRefs) db.attachments,
+                    if (attachmentLinksRefs) db.attachmentLinks,
                     if (memoryCandidatesRefs) db.memoryCandidates,
                     if (fieldProvenanceRowsRefs) db.fieldProvenanceRows,
                     if (evidenceTagsRefs) db.evidenceTags,
                     if (evidenceCategoriesRefs) db.evidenceCategories,
+                    if (remindersRefs) db.reminders,
                   ],
                   addJoins: null,
                   getPrefetchedDataCallback: (items) async {
@@ -14969,21 +17594,21 @@ class $$EvidenceRecordsTableTableManager
                               ),
                           typedResults: items,
                         ),
-                      if (attachmentsRefs)
+                      if (attachmentLinksRefs)
                         await $_getPrefetchedData<
                           EvidenceRecord,
                           $EvidenceRecordsTable,
-                          Attachment
+                          AttachmentLink
                         >(
                           currentTable: table,
                           referencedTable: $$EvidenceRecordsTableReferences
-                              ._attachmentsRefsTable(db),
+                              ._attachmentLinksRefsTable(db),
                           managerFromTypedResult: (p0) =>
                               $$EvidenceRecordsTableReferences(
                                 db,
                                 table,
                                 p0,
-                              ).attachmentsRefs,
+                              ).attachmentLinksRefs,
                           referencedItemsForCurrentItem:
                               (item, referencedItems) => referencedItems.where(
                                 (e) => e.evidenceId == item.id,
@@ -15074,6 +17699,27 @@ class $$EvidenceRecordsTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (remindersRefs)
+                        await $_getPrefetchedData<
+                          EvidenceRecord,
+                          $EvidenceRecordsTable,
+                          Reminder
+                        >(
+                          currentTable: table,
+                          referencedTable: $$EvidenceRecordsTableReferences
+                              ._remindersRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$EvidenceRecordsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).remindersRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.sourceEvidenceId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -15097,11 +17743,12 @@ typedef $$EvidenceRecordsTableProcessedTableManager =
       PrefetchHooks Function({
         bool sourceEvidenceRelationships,
         bool targetEvidenceRelationships,
-        bool attachmentsRefs,
+        bool attachmentLinksRefs,
         bool memoryCandidatesRefs,
         bool fieldProvenanceRowsRefs,
         bool evidenceTagsRefs,
         bool evidenceCategoriesRefs,
+        bool remindersRefs,
       })
     >;
 typedef $$RelationshipsTableCreateCompanionBuilder =
@@ -16176,11 +18823,12 @@ typedef $$AttachmentsTableCreateCompanionBuilder =
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<DateTime?> deletedAt,
-      required String evidenceId,
       Value<String?> displayName,
       Value<String?> relativePath,
       Value<String?> thumbnailRelativePath,
       Value<String?> preservedOriginalRelativePath,
+      Value<int?> preservedOriginalByteSize,
+      Value<String?> preservedOriginalChecksum,
       required String mimeType,
       required int byteSize,
       Value<int?> pixelWidth,
@@ -16198,11 +18846,12 @@ typedef $$AttachmentsTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
-      Value<String> evidenceId,
       Value<String?> displayName,
       Value<String?> relativePath,
       Value<String?> thumbnailRelativePath,
       Value<String?> preservedOriginalRelativePath,
+      Value<int?> preservedOriginalByteSize,
+      Value<String?> preservedOriginalChecksum,
       Value<String> mimeType,
       Value<int> byteSize,
       Value<int?> pixelWidth,
@@ -16217,20 +18866,23 @@ final class $$AttachmentsTableReferences
     extends BaseReferences<_$AppDatabase, $AttachmentsTable, Attachment> {
   $$AttachmentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static $EvidenceRecordsTable _evidenceIdTable(_$AppDatabase db) =>
-      db.evidenceRecords.createAlias('attachments__evidence_id__evidence__id');
+  static MultiTypedResultKey<$AttachmentLinksTable, List<AttachmentLink>>
+  _attachmentLinksRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.attachmentLinks,
+    aliasName: 'attachments__id__attachment_links__attachment_id',
+  );
 
-  $$EvidenceRecordsTableProcessedTableManager get evidenceId {
-    final $_column = $_itemColumn<String>('evidence_id')!;
-
-    final manager = $$EvidenceRecordsTableTableManager(
+  $$AttachmentLinksTableProcessedTableManager get attachmentLinksRefs {
+    final manager = $$AttachmentLinksTableTableManager(
       $_db,
-      $_db.evidenceRecords,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_evidenceIdTable($_db));
-    if (item == null) return manager;
+      $_db.attachmentLinks,
+    ).filter((f) => f.attachmentId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _attachmentLinksRefsTable($_db),
+    );
     return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
+      manager.$state.copyWith(prefetchedData: cache),
     );
   }
 
@@ -16339,6 +18991,16 @@ class $$AttachmentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get preservedOriginalByteSize => $composableBuilder(
+    column: $table.preservedOriginalByteSize,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get preservedOriginalChecksum => $composableBuilder(
+    column: $table.preservedOriginalChecksum,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get mimeType => $composableBuilder(
     column: $table.mimeType,
     builder: (column) => ColumnFilters(column),
@@ -16374,27 +19036,29 @@ class $$AttachmentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  $$EvidenceRecordsTableFilterComposer get evidenceId {
-    final $$EvidenceRecordsTableFilterComposer composer = $composerBuilder(
+  Expression<bool> attachmentLinksRefs(
+    Expression<bool> Function($$AttachmentLinksTableFilterComposer f) f,
+  ) {
+    final $$AttachmentLinksTableFilterComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.evidenceId,
-      referencedTable: $db.evidenceRecords,
-      getReferencedColumn: (t) => t.id,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.attachmentLinks,
+      getReferencedColumn: (t) => t.attachmentId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$EvidenceRecordsTableFilterComposer(
+          }) => $$AttachmentLinksTableFilterComposer(
             $db: $db,
-            $table: $db.evidenceRecords,
+            $table: $db.attachmentLinks,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
                 $removeJoinBuilderFromRootComposer,
           ),
     );
-    return composer;
+    return f(composer);
   }
 
   Expression<bool> archiveReferencesRefs(
@@ -16508,6 +19172,16 @@ class $$AttachmentsTableOrderingComposer
         builder: (column) => ColumnOrderings(column),
       );
 
+  ColumnOrderings<int> get preservedOriginalByteSize => $composableBuilder(
+    column: $table.preservedOriginalByteSize,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get preservedOriginalChecksum => $composableBuilder(
+    column: $table.preservedOriginalChecksum,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get mimeType => $composableBuilder(
     column: $table.mimeType,
     builder: (column) => ColumnOrderings(column),
@@ -16542,29 +19216,6 @@ class $$AttachmentsTableOrderingComposer
     column: $table.importMode,
     builder: (column) => ColumnOrderings(column),
   );
-
-  $$EvidenceRecordsTableOrderingComposer get evidenceId {
-    final $$EvidenceRecordsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.evidenceId,
-      referencedTable: $db.evidenceRecords,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$EvidenceRecordsTableOrderingComposer(
-            $db: $db,
-            $table: $db.evidenceRecords,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$AttachmentsTableAnnotationComposer
@@ -16617,6 +19268,16 @@ class $$AttachmentsTableAnnotationComposer
         builder: (column) => column,
       );
 
+  GeneratedColumn<int> get preservedOriginalByteSize => $composableBuilder(
+    column: $table.preservedOriginalByteSize,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get preservedOriginalChecksum => $composableBuilder(
+    column: $table.preservedOriginalChecksum,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get mimeType =>
       $composableBuilder(column: $table.mimeType, builder: (column) => column);
 
@@ -16646,27 +19307,29 @@ class $$AttachmentsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  $$EvidenceRecordsTableAnnotationComposer get evidenceId {
-    final $$EvidenceRecordsTableAnnotationComposer composer = $composerBuilder(
+  Expression<T> attachmentLinksRefs<T extends Object>(
+    Expression<T> Function($$AttachmentLinksTableAnnotationComposer a) f,
+  ) {
+    final $$AttachmentLinksTableAnnotationComposer composer = $composerBuilder(
       composer: this,
-      getCurrentColumn: (t) => t.evidenceId,
-      referencedTable: $db.evidenceRecords,
-      getReferencedColumn: (t) => t.id,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.attachmentLinks,
+      getReferencedColumn: (t) => t.attachmentId,
       builder:
           (
             joinBuilder, {
             $addJoinBuilderToRootComposer,
             $removeJoinBuilderFromRootComposer,
-          }) => $$EvidenceRecordsTableAnnotationComposer(
+          }) => $$AttachmentLinksTableAnnotationComposer(
             $db: $db,
-            $table: $db.evidenceRecords,
+            $table: $db.attachmentLinks,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
                 $removeJoinBuilderFromRootComposer,
           ),
     );
-    return composer;
+    return f(composer);
   }
 
   Expression<T> archiveReferencesRefs<T extends Object>(
@@ -16736,7 +19399,7 @@ class $$AttachmentsTableTableManager
           (Attachment, $$AttachmentsTableReferences),
           Attachment,
           PrefetchHooks Function({
-            bool evidenceId,
+            bool attachmentLinksRefs,
             bool archiveReferencesRefs,
             bool fieldProvenanceRowsRefs,
           })
@@ -16760,12 +19423,13 @@ class $$AttachmentsTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
-                Value<String> evidenceId = const Value.absent(),
                 Value<String?> displayName = const Value.absent(),
                 Value<String?> relativePath = const Value.absent(),
                 Value<String?> thumbnailRelativePath = const Value.absent(),
                 Value<String?> preservedOriginalRelativePath =
                     const Value.absent(),
+                Value<int?> preservedOriginalByteSize = const Value.absent(),
+                Value<String?> preservedOriginalChecksum = const Value.absent(),
                 Value<String> mimeType = const Value.absent(),
                 Value<int> byteSize = const Value.absent(),
                 Value<int?> pixelWidth = const Value.absent(),
@@ -16781,11 +19445,12 @@ class $$AttachmentsTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
-                evidenceId: evidenceId,
                 displayName: displayName,
                 relativePath: relativePath,
                 thumbnailRelativePath: thumbnailRelativePath,
                 preservedOriginalRelativePath: preservedOriginalRelativePath,
+                preservedOriginalByteSize: preservedOriginalByteSize,
+                preservedOriginalChecksum: preservedOriginalChecksum,
                 mimeType: mimeType,
                 byteSize: byteSize,
                 pixelWidth: pixelWidth,
@@ -16803,12 +19468,13 @@ class $$AttachmentsTableTableManager
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<DateTime?> deletedAt = const Value.absent(),
-                required String evidenceId,
                 Value<String?> displayName = const Value.absent(),
                 Value<String?> relativePath = const Value.absent(),
                 Value<String?> thumbnailRelativePath = const Value.absent(),
                 Value<String?> preservedOriginalRelativePath =
                     const Value.absent(),
+                Value<int?> preservedOriginalByteSize = const Value.absent(),
+                Value<String?> preservedOriginalChecksum = const Value.absent(),
                 required String mimeType,
                 required int byteSize,
                 Value<int?> pixelWidth = const Value.absent(),
@@ -16824,11 +19490,12 @@ class $$AttachmentsTableTableManager
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
-                evidenceId: evidenceId,
                 displayName: displayName,
                 relativePath: relativePath,
                 thumbnailRelativePath: thumbnailRelativePath,
                 preservedOriginalRelativePath: preservedOriginalRelativePath,
+                preservedOriginalByteSize: preservedOriginalByteSize,
+                preservedOriginalChecksum: preservedOriginalChecksum,
                 mimeType: mimeType,
                 byteSize: byteSize,
                 pixelWidth: pixelWidth,
@@ -16848,52 +19515,41 @@ class $$AttachmentsTableTableManager
               .toList(),
           prefetchHooksCallback:
               ({
-                evidenceId = false,
+                attachmentLinksRefs = false,
                 archiveReferencesRefs = false,
                 fieldProvenanceRowsRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
+                    if (attachmentLinksRefs) db.attachmentLinks,
                     if (archiveReferencesRefs) db.archiveReferences,
                     if (fieldProvenanceRowsRefs) db.fieldProvenanceRows,
                   ],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (evidenceId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.evidenceId,
-                                    referencedTable:
-                                        $$AttachmentsTableReferences
-                                            ._evidenceIdTable(db),
-                                    referencedColumn:
-                                        $$AttachmentsTableReferences
-                                            ._evidenceIdTable(db)
-                                            .id,
-                                  )
-                                  as T;
-                        }
-
-                        return state;
-                      },
+                  addJoins: null,
                   getPrefetchedDataCallback: (items) async {
                     return [
+                      if (attachmentLinksRefs)
+                        await $_getPrefetchedData<
+                          Attachment,
+                          $AttachmentsTable,
+                          AttachmentLink
+                        >(
+                          currentTable: table,
+                          referencedTable: $$AttachmentsTableReferences
+                              ._attachmentLinksRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$AttachmentsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).attachmentLinksRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.attachmentId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (archiveReferencesRefs)
                         await $_getPrefetchedData<
                           Attachment,
@@ -16957,10 +19613,599 @@ typedef $$AttachmentsTableProcessedTableManager =
       (Attachment, $$AttachmentsTableReferences),
       Attachment,
       PrefetchHooks Function({
-        bool evidenceId,
+        bool attachmentLinksRefs,
         bool archiveReferencesRefs,
         bool fieldProvenanceRowsRefs,
       })
+    >;
+typedef $$AttachmentLinksTableCreateCompanionBuilder =
+    AttachmentLinksCompanion Function({
+      required String id,
+      required String attachmentId,
+      Value<String?> eventId,
+      Value<String?> evidenceId,
+      required String role,
+      Value<String?> caption,
+      required int sortOrder,
+      Value<DateTime?> capturedAt,
+      required DateTime importedAt,
+      Value<int> rowid,
+    });
+typedef $$AttachmentLinksTableUpdateCompanionBuilder =
+    AttachmentLinksCompanion Function({
+      Value<String> id,
+      Value<String> attachmentId,
+      Value<String?> eventId,
+      Value<String?> evidenceId,
+      Value<String> role,
+      Value<String?> caption,
+      Value<int> sortOrder,
+      Value<DateTime?> capturedAt,
+      Value<DateTime> importedAt,
+      Value<int> rowid,
+    });
+
+final class $$AttachmentLinksTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $AttachmentLinksTable, AttachmentLink> {
+  $$AttachmentLinksTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $AttachmentsTable _attachmentIdTable(_$AppDatabase db) => db
+      .attachments
+      .createAlias('attachment_links__attachment_id__attachments__id');
+
+  $$AttachmentsTableProcessedTableManager get attachmentId {
+    final $_column = $_itemColumn<String>('attachment_id')!;
+
+    final manager = $$AttachmentsTableTableManager(
+      $_db,
+      $_db.attachments,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_attachmentIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $EventsTable _eventIdTable(_$AppDatabase db) =>
+      db.events.createAlias('attachment_links__event_id__events__id');
+
+  $$EventsTableProcessedTableManager? get eventId {
+    final $_column = $_itemColumn<String>('event_id');
+    if ($_column == null) return null;
+    final manager = $$EventsTableTableManager(
+      $_db,
+      $_db.events,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_eventIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $EvidenceRecordsTable _evidenceIdTable(_$AppDatabase db) => db
+      .evidenceRecords
+      .createAlias('attachment_links__evidence_id__evidence__id');
+
+  $$EvidenceRecordsTableProcessedTableManager? get evidenceId {
+    final $_column = $_itemColumn<String>('evidence_id');
+    if ($_column == null) return null;
+    final manager = $$EvidenceRecordsTableTableManager(
+      $_db,
+      $_db.evidenceRecords,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_evidenceIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$AttachmentLinksTableFilterComposer
+    extends Composer<_$AppDatabase, $AttachmentLinksTable> {
+  $$AttachmentLinksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get caption => $composableBuilder(
+    column: $table.caption,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$AttachmentsTableFilterComposer get attachmentId {
+    final $$AttachmentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.attachmentId,
+      referencedTable: $db.attachments,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AttachmentsTableFilterComposer(
+            $db: $db,
+            $table: $db.attachments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EventsTableFilterComposer get eventId {
+    final $$EventsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.eventId,
+      referencedTable: $db.events,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EventsTableFilterComposer(
+            $db: $db,
+            $table: $db.events,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EvidenceRecordsTableFilterComposer get evidenceId {
+    final $$EvidenceRecordsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.evidenceId,
+      referencedTable: $db.evidenceRecords,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EvidenceRecordsTableFilterComposer(
+            $db: $db,
+            $table: $db.evidenceRecords,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AttachmentLinksTableOrderingComposer
+    extends Composer<_$AppDatabase, $AttachmentLinksTable> {
+  $$AttachmentLinksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get role => $composableBuilder(
+    column: $table.role,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get caption => $composableBuilder(
+    column: $table.caption,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$AttachmentsTableOrderingComposer get attachmentId {
+    final $$AttachmentsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.attachmentId,
+      referencedTable: $db.attachments,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AttachmentsTableOrderingComposer(
+            $db: $db,
+            $table: $db.attachments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EventsTableOrderingComposer get eventId {
+    final $$EventsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.eventId,
+      referencedTable: $db.events,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EventsTableOrderingComposer(
+            $db: $db,
+            $table: $db.events,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EvidenceRecordsTableOrderingComposer get evidenceId {
+    final $$EvidenceRecordsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.evidenceId,
+      referencedTable: $db.evidenceRecords,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EvidenceRecordsTableOrderingComposer(
+            $db: $db,
+            $table: $db.evidenceRecords,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AttachmentLinksTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AttachmentLinksTable> {
+  $$AttachmentLinksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get role =>
+      $composableBuilder(column: $table.role, builder: (column) => column);
+
+  GeneratedColumn<String> get caption =>
+      $composableBuilder(column: $table.caption, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get capturedAt => $composableBuilder(
+    column: $table.capturedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get importedAt => $composableBuilder(
+    column: $table.importedAt,
+    builder: (column) => column,
+  );
+
+  $$AttachmentsTableAnnotationComposer get attachmentId {
+    final $$AttachmentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.attachmentId,
+      referencedTable: $db.attachments,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AttachmentsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.attachments,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EventsTableAnnotationComposer get eventId {
+    final $$EventsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.eventId,
+      referencedTable: $db.events,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EventsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.events,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EvidenceRecordsTableAnnotationComposer get evidenceId {
+    final $$EvidenceRecordsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.evidenceId,
+      referencedTable: $db.evidenceRecords,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EvidenceRecordsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.evidenceRecords,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AttachmentLinksTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AttachmentLinksTable,
+          AttachmentLink,
+          $$AttachmentLinksTableFilterComposer,
+          $$AttachmentLinksTableOrderingComposer,
+          $$AttachmentLinksTableAnnotationComposer,
+          $$AttachmentLinksTableCreateCompanionBuilder,
+          $$AttachmentLinksTableUpdateCompanionBuilder,
+          (AttachmentLink, $$AttachmentLinksTableReferences),
+          AttachmentLink,
+          PrefetchHooks Function({
+            bool attachmentId,
+            bool eventId,
+            bool evidenceId,
+          })
+        > {
+  $$AttachmentLinksTableTableManager(
+    _$AppDatabase db,
+    $AttachmentLinksTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AttachmentLinksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AttachmentLinksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AttachmentLinksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> attachmentId = const Value.absent(),
+                Value<String?> eventId = const Value.absent(),
+                Value<String?> evidenceId = const Value.absent(),
+                Value<String> role = const Value.absent(),
+                Value<String?> caption = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<DateTime?> capturedAt = const Value.absent(),
+                Value<DateTime> importedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AttachmentLinksCompanion(
+                id: id,
+                attachmentId: attachmentId,
+                eventId: eventId,
+                evidenceId: evidenceId,
+                role: role,
+                caption: caption,
+                sortOrder: sortOrder,
+                capturedAt: capturedAt,
+                importedAt: importedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String attachmentId,
+                Value<String?> eventId = const Value.absent(),
+                Value<String?> evidenceId = const Value.absent(),
+                required String role,
+                Value<String?> caption = const Value.absent(),
+                required int sortOrder,
+                Value<DateTime?> capturedAt = const Value.absent(),
+                required DateTime importedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => AttachmentLinksCompanion.insert(
+                id: id,
+                attachmentId: attachmentId,
+                eventId: eventId,
+                evidenceId: evidenceId,
+                role: role,
+                caption: caption,
+                sortOrder: sortOrder,
+                capturedAt: capturedAt,
+                importedAt: importedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$AttachmentLinksTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({attachmentId = false, eventId = false, evidenceId = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (attachmentId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.attachmentId,
+                                    referencedTable:
+                                        $$AttachmentLinksTableReferences
+                                            ._attachmentIdTable(db),
+                                    referencedColumn:
+                                        $$AttachmentLinksTableReferences
+                                            ._attachmentIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (eventId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.eventId,
+                                    referencedTable:
+                                        $$AttachmentLinksTableReferences
+                                            ._eventIdTable(db),
+                                    referencedColumn:
+                                        $$AttachmentLinksTableReferences
+                                            ._eventIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+                        if (evidenceId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.evidenceId,
+                                    referencedTable:
+                                        $$AttachmentLinksTableReferences
+                                            ._evidenceIdTable(db),
+                                    referencedColumn:
+                                        $$AttachmentLinksTableReferences
+                                            ._evidenceIdTable(db)
+                                            .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$AttachmentLinksTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AttachmentLinksTable,
+      AttachmentLink,
+      $$AttachmentLinksTableFilterComposer,
+      $$AttachmentLinksTableOrderingComposer,
+      $$AttachmentLinksTableAnnotationComposer,
+      $$AttachmentLinksTableCreateCompanionBuilder,
+      $$AttachmentLinksTableUpdateCompanionBuilder,
+      (AttachmentLink, $$AttachmentLinksTableReferences),
+      AttachmentLink,
+      PrefetchHooks Function({bool attachmentId, bool eventId, bool evidenceId})
     >;
 typedef $$ArchiveReferencesTableCreateCompanionBuilder =
     ArchiveReferencesCompanion Function({
@@ -16973,6 +20218,7 @@ typedef $$ArchiveReferencesTableCreateCompanionBuilder =
       required int archiveByteSize,
       required String archiveSha256,
       required String encryptionAlgorithm,
+      Value<String> sourceKind,
       required int formatVersion,
       required DateTime archivedAt,
       required DateTime verifiedAt,
@@ -16989,6 +20235,7 @@ typedef $$ArchiveReferencesTableUpdateCompanionBuilder =
       Value<int> archiveByteSize,
       Value<String> archiveSha256,
       Value<String> encryptionAlgorithm,
+      Value<String> sourceKind,
       Value<int> formatVersion,
       Value<DateTime> archivedAt,
       Value<DateTime> verifiedAt,
@@ -17073,6 +20320,11 @@ class $$ArchiveReferencesTableFilterComposer
 
   ColumnFilters<String> get encryptionAlgorithm => $composableBuilder(
     column: $table.encryptionAlgorithm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sourceKind => $composableBuilder(
+    column: $table.sourceKind,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -17164,6 +20416,11 @@ class $$ArchiveReferencesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get sourceKind => $composableBuilder(
+    column: $table.sourceKind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get formatVersion => $composableBuilder(
     column: $table.formatVersion,
     builder: (column) => ColumnOrderings(column),
@@ -17250,6 +20507,11 @@ class $$ArchiveReferencesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get sourceKind => $composableBuilder(
+    column: $table.sourceKind,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<int> get formatVersion => $composableBuilder(
     column: $table.formatVersion,
     builder: (column) => column,
@@ -17331,6 +20593,7 @@ class $$ArchiveReferencesTableTableManager
                 Value<int> archiveByteSize = const Value.absent(),
                 Value<String> archiveSha256 = const Value.absent(),
                 Value<String> encryptionAlgorithm = const Value.absent(),
+                Value<String> sourceKind = const Value.absent(),
                 Value<int> formatVersion = const Value.absent(),
                 Value<DateTime> archivedAt = const Value.absent(),
                 Value<DateTime> verifiedAt = const Value.absent(),
@@ -17345,6 +20608,7 @@ class $$ArchiveReferencesTableTableManager
                 archiveByteSize: archiveByteSize,
                 archiveSha256: archiveSha256,
                 encryptionAlgorithm: encryptionAlgorithm,
+                sourceKind: sourceKind,
                 formatVersion: formatVersion,
                 archivedAt: archivedAt,
                 verifiedAt: verifiedAt,
@@ -17361,6 +20625,7 @@ class $$ArchiveReferencesTableTableManager
                 required int archiveByteSize,
                 required String archiveSha256,
                 required String encryptionAlgorithm,
+                Value<String> sourceKind = const Value.absent(),
                 required int formatVersion,
                 required DateTime archivedAt,
                 required DateTime verifiedAt,
@@ -17375,6 +20640,7 @@ class $$ArchiveReferencesTableTableManager
                 archiveByteSize: archiveByteSize,
                 archiveSha256: archiveSha256,
                 encryptionAlgorithm: encryptionAlgorithm,
+                sourceKind: sourceKind,
                 formatVersion: formatVersion,
                 archivedAt: archivedAt,
                 verifiedAt: verifiedAt,
@@ -24348,6 +27614,917 @@ typedef $$InsightDismissalsTableProcessedTableManager =
       InsightDismissal,
       PrefetchHooks Function()
     >;
+typedef $$RemindersTableCreateCompanionBuilder =
+    RemindersCompanion Function({
+      required String id,
+      Value<String?> linkedEventId,
+      Value<String?> linkedEntityId,
+      Value<String?> sourceEvidenceId,
+      required String title,
+      Value<String?> note,
+      required int targetYear,
+      required int targetMonth,
+      required int targetDay,
+      required int reminderYear,
+      required int reminderMonth,
+      required int reminderDay,
+      required int reminderHour,
+      required int reminderMinute,
+      required String timeZoneId,
+      required DateTime scheduledAtUtc,
+      required String reminderType,
+      required String leadTime,
+      required String status,
+      required int notificationId,
+      required String privacyClassification,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<DateTime?> completedAt,
+      Value<DateTime?> dismissedAt,
+      Value<int> rowid,
+    });
+typedef $$RemindersTableUpdateCompanionBuilder =
+    RemindersCompanion Function({
+      Value<String> id,
+      Value<String?> linkedEventId,
+      Value<String?> linkedEntityId,
+      Value<String?> sourceEvidenceId,
+      Value<String> title,
+      Value<String?> note,
+      Value<int> targetYear,
+      Value<int> targetMonth,
+      Value<int> targetDay,
+      Value<int> reminderYear,
+      Value<int> reminderMonth,
+      Value<int> reminderDay,
+      Value<int> reminderHour,
+      Value<int> reminderMinute,
+      Value<String> timeZoneId,
+      Value<DateTime> scheduledAtUtc,
+      Value<String> reminderType,
+      Value<String> leadTime,
+      Value<String> status,
+      Value<int> notificationId,
+      Value<String> privacyClassification,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> completedAt,
+      Value<DateTime?> dismissedAt,
+      Value<int> rowid,
+    });
+
+final class $$RemindersTableReferences
+    extends BaseReferences<_$AppDatabase, $RemindersTable, Reminder> {
+  $$RemindersTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $EventsTable _linkedEventIdTable(_$AppDatabase db) =>
+      db.events.createAlias('reminders__linked_event_id__events__id');
+
+  $$EventsTableProcessedTableManager? get linkedEventId {
+    final $_column = $_itemColumn<String>('linked_event_id');
+    if ($_column == null) return null;
+    final manager = $$EventsTableTableManager(
+      $_db,
+      $_db.events,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_linkedEventIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $EntitiesTable _linkedEntityIdTable(_$AppDatabase db) =>
+      db.entities.createAlias('reminders__linked_entity_id__entities__id');
+
+  $$EntitiesTableProcessedTableManager? get linkedEntityId {
+    final $_column = $_itemColumn<String>('linked_entity_id');
+    if ($_column == null) return null;
+    final manager = $$EntitiesTableTableManager(
+      $_db,
+      $_db.entities,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_linkedEntityIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $EvidenceRecordsTable _sourceEvidenceIdTable(_$AppDatabase db) => db
+      .evidenceRecords
+      .createAlias('reminders__source_evidence_id__evidence__id');
+
+  $$EvidenceRecordsTableProcessedTableManager? get sourceEvidenceId {
+    final $_column = $_itemColumn<String>('source_evidence_id');
+    if ($_column == null) return null;
+    final manager = $$EvidenceRecordsTableTableManager(
+      $_db,
+      $_db.evidenceRecords,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_sourceEvidenceIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$RemindersTableFilterComposer
+    extends Composer<_$AppDatabase, $RemindersTable> {
+  $$RemindersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get targetYear => $composableBuilder(
+    column: $table.targetYear,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get targetMonth => $composableBuilder(
+    column: $table.targetMonth,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get targetDay => $composableBuilder(
+    column: $table.targetDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderYear => $composableBuilder(
+    column: $table.reminderYear,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderMonth => $composableBuilder(
+    column: $table.reminderMonth,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderDay => $composableBuilder(
+    column: $table.reminderDay,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderHour => $composableBuilder(
+    column: $table.reminderHour,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get reminderMinute => $composableBuilder(
+    column: $table.reminderMinute,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get timeZoneId => $composableBuilder(
+    column: $table.timeZoneId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get scheduledAtUtc => $composableBuilder(
+    column: $table.scheduledAtUtc,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reminderType => $composableBuilder(
+    column: $table.reminderType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get leadTime => $composableBuilder(
+    column: $table.leadTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get notificationId => $composableBuilder(
+    column: $table.notificationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get privacyClassification => $composableBuilder(
+    column: $table.privacyClassification,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get dismissedAt => $composableBuilder(
+    column: $table.dismissedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$EventsTableFilterComposer get linkedEventId {
+    final $$EventsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.linkedEventId,
+      referencedTable: $db.events,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EventsTableFilterComposer(
+            $db: $db,
+            $table: $db.events,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EntitiesTableFilterComposer get linkedEntityId {
+    final $$EntitiesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.linkedEntityId,
+      referencedTable: $db.entities,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EntitiesTableFilterComposer(
+            $db: $db,
+            $table: $db.entities,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EvidenceRecordsTableFilterComposer get sourceEvidenceId {
+    final $$EvidenceRecordsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceEvidenceId,
+      referencedTable: $db.evidenceRecords,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EvidenceRecordsTableFilterComposer(
+            $db: $db,
+            $table: $db.evidenceRecords,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RemindersTableOrderingComposer
+    extends Composer<_$AppDatabase, $RemindersTable> {
+  $$RemindersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get targetYear => $composableBuilder(
+    column: $table.targetYear,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get targetMonth => $composableBuilder(
+    column: $table.targetMonth,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get targetDay => $composableBuilder(
+    column: $table.targetDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reminderYear => $composableBuilder(
+    column: $table.reminderYear,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reminderMonth => $composableBuilder(
+    column: $table.reminderMonth,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reminderDay => $composableBuilder(
+    column: $table.reminderDay,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reminderHour => $composableBuilder(
+    column: $table.reminderHour,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get reminderMinute => $composableBuilder(
+    column: $table.reminderMinute,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get timeZoneId => $composableBuilder(
+    column: $table.timeZoneId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get scheduledAtUtc => $composableBuilder(
+    column: $table.scheduledAtUtc,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reminderType => $composableBuilder(
+    column: $table.reminderType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get leadTime => $composableBuilder(
+    column: $table.leadTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get notificationId => $composableBuilder(
+    column: $table.notificationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get privacyClassification => $composableBuilder(
+    column: $table.privacyClassification,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get dismissedAt => $composableBuilder(
+    column: $table.dismissedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$EventsTableOrderingComposer get linkedEventId {
+    final $$EventsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.linkedEventId,
+      referencedTable: $db.events,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EventsTableOrderingComposer(
+            $db: $db,
+            $table: $db.events,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EntitiesTableOrderingComposer get linkedEntityId {
+    final $$EntitiesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.linkedEntityId,
+      referencedTable: $db.entities,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EntitiesTableOrderingComposer(
+            $db: $db,
+            $table: $db.entities,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EvidenceRecordsTableOrderingComposer get sourceEvidenceId {
+    final $$EvidenceRecordsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceEvidenceId,
+      referencedTable: $db.evidenceRecords,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EvidenceRecordsTableOrderingComposer(
+            $db: $db,
+            $table: $db.evidenceRecords,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RemindersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RemindersTable> {
+  $$RemindersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<int> get targetYear => $composableBuilder(
+    column: $table.targetYear,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get targetMonth => $composableBuilder(
+    column: $table.targetMonth,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get targetDay =>
+      $composableBuilder(column: $table.targetDay, builder: (column) => column);
+
+  GeneratedColumn<int> get reminderYear => $composableBuilder(
+    column: $table.reminderYear,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reminderMonth => $composableBuilder(
+    column: $table.reminderMonth,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reminderDay => $composableBuilder(
+    column: $table.reminderDay,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reminderHour => $composableBuilder(
+    column: $table.reminderHour,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get reminderMinute => $composableBuilder(
+    column: $table.reminderMinute,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get timeZoneId => $composableBuilder(
+    column: $table.timeZoneId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get scheduledAtUtc => $composableBuilder(
+    column: $table.scheduledAtUtc,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get reminderType => $composableBuilder(
+    column: $table.reminderType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get leadTime =>
+      $composableBuilder(column: $table.leadTime, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get notificationId => $composableBuilder(
+    column: $table.notificationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get privacyClassification => $composableBuilder(
+    column: $table.privacyClassification,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get dismissedAt => $composableBuilder(
+    column: $table.dismissedAt,
+    builder: (column) => column,
+  );
+
+  $$EventsTableAnnotationComposer get linkedEventId {
+    final $$EventsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.linkedEventId,
+      referencedTable: $db.events,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EventsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.events,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EntitiesTableAnnotationComposer get linkedEntityId {
+    final $$EntitiesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.linkedEntityId,
+      referencedTable: $db.entities,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EntitiesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.entities,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$EvidenceRecordsTableAnnotationComposer get sourceEvidenceId {
+    final $$EvidenceRecordsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.sourceEvidenceId,
+      referencedTable: $db.evidenceRecords,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$EvidenceRecordsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.evidenceRecords,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RemindersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RemindersTable,
+          Reminder,
+          $$RemindersTableFilterComposer,
+          $$RemindersTableOrderingComposer,
+          $$RemindersTableAnnotationComposer,
+          $$RemindersTableCreateCompanionBuilder,
+          $$RemindersTableUpdateCompanionBuilder,
+          (Reminder, $$RemindersTableReferences),
+          Reminder,
+          PrefetchHooks Function({
+            bool linkedEventId,
+            bool linkedEntityId,
+            bool sourceEvidenceId,
+          })
+        > {
+  $$RemindersTableTableManager(_$AppDatabase db, $RemindersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RemindersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RemindersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RemindersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String?> linkedEventId = const Value.absent(),
+                Value<String?> linkedEntityId = const Value.absent(),
+                Value<String?> sourceEvidenceId = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<int> targetYear = const Value.absent(),
+                Value<int> targetMonth = const Value.absent(),
+                Value<int> targetDay = const Value.absent(),
+                Value<int> reminderYear = const Value.absent(),
+                Value<int> reminderMonth = const Value.absent(),
+                Value<int> reminderDay = const Value.absent(),
+                Value<int> reminderHour = const Value.absent(),
+                Value<int> reminderMinute = const Value.absent(),
+                Value<String> timeZoneId = const Value.absent(),
+                Value<DateTime> scheduledAtUtc = const Value.absent(),
+                Value<String> reminderType = const Value.absent(),
+                Value<String> leadTime = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<int> notificationId = const Value.absent(),
+                Value<String> privacyClassification = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> completedAt = const Value.absent(),
+                Value<DateTime?> dismissedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RemindersCompanion(
+                id: id,
+                linkedEventId: linkedEventId,
+                linkedEntityId: linkedEntityId,
+                sourceEvidenceId: sourceEvidenceId,
+                title: title,
+                note: note,
+                targetYear: targetYear,
+                targetMonth: targetMonth,
+                targetDay: targetDay,
+                reminderYear: reminderYear,
+                reminderMonth: reminderMonth,
+                reminderDay: reminderDay,
+                reminderHour: reminderHour,
+                reminderMinute: reminderMinute,
+                timeZoneId: timeZoneId,
+                scheduledAtUtc: scheduledAtUtc,
+                reminderType: reminderType,
+                leadTime: leadTime,
+                status: status,
+                notificationId: notificationId,
+                privacyClassification: privacyClassification,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                completedAt: completedAt,
+                dismissedAt: dismissedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<String?> linkedEventId = const Value.absent(),
+                Value<String?> linkedEntityId = const Value.absent(),
+                Value<String?> sourceEvidenceId = const Value.absent(),
+                required String title,
+                Value<String?> note = const Value.absent(),
+                required int targetYear,
+                required int targetMonth,
+                required int targetDay,
+                required int reminderYear,
+                required int reminderMonth,
+                required int reminderDay,
+                required int reminderHour,
+                required int reminderMinute,
+                required String timeZoneId,
+                required DateTime scheduledAtUtc,
+                required String reminderType,
+                required String leadTime,
+                required String status,
+                required int notificationId,
+                required String privacyClassification,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> completedAt = const Value.absent(),
+                Value<DateTime?> dismissedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RemindersCompanion.insert(
+                id: id,
+                linkedEventId: linkedEventId,
+                linkedEntityId: linkedEntityId,
+                sourceEvidenceId: sourceEvidenceId,
+                title: title,
+                note: note,
+                targetYear: targetYear,
+                targetMonth: targetMonth,
+                targetDay: targetDay,
+                reminderYear: reminderYear,
+                reminderMonth: reminderMonth,
+                reminderDay: reminderDay,
+                reminderHour: reminderHour,
+                reminderMinute: reminderMinute,
+                timeZoneId: timeZoneId,
+                scheduledAtUtc: scheduledAtUtc,
+                reminderType: reminderType,
+                leadTime: leadTime,
+                status: status,
+                notificationId: notificationId,
+                privacyClassification: privacyClassification,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                completedAt: completedAt,
+                dismissedAt: dismissedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$RemindersTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({
+                linkedEventId = false,
+                linkedEntityId = false,
+                sourceEvidenceId = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (linkedEventId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.linkedEventId,
+                                    referencedTable: $$RemindersTableReferences
+                                        ._linkedEventIdTable(db),
+                                    referencedColumn: $$RemindersTableReferences
+                                        ._linkedEventIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+                        if (linkedEntityId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.linkedEntityId,
+                                    referencedTable: $$RemindersTableReferences
+                                        ._linkedEntityIdTable(db),
+                                    referencedColumn: $$RemindersTableReferences
+                                        ._linkedEntityIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+                        if (sourceEvidenceId) {
+                          state =
+                              state.withJoin(
+                                    currentTable: table,
+                                    currentColumn: table.sourceEvidenceId,
+                                    referencedTable: $$RemindersTableReferences
+                                        ._sourceEvidenceIdTable(db),
+                                    referencedColumn: $$RemindersTableReferences
+                                        ._sourceEvidenceIdTable(db)
+                                        .id,
+                                  )
+                                  as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$RemindersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RemindersTable,
+      Reminder,
+      $$RemindersTableFilterComposer,
+      $$RemindersTableOrderingComposer,
+      $$RemindersTableAnnotationComposer,
+      $$RemindersTableCreateCompanionBuilder,
+      $$RemindersTableUpdateCompanionBuilder,
+      (Reminder, $$RemindersTableReferences),
+      Reminder,
+      PrefetchHooks Function({
+        bool linkedEventId,
+        bool linkedEntityId,
+        bool sourceEvidenceId,
+      })
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -24362,6 +28539,8 @@ class $AppDatabaseManager {
       $$RelationshipsTableTableManager(_db, _db.relationships);
   $$AttachmentsTableTableManager get attachments =>
       $$AttachmentsTableTableManager(_db, _db.attachments);
+  $$AttachmentLinksTableTableManager get attachmentLinks =>
+      $$AttachmentLinksTableTableManager(_db, _db.attachmentLinks);
   $$ArchiveReferencesTableTableManager get archiveReferences =>
       $$ArchiveReferencesTableTableManager(_db, _db.archiveReferences);
   $$MemoryCandidatesTableTableManager get memoryCandidates =>
@@ -24397,4 +28576,6 @@ class $AppDatabaseManager {
       $$EvidenceCategoriesTableTableManager(_db, _db.evidenceCategories);
   $$InsightDismissalsTableTableManager get insightDismissals =>
       $$InsightDismissalsTableTableManager(_db, _db.insightDismissals);
+  $$RemindersTableTableManager get reminders =>
+      $$RemindersTableTableManager(_db, _db.reminders);
 }

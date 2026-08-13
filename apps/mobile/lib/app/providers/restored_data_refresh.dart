@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:life_timeline/features/insights/application/insights_providers.dart';
 import 'package:life_timeline/features/private_intelligence/application/intelligence_providers.dart';
+import 'package:life_timeline/features/reminders/application/reminder_providers.dart';
 import 'package:life_timeline/features/timeline/application/timeline_providers.dart';
 
 final restoredDataRefreshCoordinatorProvider =
@@ -28,8 +29,11 @@ final class RestoredDataRefreshCoordinator {
       ..invalidate(memorySearchProvider)
       ..invalidate(pendingCandidatesProvider)
       ..invalidate(candidateProvider)
+      ..invalidate(remindersProvider)
+      ..invalidate(eventRemindersProvider)
       ..invalidate(aiCaptureUsageProvider);
     _ref.invalidate(lifeInsightsProvider);
     _ref.invalidate(exploreOverviewProvider);
+    _ref.read(reminderBootstrapProvider.notifier).reconcileUnawaited();
   }
 }

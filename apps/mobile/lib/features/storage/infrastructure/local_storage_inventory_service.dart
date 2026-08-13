@@ -55,6 +55,7 @@ final class FileSystemStorageInventoryService
       await _measureAttachmentPath(
         attachmentRoot,
         attachment,
+        stored.roles,
         attachment.relativePath,
         false,
         measurements,
@@ -65,6 +66,7 @@ final class FileSystemStorageInventoryService
       await _measureAttachmentPath(
         attachmentRoot,
         attachment,
+        stored.roles,
         attachment.preservedOriginalRelativePath,
         true,
         measurements,
@@ -154,6 +156,7 @@ final class FileSystemStorageInventoryService
   Future<void> _measureAttachmentPath(
     String root,
     Attachment attachment,
+    Set<AttachmentRole> roles,
     String? relativePath,
     bool preservedOriginal,
     List<ManagedFileMeasurement> measurements,
@@ -179,7 +182,7 @@ final class FileSystemStorageInventoryService
     );
     if (size != null) {
       uniqueSizes[resolved] = size;
-      uniqueKinds[resolved] = _kindFor(attachment.mimeType);
+      uniqueKinds[resolved] = _kindFor(attachment.mimeType, roles);
     }
   }
 
@@ -288,9 +291,18 @@ final class FileSystemStorageInventoryService
     return base64UrlEncode((await sink.hash()).bytes);
   }
 
-  _ManagedKind _kindFor(String mimeType) {
+  _ManagedKind _kindFor(String mimeType, Set<AttachmentRole> roles) {
     final normalized = mimeType.toLowerCase();
-    if (normalized.startsWith('image/')) return _ManagedKind.photo;
+    if (normalized.startsWith('image/')) {
+      if (roles.contains(AttachmentRole.heroMedia) ||
+          roles.contains(AttachmentRole.memoryMedia)) {
+        return _ManagedKind.photo;
+      }
+      if (roles.contains(AttachmentRole.evidence)) {
+        return _ManagedKind.document;
+      }
+      return _ManagedKind.photo;
+    }
     if (normalized == 'application/pdf' ||
         normalized.startsWith('text/') ||
         normalized.contains('document')) {

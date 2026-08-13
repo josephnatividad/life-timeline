@@ -6,11 +6,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:life_timeline/features/backup/domain/backup_models.dart';
 import 'package:life_timeline/features/backup/domain/backup_ports.dart';
 import 'package:life_timeline/features/backup/infrastructure/local_backup_service.dart';
+import 'package:life_timeline/features/media/infrastructure/drift_memory_media_repository.dart';
 import 'package:life_timeline/shared/crypto/aes_gcm_file_encryption_service.dart';
 import 'package:life_timeline/shared/crypto/crypto_models.dart';
 import 'package:life_timeline/shared/crypto/cryptography_password_key_deriver.dart';
 import 'package:life_timeline/shared/database/app_database.dart'
-    hide Attachment, Category, Event, MemoryCandidate;
+    hide Attachment, AttachmentLink, Category, Event, MemoryCandidate;
 import 'package:life_timeline/shared/database/backup/drift_backup_data_source.dart';
 import 'package:life_timeline/shared/database/repositories/drift_memory_candidate_repository.dart';
 import 'package:life_timeline/shared/database/repositories/drift_timeline_repository.dart';
@@ -83,9 +84,9 @@ void main() {
       onProgress: (_) {},
     );
     expect(prepared.manifest.formatVersion, 1);
-    expect(prepared.manifest.databaseSchemaVersion, 6);
+    expect(prepared.manifest.databaseSchemaVersion, 8);
     expect(prepared.manifest.appVersion, '0.1.0+test');
-    expect(prepared.manifest.attachmentCount, 1);
+    expect(prepared.manifest.attachmentCount, 2);
 
     await targetService.commit(
       prepared,
@@ -143,6 +144,30 @@ void main() {
       ),
     );
     expect(restoredProvenance.single.fieldName, 'temporalValue');
+    final restoredMedia = await DriftMemoryMediaRepository(
+      targetDatabase,
+    ).forEvent('event-1');
+    expect(restoredMedia, hasLength(1));
+    expect(restoredMedia.single.isHero, isTrue);
+    expect(restoredMedia.single.link.caption, 'Graduation day');
+    expect(
+      await File(
+        p.join(
+          targetAttachments.path,
+          restoredMedia.single.attachment.relativePath,
+        ),
+      ).readAsString(),
+      'graduation display',
+    );
+    expect(
+      await File(
+        p.join(
+          targetAttachments.path,
+          restoredMedia.single.attachment.preservedOriginalRelativePath,
+        ),
+      ).readAsString(),
+      'graduation original',
+    );
   });
 
   test('wrong password leaves an existing timeline unchanged', () async {
@@ -417,7 +442,6 @@ Future<void> _seedTimeline(
     attachments: [
       Attachment(
         metadata: metadata('attachment-local'),
-        evidenceId: 'evidence-1',
         storageState: AttachmentStorageState.local,
         importMode: AttachmentImportMode.preserveOriginal,
         mimeType: 'text/plain',
@@ -427,7 +451,6 @@ Future<void> _seedTimeline(
       ),
       Attachment(
         metadata: metadata('attachment-referenced'),
-        evidenceId: 'evidence-1',
         storageState: AttachmentStorageState.referenced,
         importMode: AttachmentImportMode.referenceOriginal,
         mimeType: 'application/pdf',
@@ -436,7 +459,6 @@ Future<void> _seedTimeline(
       ),
       Attachment(
         metadata: metadata('attachment-archived'),
-        evidenceId: 'evidence-1',
         storageState: AttachmentStorageState.archived,
         importMode: AttachmentImportMode.preserveOriginal,
         mimeType: 'image/jpeg',
@@ -444,6 +466,41 @@ Future<void> _seedTimeline(
         thumbnailRelativePath: archivedThumbnailPath,
       ),
     ],
+  );
+  final mediaDisplayPath = p.join('media', 'display', 'graduation.jpg');
+  final mediaDisplay = File(p.join(attachmentRoot.path, mediaDisplayPath));
+  await mediaDisplay.parent.create(recursive: true);
+  await mediaDisplay.writeAsString('graduation display', flush: true);
+  final mediaOriginalPath = p.join('media', 'originals', 'graduation.jpg');
+  final mediaOriginal = File(p.join(attachmentRoot.path, mediaOriginalPath));
+  await mediaOriginal.parent.create(recursive: true);
+  await mediaOriginal.writeAsString('graduation original', flush: true);
+  final mediaThumbnailPath = p.join('media', 'thumbnails', 'graduation.jpg');
+  final mediaThumbnail = File(p.join(attachmentRoot.path, mediaThumbnailPath));
+  await mediaThumbnail.parent.create(recursive: true);
+  await mediaThumbnail.writeAsString('graduation thumbnail', flush: true);
+  final mediaAttachment = Attachment(
+    metadata: metadata('attachment-memory-photo'),
+    storageState: AttachmentStorageState.local,
+    importMode: AttachmentImportMode.preserveOriginal,
+    mimeType: 'image/jpeg',
+    byteSize: await mediaDisplay.length(),
+    relativePath: mediaDisplayPath,
+    thumbnailRelativePath: mediaThumbnailPath,
+    preservedOriginalRelativePath: mediaOriginalPath,
+    preservedOriginalByteSize: await mediaOriginal.length(),
+  );
+  await DriftMemoryMediaRepository(database).add(
+    attachment: mediaAttachment,
+    link: AttachmentLink(
+      id: 'media-link-graduation',
+      attachmentId: mediaAttachment.metadata.id,
+      eventId: 'event-1',
+      role: AttachmentRole.heroMedia,
+      caption: 'Graduation day',
+      sortOrder: 0,
+      importedAt: at,
+    ),
   );
   await database
       .into(database.archiveReferences)

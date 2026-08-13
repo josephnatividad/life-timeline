@@ -33,7 +33,16 @@ abstract final class AppIcons {
   static const success = HugeIcons.strokeRoundedCheckmarkCircle02;
   static const next = HugeIcons.strokeRoundedArrowRight01;
   static const time = HugeIcons.strokeRoundedClock01;
+  static const reminder = time;
   static const image = HugeIcons.strokeRoundedImage01;
+  // Media aliases keep feature code independent from Hugeicons. These may be
+  // remapped when the custom signature icon review is approved.
+  static const camera = HugeIcons.strokeRoundedImage01;
+  static const gallery = HugeIcons.strokeRoundedImage01;
+  static const hero = HugeIcons.strokeRoundedCheckmarkCircle02;
+  static const reorder = HugeIcons.strokeRoundedMoreHorizontal;
+  static const remove = HugeIcons.strokeRoundedCancel01;
+  static const retrieveMedia = HugeIcons.strokeRoundedArchiveRestore;
   static const lock = HugeIcons.strokeRoundedLock;
   static const share = HugeIcons.strokeRoundedShare08;
   static const preview = HugeIcons.strokeRoundedView;

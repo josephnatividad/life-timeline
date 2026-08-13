@@ -3,6 +3,7 @@ import 'package:life_timeline/shared/database/app_database.dart' as db;
 import 'package:life_timeline/shared/database/mappers/candidate_provenance_mapper.dart';
 import 'package:life_timeline/shared/database/mappers/persistence_value_codec.dart';
 import 'package:life_timeline/shared/database/mappers/timeline_mapper.dart';
+import 'package:life_timeline/shared/database/schema_migrations.dart';
 import 'package:life_timeline/shared/domain/model/field_provenance.dart';
 import 'package:life_timeline/shared/domain/model/timeline_models.dart';
 import 'package:life_timeline/shared/domain/repositories/timeline_repository.dart';
@@ -161,16 +162,25 @@ final class DriftTimelineRepository implements TimelineRepository {
     await _database
         .into(_database.evidenceRecords)
         .insertOnConflictUpdate(TimelineMapper.evidenceToCompanion(evidence));
-    for (final attachment in attachments) {
-      if (attachment.evidenceId != evidence.metadata.id) {
-        throw ArgumentError(
-          'Every attachment must belong to the saved evidence record.',
-        );
-      }
+    for (final (index, attachment) in attachments.indexed) {
       await _database
           .into(_database.attachments)
           .insertOnConflictUpdate(
             TimelineMapper.attachmentToCompanion(attachment),
+          );
+      await _database
+          .into(_database.attachmentLinks)
+          .insertOnConflictUpdate(
+            TimelineMapper.attachmentLinkToCompanion(
+              AttachmentLink(
+                id: 'evidence-link:${evidence.metadata.id}:${attachment.metadata.id}',
+                attachmentId: attachment.metadata.id,
+                evidenceId: evidence.metadata.id,
+                role: AttachmentRole.evidence,
+                sortOrder: index,
+                importedAt: attachment.metadata.createdAt,
+              ),
+            ),
           );
     }
   });
@@ -248,14 +258,28 @@ final class DriftTimelineRepository implements TimelineRepository {
 
   @override
   Future<List<Attachment>> attachmentsForEvidence(String evidenceId) async {
-    final query = _database.select(_database.attachments)
-      ..where(
-        (row) =>
-            row.evidenceId.equals(evidenceId) &
-            row.lifecycle.isNotValue('soft_deleted'),
-      )
-      ..orderBy([(row) => OrderingTerm.asc(row.createdAt)]);
-    return (await query.get()).map(TimelineMapper.attachmentFromRow).toList();
+    final query =
+        _database.select(_database.attachments).join([
+            innerJoin(
+              _database.attachmentLinks,
+              _database.attachmentLinks.attachmentId.equalsExp(
+                _database.attachments.id,
+              ),
+            ),
+          ])
+          ..where(
+            _database.attachmentLinks.evidenceId.equals(evidenceId) &
+                _database.attachmentLinks.role.equals('evidence') &
+                _database.attachments.lifecycle.isNotValue('soft_deleted'),
+          )
+          ..orderBy([
+            OrderingTerm.asc(_database.attachmentLinks.sortOrder),
+            OrderingTerm.asc(_database.attachmentLinks.importedAt),
+          ]);
+    return (await query.get())
+        .map((row) => row.readTable(_database.attachments))
+        .map(TimelineMapper.attachmentFromRow)
+        .toList();
   }
 
   @override
@@ -368,6 +392,16 @@ final class DriftTimelineRepository implements TimelineRepository {
   @override
   Future<void> softDeleteEvent(String id, DateTime deletedAt) async {
     await _database.transaction(() async {
+      await (_database.update(_database.reminders)..where(
+            (row) =>
+                row.linkedEventId.equals(id) & row.status.equals('scheduled'),
+          ))
+          .write(
+            db.RemindersCompanion(
+              status: const Value('disabled'),
+              updatedAt: Value(deletedAt.toUtc()),
+            ),
+          );
       await (_database.update(
         _database.events,
       )..where((row) => row.id.equals(id))).write(_deletedEvent(deletedAt));
@@ -420,6 +454,12 @@ final class DriftTimelineRepository implements TimelineRepository {
       for (final relationship in relationships) ?relationship.targetEvidenceId,
       for (final candidate in candidateRows) ?candidate.sourceEvidenceId,
     };
+    final eventMediaAttachmentIds =
+        await (_database.select(_database.attachmentLinks)..where(
+              (row) => row.eventId.equals(id) & row.role.isNotValue('evidence'),
+            ))
+            .map((row) => row.attachmentId)
+            .get();
 
     await (_database.delete(
       _database.memoryCandidates,
@@ -475,24 +515,17 @@ final class DriftTimelineRepository implements TimelineRepository {
         continue;
       }
 
-      final attachments = await (_database.select(
-        _database.attachments,
-      )..where((row) => row.evidenceId.equals(evidenceId))).get();
-      for (final attachment in attachments) {
-        if (attachment.storageState == 'local' &&
-            attachment.relativePath != null) {
-          managedPaths.add(attachment.relativePath!);
-        }
-        if (attachment.thumbnailRelativePath != null) {
-          managedPaths.add(attachment.thumbnailRelativePath!);
-        }
-      }
-      await (_database.delete(
-        _database.attachments,
-      )..where((row) => row.evidenceId.equals(evidenceId))).go();
+      final evidenceAttachmentIds =
+          await (_database.select(_database.attachmentLinks)
+                ..where((row) => row.evidenceId.equals(evidenceId)))
+              .map((row) => row.attachmentId)
+              .get();
       await (_database.delete(
         _database.evidenceRecords,
       )..where((row) => row.id.equals(evidenceId))).go();
+      for (final attachmentId in evidenceAttachmentIds) {
+        await _deleteAttachmentIfUnreferenced(attachmentId, managedPaths);
+      }
     }
 
     await (_database.delete(
@@ -502,6 +535,9 @@ final class DriftTimelineRepository implements TimelineRepository {
       'DELETE FROM event_search WHERE event_id = ?',
       [id],
     );
+    for (final attachmentId in eventMediaAttachmentIds) {
+      await _deleteAttachmentIfUnreferenced(attachmentId, managedPaths);
+    }
     return PermanentMemoryDeletion(
       managedRelativePaths: List.unmodifiable(managedPaths),
     );
@@ -512,6 +548,48 @@ final class DriftTimelineRepository implements TimelineRepository {
     await (_database.update(
       _database.evidenceRecords,
     )..where((row) => row.id.equals(id))).write(_deletedEvidence(deletedAt));
+  }
+
+  Future<void> _deleteAttachmentIfUnreferenced(
+    String attachmentId,
+    Set<String> managedPaths,
+  ) async {
+    final linkCount =
+        await (_database.selectOnly(_database.attachmentLinks)
+              ..addColumns([_database.attachmentLinks.id.count()])
+              ..where(
+                _database.attachmentLinks.attachmentId.equals(attachmentId),
+              ))
+            .map((row) => row.read(_database.attachmentLinks.id.count()) ?? 0)
+            .getSingle();
+    final provenanceCount =
+        await (_database.selectOnly(_database.fieldProvenanceRows)
+              ..addColumns([_database.fieldProvenanceRows.id.count()])
+              ..where(
+                _database.fieldProvenanceRows.attachmentId.equals(attachmentId),
+              ))
+            .map(
+              (row) => row.read(_database.fieldProvenanceRows.id.count()) ?? 0,
+            )
+            .getSingle();
+    if (linkCount != 0 || provenanceCount != 0) return;
+    final attachment = await (_database.select(
+      _database.attachments,
+    )..where((row) => row.id.equals(attachmentId))).getSingleOrNull();
+    if (attachment == null) return;
+    if (attachment.storageState == 'local' &&
+        attachment.importMode != 'reference_original') {
+      if (attachment.relativePath case final path?) managedPaths.add(path);
+    }
+    if (attachment.thumbnailRelativePath case final path?) {
+      managedPaths.add(path);
+    }
+    if (attachment.preservedOriginalRelativePath case final path?) {
+      managedPaths.add(path);
+    }
+    await (_database.delete(
+      _database.attachments,
+    )..where((row) => row.id.equals(attachmentId))).go();
   }
 
   Expression<bool> _relationshipEndpoint(
@@ -813,47 +891,7 @@ final class DriftTimelineRepository implements TimelineRepository {
   }
 
   Future<void> _refreshEventSearchIndex(String eventId) async {
-    await _database.customStatement(
-      'DELETE FROM event_search WHERE event_id = ?',
-      [eventId],
-    );
-    await _database.customStatement(
-      '''
-        INSERT INTO event_search(
-          event_id,
-          title,
-          description,
-          event_type,
-          entity_names,
-          category_names
-        )
-        SELECT
-          e.id,
-          e.title,
-          COALESCE(e.description, ''),
-          COALESCE(e.event_type, ''),
-          COALESCE((
-            SELECT group_concat(en.name, ' ')
-            FROM relationships r
-            JOIN entities en ON (
-              (r.source_event_id = e.id AND r.target_entity_id = en.id) OR
-              (r.target_event_id = e.id AND r.source_entity_id = en.id)
-            )
-            WHERE r.lifecycle <> 'soft_deleted'
-              AND en.lifecycle <> 'soft_deleted'
-          ), ''),
-          COALESCE((
-            SELECT group_concat(c.name, ' ')
-            FROM event_categories ec
-            JOIN categories c ON c.id = ec.category_id
-            WHERE ec.event_id = e.id
-              AND c.lifecycle <> 'soft_deleted'
-          ), '')
-        FROM events e
-        WHERE e.id = ? AND e.lifecycle <> 'soft_deleted'
-      ''',
-      [eventId],
-    );
+    await refreshEventSearchIndex(_database, eventId);
   }
 
   String _ftsMatchQuery(String query) => query
@@ -882,6 +920,9 @@ final class DriftTimelineRepository implements TimelineRepository {
     if (matches(memory.relatedEntity?.name)) {
       return MemoryMatchField.entity;
     }
-    return MemoryMatchField.category;
+    if (matches(memory.category?.name)) {
+      return MemoryMatchField.category;
+    }
+    return MemoryMatchField.mediaCaption;
   }
 }

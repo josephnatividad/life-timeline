@@ -37,5 +37,6 @@ final class SearchResultTile extends StatelessWidget {
     MemoryMatchField.eventType => 'Matched memory type',
     MemoryMatchField.entity => 'Matched related item',
     MemoryMatchField.category => 'Matched category',
+    MemoryMatchField.mediaCaption => 'Matched photo caption',
   };
 }

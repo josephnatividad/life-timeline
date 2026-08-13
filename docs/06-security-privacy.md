@@ -68,6 +68,20 @@ Sharing is an explicit local export operation.
 Raw timeline records are not made public. The app generates a sanitized
 artifact containing only user-approved shareable fields.
 
+### Memory Media
+
+Imported Memory Media defaults to `personal` and stays in app-private storage.
+Dimensions, orientation correction, checksums, an optional captured timestamp,
+and local storage state may be retained. Precise GPS is not converted into a
+timeline location or searchable field. V1 requests no full photo metadata
+from the picker and performs no automatic recognition, face inference,
+location inference, embedding, upload, analytics, or camera-roll ingestion.
+
+Evidence images are excluded from ordinary Story choices at the source
+boundary. Eligible Memory Media still passes through `StoryPrivacySanitizer`;
+`never_share` media is never selectable. An archived thumbnail is a browsing
+preview only and cannot silently replace the original in a Story export.
+
 ### Story export temporary files
 
 Story exports introduce a deliberate local-to-external privacy boundary:

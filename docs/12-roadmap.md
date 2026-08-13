@@ -24,6 +24,7 @@ Build:
 -   Temporal precision
 -   Categories
 -   Attachments
+-   Memory Media hero/gallery roles and evidence separation
 -   Basic search
 -   Memory Inbox foundation
 -   PIN/Biometric

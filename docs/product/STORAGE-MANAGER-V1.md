@@ -32,7 +32,8 @@ V1 includes:
   backup copies;
 - backup/restore support for thumbnails, preserved originals, and archive
   reference metadata;
-- additive Drift schema v6 migration.
+- additive Drift schema v6 migration, extended by the non-destructive Memory
+  Media schema v7 migration.
 
 V1 does not include video transcoding, PDF recompression, automatic archive,
 automatic duplicate deletion, provider accounts, background cloud sync,
@@ -183,6 +184,21 @@ attachment foreign key, non-negative size checks, positive format version,
 verification-time ordering, a unique attachment index, and an archive-time
 index. The migration is additive and does not reset user data.
 
+## Memory Media extension: schema v7
+
+Schema v7 normalizes attachment rows into reusable file assets and adds
+`attachment_links` for event/evidence ownership, roles, captions, ordering,
+captured time, and import time. Existing attachment `evidence_id` values are
+conservatively migrated to `evidence` links. A partial unique index enforces
+one hero per Event. Archive references retain whether the archived source is
+the main file or a preserved original. Existing archive/provenance references
+are copied through the table rebuild; no database reset is used.
+
+Memory Media image assets participate in the existing photo, thumbnail,
+duplicate-hash, copy-protection, backup, archive, and retrieval measurements.
+Evidence-role image assets are reported under Documents/Evidence rather than
+being presented as ordinary personal photographs.
+
 ## Platform behavior
 
 - Android export uses the existing native Storage Access Framework save path,
@@ -203,4 +219,3 @@ index. The migration is additive and does not reset user data.
   platform-specific permission lifecycle;
 - product thresholds for large-image suggestions and future video handling;
 - final localized copy for one-copy and unavailable-original warnings.
-

@@ -25,6 +25,13 @@ System share sheet
 
 No company server is required.
 
+Story image choices come from ordered Memory Media linked directly to the
+source Event. Evidence attachments are not traversed or surfaced as ordinary
+Story photos. Every eligible image retains its effective privacy
+classification and requires the same sanitizer as structured fields. If a
+full original is archived, the editor requests retrieval and never substitutes
+a low-resolution thumbnail for the final export.
+
 ## Privacy defaults
 
 Sensitive fields default OFF.

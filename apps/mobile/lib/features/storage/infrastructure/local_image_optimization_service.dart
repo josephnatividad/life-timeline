@@ -98,7 +98,6 @@ final class LocalImageOptimizationService implements ImageOptimizationService {
     final updatedAt = DateTime.now().toUtc();
     final optimized = Attachment(
       metadata: attachment.metadata.copyWith(updatedAt: updatedAt),
-      evidenceId: attachment.evidenceId,
       storageState: AttachmentStorageState.local,
       importMode: AttachmentImportMode.optimizedCopy,
       mimeType: 'image/jpeg',
@@ -110,6 +109,8 @@ final class LocalImageOptimizationService implements ImageOptimizationService {
       // Keep the source tracked until an explicit deletion succeeds. This
       // makes interruption conservative rather than creating an orphan.
       preservedOriginalRelativePath: relative,
+      preservedOriginalByteSize: beforeBytes,
+      preservedOriginalChecksum: attachment.checksum,
       pixelWidth: result.width,
       pixelHeight: result.height,
     );
@@ -127,7 +128,6 @@ final class LocalImageOptimizationService implements ImageOptimizationService {
         await _repository.updateOptimizedAttachment(
           Attachment(
             metadata: optimized.metadata,
-            evidenceId: optimized.evidenceId,
             storageState: optimized.storageState,
             importMode: optimized.importMode,
             mimeType: optimized.mimeType,

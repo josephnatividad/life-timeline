@@ -120,6 +120,16 @@ final class _StoryEditorPageState extends ConsumerState<StoryEditorPage> {
               onChanged: _updatePublicText,
             ),
             const SizedBox(height: AppSpacing.md),
+            if (_source.unavailableMedia.isNotEmpty) ...[
+              IntelligenceCard(
+                title: 'Original photo retrieval needed',
+                body:
+                    '${_source.unavailableMedia.length} archived ${_source.unavailableMedia.length == 1 ? 'photo needs' : 'photos need'} retrieval before a high-resolution Story can use it.',
+                actionLabel: 'Open Storage Manager',
+                onAction: () => context.pushNamed(AppRoute.storageManager.name),
+              ),
+              const SizedBox(height: AppSpacing.md),
+            ],
             AppButton(
               key: const Key('choose-story-photo'),
               label: 'Choose another photo',
@@ -208,6 +218,7 @@ final class _StoryEditorPageState extends ConsumerState<StoryEditorPage> {
           sourceRecordIds: _source.sourceRecordIds,
           fields: _source.fields,
           media: [..._source.media, media],
+          unavailableMedia: _source.unavailableMedia,
           temporalPrecision: _source.temporalPrecision,
         );
         _selection = _selection.copyWith(includedMediaIds: mediaIds);

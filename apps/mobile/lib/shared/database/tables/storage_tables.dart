@@ -21,6 +21,13 @@ class ArchiveReferences extends Table {
       integer().check(const CustomExpression<bool>('archive_byte_size >= 0'))();
   TextColumn get archiveSha256 => text()();
   TextColumn get encryptionAlgorithm => text()();
+  TextColumn get sourceKind => text()
+      .withDefault(const Constant('main'))
+      .check(
+        const CustomExpression<bool>(
+          "source_kind IN ('main', 'preserved_original')",
+        ),
+      )();
   IntColumn get formatVersion =>
       integer().check(const CustomExpression<bool>('format_version >= 1'))();
   DateTimeColumn get archivedAt => dateTime()();

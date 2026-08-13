@@ -17,6 +17,11 @@ The working product name remains Life Timeline. The default attribution is confi
 - Deterministic milestone candidates.
 - An explicit Then & Now pair of two different confirmed Events.
 
+Event and entity Story photo choices are sourced only from event-linked Memory
+Media. Evidence attachments are excluded at the source boundary. Archived
+full-resolution media is represented as requiring retrieval and is not
+silently replaced by its retained thumbnail.
+
 Archived, candidate, soft-deleted, and missing records are not Story sources. A calendar-year recap is intentionally deferred because the roadmap does not yet define its product rules.
 
 ## Composition pipeline

@@ -5,8 +5,10 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:life_timeline/app/providers/restored_data_refresh.dart';
+import 'package:life_timeline/features/media/infrastructure/drift_memory_media_repository.dart';
 import 'package:life_timeline/features/timeline/application/timeline_providers.dart';
-import 'package:life_timeline/shared/database/app_database.dart' hide Event;
+import 'package:life_timeline/shared/database/app_database.dart'
+    hide Attachment, AttachmentLink, Event;
 import 'package:life_timeline/shared/database/app_database_provider.dart';
 import 'package:life_timeline/shared/database/backup/drift_backup_data_source.dart';
 import 'package:life_timeline/shared/database/repositories/drift_timeline_repository.dart';
@@ -32,6 +34,32 @@ void main() {
 
     await _saveEvent(target, id: 'old', title: 'Old local timeline');
     await _saveEvent(source, id: 'restored', title: 'Restored timeline');
+    final sourceMedia = DriftMemoryMediaRepository(source);
+    for (var index = 0; index < 2; index++) {
+      final attachment = Attachment(
+        metadata: _metadata('asset-$index'),
+        storageState: AttachmentStorageState.local,
+        importMode: AttachmentImportMode.preserveOriginal,
+        mimeType: 'image/jpeg',
+        byteSize: 10 + index,
+        checksum: 'checksum-$index',
+        relativePath: 'media/$index.jpg',
+      );
+      await sourceMedia.add(
+        attachment: attachment,
+        link: AttachmentLink(
+          id: 'link-$index',
+          attachmentId: attachment.metadata.id,
+          eventId: 'restored',
+          role: index == 1
+              ? AttachmentRole.heroMedia
+              : AttachmentRole.memoryMedia,
+          caption: 'Caption $index',
+          sortOrder: 1 - index,
+          importedAt: DateTime.utc(2026, 8, 10),
+        ),
+      );
+    }
 
     final initialEmission = Completer<List<TimelineMemory>>();
     final restoredEmission = Completer<List<TimelineMemory>>();
@@ -61,8 +89,26 @@ void main() {
 
     expect(after.single.event.metadata.id, 'restored');
     expect(after.single.event.title, 'Restored timeline');
+    final restoredMedia = await DriftMemoryMediaRepository(
+      target,
+    ).forEvent('restored');
+    expect(restoredMedia.map((item) => item.link.id), ['link-1', 'link-0']);
+    expect(restoredMedia.first.isHero, isTrue);
+    expect(restoredMedia.last.link.caption, 'Caption 0');
+    expect(
+      restoredMedia.last.attachment.metadata.privacyClassification,
+      PrivacyClassification.personal,
+    );
   });
 }
+
+RecordMetadata _metadata(String id) => RecordMetadata(
+  id: id,
+  privacyClassification: PrivacyClassification.personal,
+  lifecycle: RecordLifecycle.confirmed,
+  createdAt: DateTime.utc(2026, 8, 10),
+  updatedAt: DateTime.utc(2026, 8, 10),
+);
 
 Future<void> _saveEvent(
   AppDatabase database, {

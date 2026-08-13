@@ -9,8 +9,13 @@ import 'package:life_timeline/features/backup/presentation/restore_pages.dart';
 import 'package:life_timeline/features/capture/presentation/capture_foundation_sheet.dart';
 import 'package:life_timeline/features/explore/presentation/explore_foundation_page.dart';
 import 'package:life_timeline/features/insights/presentation/ask_my_life_page.dart';
+import 'package:life_timeline/features/media/presentation/add_photos_page.dart';
+import 'package:life_timeline/features/media/presentation/memory_media_viewer_page.dart';
+import 'package:life_timeline/features/media/presentation/reorder_memory_media_page.dart';
 import 'package:life_timeline/features/private_intelligence/presentation/candidate_review_page.dart';
 import 'package:life_timeline/features/private_intelligence/presentation/memory_inbox_page.dart';
+import 'package:life_timeline/features/reminders/presentation/reminder_editor_page.dart';
+import 'package:life_timeline/features/reminders/presentation/reminders_page.dart';
 import 'package:life_timeline/features/search/presentation/memory_search_page.dart';
 import 'package:life_timeline/features/security/presentation/security_settings_page.dart';
 import 'package:life_timeline/features/security/presentation/set_pin_page.dart';
@@ -93,6 +98,33 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             EditMemoryPage(memoryId: state.pathParameters['memoryId']!),
       ),
       GoRoute(
+        name: AppRoute.addPhotos.name,
+        path: AppRoute.addPhotos.path,
+        builder: (context, state) => const AddPhotosPage(returnToDetail: true),
+      ),
+      GoRoute(
+        name: AppRoute.memoryPhotos.name,
+        path: AppRoute.memoryPhotos.path,
+        builder: (context, state) => AddPhotosPage(
+          memoryId: state.pathParameters['memoryId']!,
+          returnToDetail: state.uri.queryParameters['returnToDetail'] == 'true',
+        ),
+      ),
+      GoRoute(
+        name: AppRoute.reorderMedia.name,
+        path: AppRoute.reorderMedia.path,
+        builder: (context, state) =>
+            ReorderMemoryMediaPage(memoryId: state.pathParameters['memoryId']!),
+      ),
+      GoRoute(
+        name: AppRoute.mediaViewer.name,
+        path: AppRoute.mediaViewer.path,
+        builder: (context, state) => MemoryMediaViewerPage(
+          memoryId: state.pathParameters['memoryId']!,
+          initialLinkId: state.pathParameters['linkId']!,
+        ),
+      ),
+      GoRoute(
         name: AppRoute.search.name,
         path: AppRoute.search.path,
         builder: (context, state) => const MemorySearchPage(),
@@ -133,6 +165,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoute.storageManager.name,
         path: AppRoute.storageManager.path,
         builder: (context, state) => const StorageManagerPage(),
+      ),
+      GoRoute(
+        name: AppRoute.reminders.name,
+        path: AppRoute.reminders.path,
+        builder: (context, state) => const RemindersPage(),
+      ),
+      GoRoute(
+        name: AppRoute.addReminder.name,
+        path: AppRoute.addReminder.path,
+        builder: (context, state) =>
+            ReminderEditorPage(memoryId: state.uri.queryParameters['memoryId']),
+      ),
+      GoRoute(
+        name: AppRoute.editReminder.name,
+        path: AppRoute.editReminder.path,
+        builder: (context, state) =>
+            ReminderEditorPage(reminderId: state.pathParameters['reminderId']!),
       ),
       GoRoute(
         name: AppRoute.trash.name,
@@ -220,6 +269,10 @@ Future<void> _showCaptureFoundation(BuildContext context) =>
         onAddMemory: () {
           Navigator.of(sheetContext).pop();
           context.pushNamed(AppRoute.addMemory.name);
+        },
+        onAddPhotos: () {
+          Navigator.of(sheetContext).pop();
+          context.pushNamed(AppRoute.addPhotos.name);
         },
         onCandidateCreated: (candidateId) {
           Navigator.of(sheetContext).pop();

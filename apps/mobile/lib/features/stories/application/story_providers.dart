@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:life_timeline/features/media/application/media_providers.dart';
 import 'package:life_timeline/features/stories/application/default_story_composer.dart';
 import 'package:life_timeline/features/stories/application/default_story_privacy_sanitizer.dart';
 import 'package:life_timeline/features/stories/application/deterministic_milestone_engine.dart';
@@ -32,6 +33,7 @@ final storyAttachmentPathResolverProvider =
 final storySourceFactoryProvider = Provider<StorySourceFactory>((ref) {
   return LocalStorySourceFactory(
     ref.watch(timelineRepositoryProvider),
+    ref.watch(memoryMediaRepositoryProvider),
     ref.watch(storyAttachmentPathResolverProvider),
   );
 });

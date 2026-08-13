@@ -3,6 +3,10 @@ enum AppRoute {
   addMemory(name: 'add-memory', path: '/memory/new'),
   memoryDetail(name: 'memory-detail', path: '/memory/:memoryId'),
   editMemory(name: 'edit-memory', path: '/memory/:memoryId/edit'),
+  addPhotos(name: 'add-photos', path: '/photos/add'),
+  memoryPhotos(name: 'memory-photos', path: '/memory/:memoryId/photos/add'),
+  reorderMedia(name: 'reorder-media', path: '/memory/:memoryId/photos/reorder'),
+  mediaViewer(name: 'media-viewer', path: '/memory/:memoryId/photos/:linkId'),
   search(name: 'search', path: '/search'),
   askMyLife(name: 'ask-my-life', path: '/ask'),
   archive(name: 'archive', path: '/archive'),
@@ -29,6 +33,9 @@ enum AppRoute {
   storyPreview(name: 'story-preview', path: '/stories/preview'),
   thenNowSelection(name: 'then-now-selection', path: '/stories/then-now'),
   storageManager(name: 'storage-manager', path: '/storage'),
+  reminders(name: 'reminders', path: '/reminders'),
+  addReminder(name: 'add-reminder', path: '/reminders/new'),
+  editReminder(name: 'edit-reminder', path: '/reminders/:reminderId/edit'),
   you(name: 'you', path: '/you');
 
   const AppRoute({required this.name, required this.path});

@@ -70,16 +70,17 @@ class EvidenceRecords extends Table with RecordColumns {
   ];
 }
 
-@TableIndex(name: 'attachments_evidence_idx', columns: {#evidenceId})
 @TableIndex(name: 'attachments_storage_state_idx', columns: {#storageState})
 @TableIndex(name: 'attachments_checksum_idx', columns: {#checksum})
 class Attachments extends Table with RecordColumns {
-  TextColumn get evidenceId =>
-      text().references(EvidenceRecords, #id, onDelete: KeyAction.restrict)();
   TextColumn get displayName => text().nullable()();
   TextColumn get relativePath => text().nullable()();
   TextColumn get thumbnailRelativePath => text().nullable()();
   TextColumn get preservedOriginalRelativePath => text().nullable()();
+  IntColumn get preservedOriginalByteSize => integer().nullable().check(
+    preservedOriginalByteSize.isBiggerOrEqualValue(0),
+  )();
+  TextColumn get preservedOriginalChecksum => text().nullable()();
   TextColumn get mimeType => text()();
   IntColumn get byteSize => integer().check(byteSize.isBiggerOrEqualValue(0))();
   IntColumn get pixelWidth =>
@@ -102,6 +103,49 @@ class Attachments extends Table with RecordColumns {
   List<String> get customConstraints => const [
     "CHECK ((lifecycle = 'soft_deleted') = (deleted_at IS NOT NULL))",
     'CHECK (updated_at >= created_at)',
+  ];
+}
+
+@TableIndex(name: 'attachment_links_event_idx', columns: {#eventId, #sortOrder})
+@TableIndex(name: 'attachment_links_evidence_idx', columns: {#evidenceId})
+@TableIndex(name: 'attachment_links_attachment_idx', columns: {#attachmentId})
+@TableIndex(
+  name: 'attachment_links_event_attachment_idx',
+  columns: {#eventId, #attachmentId},
+  unique: true,
+)
+@TableIndex(
+  name: 'attachment_links_evidence_attachment_idx',
+  columns: {#evidenceId, #attachmentId},
+  unique: true,
+)
+class AttachmentLinks extends Table {
+  TextColumn get id => text()();
+  TextColumn get attachmentId =>
+      text().references(Attachments, #id, onDelete: KeyAction.cascade)();
+  TextColumn get eventId =>
+      text().nullable().references(Events, #id, onDelete: KeyAction.cascade)();
+  TextColumn get evidenceId => text().nullable().references(
+    EvidenceRecords,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
+  TextColumn get role => text().check(
+    role.isIn(const ['hero_media', 'memory_media', 'evidence']),
+  )();
+  TextColumn get caption => text().nullable()();
+  IntColumn get sortOrder =>
+      integer().check(sortOrder.isBiggerOrEqualValue(0))();
+  DateTimeColumn get capturedAt => dateTime().nullable()();
+  DateTimeColumn get importedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+
+  @override
+  List<String> get customConstraints => const [
+    'CHECK ((event_id IS NOT NULL) <> (evidence_id IS NOT NULL))',
+    "CHECK ((role = 'evidence') = (evidence_id IS NOT NULL))",
   ];
 }
 

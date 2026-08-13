@@ -18,7 +18,7 @@ void main() {
 
   tearDown(() => database.close());
 
-  test('schema v6 preserves the complete relational baseline', () async {
+  test('schema v8 preserves the complete relational baseline', () async {
     final rows = await database
         .customSelect(
           "SELECT name FROM sqlite_master WHERE type = 'table' ORDER BY name",
@@ -26,7 +26,7 @@ void main() {
         .get();
     final names = rows.map((row) => row.read<String>('name')).toSet();
 
-    expect(database.schemaVersion, 6);
+    expect(database.schemaVersion, 8);
     expect(
       names,
       containsAll(<String>{
@@ -35,6 +35,7 @@ void main() {
         'evidence',
         'relationships',
         'attachments',
+        'attachment_links',
         'field_provenance',
         'memory_candidates',
         'candidate_extracted_fields',
@@ -50,6 +51,7 @@ void main() {
         'evidence_categories',
         'insight_dismissals',
         'archive_references',
+        'reminders',
       }),
     );
   });
@@ -66,7 +68,10 @@ void main() {
         'entities_lifecycle_idx',
         'entities_normalized_name_idx',
         'events_temporal_start_idx',
-        'attachments_evidence_idx',
+        'attachment_links_event_idx',
+        'attachment_links_evidence_idx',
+        'attachment_links_attachment_idx',
+        'attachment_links_single_hero_idx',
         'relationships_source_entity_idx',
         'relationships_target_event_idx',
         'provenance_event_idx',
@@ -80,6 +85,8 @@ void main() {
         'insight_dismissals_dismissed_at_idx',
         'archive_references_attachment_idx',
         'archive_references_archived_at_idx',
+        'reminders_status_schedule_idx',
+        'reminders_notification_id_idx',
       }),
     );
   });
@@ -96,6 +103,9 @@ void main() {
       expect(names, contains('relative_path'));
       expect(names, contains('thumbnail_relative_path'));
       expect(names, contains('preserved_original_relative_path'));
+      expect(names, contains('preserved_original_byte_size'));
+      expect(names, contains('preserved_original_checksum'));
+      expect(names, isNot(contains('evidence_id')));
       expect(names, contains('pixel_width'));
       expect(names, contains('pixel_height'));
       expect(names, isNot(contains('data')));
@@ -128,21 +138,38 @@ void main() {
   test(
     'migration baseline is explicit and rejects unimplemented upgrades',
     () async {
-      await migrateSchema(database, database.createMigrator(), from: 6, to: 6);
+      await migrateSchema(database, database.createMigrator(), from: 8, to: 8);
 
       expect(
-        migrateSchema(database, database.createMigrator(), from: 6, to: 7),
+        migrateSchema(database, database.createMigrator(), from: 8, to: 9),
         throwsA(isA<StateError>()),
       );
     },
   );
+
+  test('v7 to v8 adds reminders without resetting timeline data', () async {
+    await database.customStatement('DROP TABLE reminders');
+    await database
+        .into(database.events)
+        .insert(TimelineMapper.eventToCompanion(TestRecordFactory.event()));
+
+    await migrateSchema(database, database.createMigrator(), from: 7, to: 8);
+
+    expect(await database.select(database.events).get(), hasLength(1));
+    final table = await database
+        .customSelect(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'reminders'",
+        )
+        .getSingleOrNull();
+    expect(table?.read<String>('name'), 'reminders');
+  });
 
   test('foreign keys are enabled', () async {
     final row = await database.customSelect('PRAGMA foreign_keys').getSingle();
     expect(row.read<int>('foreign_keys'), 1);
   });
 
-  test('schema v6 retains the local FTS5 event index', () async {
+  test('schema v8 retains the local FTS5 event and caption index', () async {
     final row = await database
         .customSelect(
           "SELECT sql FROM sqlite_master WHERE name = 'event_search'",
@@ -150,6 +177,7 @@ void main() {
         .getSingle();
 
     expect(row.read<String>('sql'), contains('fts5'));
+    expect(row.read<String>('sql'), contains('media_captions'));
   });
 
   test('v1 to v2 migration adds FTS without resetting relational data', () async {
@@ -186,18 +214,7 @@ void main() {
     final migrated = AppDatabase.forTesting(
       NativeDatabase.memory(
         setup: (raw) {
-          raw.execute(
-            'CREATE TABLE entities (id TEXT NOT NULL PRIMARY KEY, entity_type TEXT)',
-          );
-          raw.execute(
-            'CREATE TABLE events (id TEXT NOT NULL PRIMARY KEY, event_type TEXT)',
-          );
-          raw.execute(
-            'CREATE TABLE relationships (id TEXT NOT NULL PRIMARY KEY, relationship_type TEXT)',
-          );
-          raw.execute(
-            'CREATE TABLE attachments (storage_state TEXT, relative_path TEXT)',
-          );
+          _createLegacyRelationalFixture(raw.execute);
           raw.execute(
             'CREATE TABLE memory_candidates (id TEXT NOT NULL PRIMARY KEY)',
           );
@@ -245,7 +262,6 @@ void main() {
     for (final attachment in [
       Attachment(
         metadata: TestRecordFactory.metadata('legacy'),
-        evidenceId: 'evidence-legacy',
         storageState: AttachmentStorageState.local,
         importMode: AttachmentImportMode.optimizedCopy,
         mimeType: 'image/jpeg',
@@ -254,7 +270,6 @@ void main() {
       ),
       Attachment(
         metadata: TestRecordFactory.metadata('already-canonical'),
-        evidenceId: 'evidence-legacy',
         storageState: AttachmentStorageState.local,
         importMode: AttachmentImportMode.optimizedCopy,
         mimeType: 'image/jpeg',
@@ -287,18 +302,7 @@ void main() {
     final migrated = AppDatabase.forTesting(
       NativeDatabase.memory(
         setup: (raw) {
-          raw.execute(
-            'CREATE TABLE entities (id TEXT NOT NULL PRIMARY KEY, entity_type TEXT)',
-          );
-          raw.execute(
-            'CREATE TABLE events (id TEXT NOT NULL PRIMARY KEY, event_type TEXT)',
-          );
-          raw.execute(
-            'CREATE TABLE relationships (id TEXT NOT NULL PRIMARY KEY, relationship_type TEXT)',
-          );
-          raw.execute(
-            'CREATE TABLE attachments (id TEXT NOT NULL PRIMARY KEY)',
-          );
+          _createLegacyRelationalFixture(raw.execute);
           raw.execute(
             "INSERT INTO entities(id, entity_type) VALUES ('kept', 'phone')",
           );
@@ -327,7 +331,7 @@ void main() {
     expect(indexes, hasLength(3));
   });
 
-  test('v5 to v6 adds archive metadata without resetting attachments', () async {
+  test('v5 to v7 preserves attachments and creates evidence links', () async {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     addTearDown(
       () => driftRuntimeOptions.dontWarnAboutMultipleDatabases = false,
@@ -335,6 +339,60 @@ void main() {
     final migrated = AppDatabase.forTesting(
       NativeDatabase.memory(
         setup: (raw) {
+          raw.execute('''
+            CREATE TABLE events (
+              id TEXT NOT NULL PRIMARY KEY,
+              title TEXT NOT NULL DEFAULT '',
+              description TEXT,
+              event_type TEXT,
+              lifecycle TEXT NOT NULL DEFAULT 'confirmed'
+            )
+          ''');
+          raw.execute('''
+            CREATE TABLE entities (
+              id TEXT NOT NULL PRIMARY KEY,
+              name TEXT NOT NULL DEFAULT '',
+              lifecycle TEXT NOT NULL DEFAULT 'confirmed'
+            )
+          ''');
+          raw.execute('''
+            CREATE TABLE relationships (
+              id TEXT NOT NULL PRIMARY KEY,
+              source_event_id TEXT,
+              target_event_id TEXT,
+              source_entity_id TEXT,
+              target_entity_id TEXT,
+              lifecycle TEXT NOT NULL DEFAULT 'confirmed'
+            )
+          ''');
+          raw.execute('''
+            CREATE TABLE categories (
+              id TEXT NOT NULL PRIMARY KEY,
+              name TEXT NOT NULL DEFAULT '',
+              lifecycle TEXT NOT NULL DEFAULT 'confirmed'
+            )
+          ''');
+          raw.execute('''
+            CREATE TABLE event_categories (
+              event_id TEXT NOT NULL,
+              category_id TEXT NOT NULL
+            )
+          ''');
+          raw.execute('''
+            CREATE TABLE evidence (
+              id TEXT NOT NULL PRIMARY KEY,
+              evidence_type TEXT NOT NULL
+            )
+          ''');
+          raw.execute(
+            "INSERT INTO evidence(id, evidence_type) VALUES ('evidence-1', 'photo')",
+          );
+          raw.execute('''
+            CREATE TABLE field_provenance (
+              id TEXT NOT NULL PRIMARY KEY,
+              attachment_id TEXT
+            )
+          ''');
           raw.execute('''
             CREATE TABLE attachments (
               id TEXT NOT NULL PRIMARY KEY,
@@ -361,7 +419,7 @@ void main() {
               mime_type, byte_size, relative_path
             ) VALUES (
               'kept', 'evidence-1', 'personal', 'confirmed',
-              1, 1, 'local', 'preserveOriginal',
+              1, 1, 'local', 'preserve_original',
               'image/jpeg', 12, 'photos/kept.jpg'
             )
           ''');
@@ -382,6 +440,16 @@ void main() {
           "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'archive_references'",
         )
         .getSingle();
+    final link = await migrated
+        .customSelect(
+          'SELECT attachment_id, evidence_id, role FROM attachment_links',
+        )
+        .getSingle();
+    final evidenceType = await migrated
+        .customSelect(
+          "SELECT evidence_type FROM evidence WHERE id = 'evidence-1'",
+        )
+        .getSingle();
 
     expect(kept.read<String>('id'), 'kept');
     expect(kept.read<String>('relative_path'), 'photos/kept.jpg');
@@ -391,8 +459,234 @@ void main() {
         'preserved_original_relative_path',
         'pixel_width',
         'pixel_height',
+        'preserved_original_byte_size',
+        'preserved_original_checksum',
       ]),
     );
     expect(archiveTable.read<String>('name'), 'archive_references');
+    expect(link.read<String>('attachment_id'), 'kept');
+    expect(link.read<String>('evidence_id'), 'evidence-1');
+    expect(link.read<String>('role'), 'evidence');
+    expect(evidenceType.read<String>('evidence_type'), 'other');
   });
+
+  test('v6 to v7 retains archive and attachment provenance references', () async {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+    addTearDown(
+      () => driftRuntimeOptions.dontWarnAboutMultipleDatabases = false,
+    );
+    final migrated = AppDatabase.forTesting(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw.execute('''
+            CREATE TABLE events (
+              id TEXT NOT NULL PRIMARY KEY,
+              title TEXT NOT NULL DEFAULT '',
+              description TEXT,
+              event_type TEXT,
+              lifecycle TEXT NOT NULL DEFAULT 'confirmed'
+            )
+          ''');
+          raw.execute('''
+            CREATE TABLE entities (
+              id TEXT NOT NULL PRIMARY KEY,
+              name TEXT NOT NULL DEFAULT '',
+              lifecycle TEXT NOT NULL DEFAULT 'confirmed'
+            )
+          ''');
+          raw.execute('''
+            CREATE TABLE relationships (
+              id TEXT NOT NULL PRIMARY KEY,
+              source_event_id TEXT,
+              target_event_id TEXT,
+              source_entity_id TEXT,
+              target_entity_id TEXT,
+              lifecycle TEXT NOT NULL DEFAULT 'confirmed'
+            )
+          ''');
+          raw.execute('''
+            CREATE TABLE categories (
+              id TEXT NOT NULL PRIMARY KEY,
+              name TEXT NOT NULL DEFAULT '',
+              lifecycle TEXT NOT NULL DEFAULT 'confirmed'
+            )
+          ''');
+          raw.execute('''
+            CREATE TABLE event_categories (
+              event_id TEXT NOT NULL,
+              category_id TEXT NOT NULL
+            )
+          ''');
+          raw.execute('''
+            CREATE TABLE evidence (
+              id TEXT NOT NULL PRIMARY KEY,
+              evidence_type TEXT NOT NULL
+            )
+          ''');
+          raw.execute(
+            "INSERT INTO evidence(id, evidence_type) VALUES ('proof', 'document')",
+          );
+          raw.execute('''
+            CREATE TABLE attachments (
+              id TEXT NOT NULL PRIMARY KEY,
+              evidence_id TEXT NOT NULL,
+              privacy_classification TEXT NOT NULL,
+              lifecycle TEXT NOT NULL,
+              created_at INTEGER NOT NULL,
+              updated_at INTEGER NOT NULL,
+              deleted_at INTEGER,
+              display_name TEXT,
+              relative_path TEXT,
+              thumbnail_relative_path TEXT,
+              preserved_original_relative_path TEXT,
+              mime_type TEXT NOT NULL,
+              byte_size INTEGER NOT NULL,
+              pixel_width INTEGER,
+              pixel_height INTEGER,
+              checksum TEXT,
+              storage_state TEXT NOT NULL,
+              import_mode TEXT NOT NULL
+            )
+          ''');
+          raw.execute('''
+            INSERT INTO attachments (
+              id, evidence_id, privacy_classification, lifecycle,
+              created_at, updated_at, mime_type, byte_size,
+              storage_state, import_mode, relative_path
+            ) VALUES (
+              'asset', 'proof', 'sensitive', 'confirmed', 1, 1,
+              'application/pdf', 12, 'local', 'preserve_original',
+              'documents/proof.pdf'
+            )
+          ''');
+          raw.execute('''
+            CREATE TABLE archive_references (
+              id TEXT NOT NULL PRIMARY KEY,
+              attachment_id TEXT NOT NULL,
+              destination_type TEXT NOT NULL,
+              logical_key TEXT NOT NULL,
+              original_byte_size INTEGER NOT NULL,
+              original_sha256 TEXT NOT NULL,
+              archive_byte_size INTEGER NOT NULL,
+              archive_sha256 TEXT NOT NULL,
+              encryption_algorithm TEXT NOT NULL,
+              format_version INTEGER NOT NULL,
+              archived_at INTEGER NOT NULL,
+              verified_at INTEGER NOT NULL
+            )
+          ''');
+          raw.execute('''
+            INSERT INTO archive_references VALUES (
+              'archive', 'asset', 'userSelectedFile', 'proof.archive',
+              12, 'source-hash', 20, 'archive-hash', 'aes', 1, 1, 1
+            )
+          ''');
+          raw.execute('''
+            CREATE TABLE field_provenance (
+              id TEXT NOT NULL PRIMARY KEY,
+              attachment_id TEXT
+            )
+          ''');
+          raw.execute(
+            "INSERT INTO field_provenance VALUES ('provenance', 'asset')",
+          );
+          raw.execute('PRAGMA user_version = 6');
+        },
+      ),
+    );
+    addTearDown(migrated.close);
+
+    final archive = await migrated
+        .customSelect(
+          'SELECT attachment_id, source_kind FROM archive_references',
+        )
+        .getSingle();
+    final provenance = await migrated
+        .customSelect('SELECT attachment_id FROM field_provenance')
+        .getSingle();
+    final link = await migrated
+        .customSelect('SELECT evidence_id, role FROM attachment_links')
+        .getSingle();
+
+    expect(archive.read<String>('attachment_id'), 'asset');
+    expect(archive.read<String>('source_kind'), 'main');
+    expect(provenance.read<String>('attachment_id'), 'asset');
+    expect(link.read<String>('evidence_id'), 'proof');
+    expect(link.read<String>('role'), 'evidence');
+  });
+}
+
+void _createLegacyRelationalFixture(void Function(String sql) execute) {
+  execute('''
+    CREATE TABLE entities (
+      id TEXT NOT NULL PRIMARY KEY,
+      name TEXT NOT NULL DEFAULT '',
+      entity_type TEXT,
+      lifecycle TEXT NOT NULL DEFAULT 'confirmed'
+    )
+  ''');
+  execute('''
+    CREATE TABLE events (
+      id TEXT NOT NULL PRIMARY KEY,
+      title TEXT NOT NULL DEFAULT '',
+      description TEXT,
+      event_type TEXT,
+      lifecycle TEXT NOT NULL DEFAULT 'confirmed'
+    )
+  ''');
+  execute('''
+    CREATE TABLE relationships (
+      id TEXT NOT NULL PRIMARY KEY,
+      source_event_id TEXT,
+      target_event_id TEXT,
+      source_entity_id TEXT,
+      target_entity_id TEXT,
+      relationship_type TEXT,
+      lifecycle TEXT NOT NULL DEFAULT 'confirmed'
+    )
+  ''');
+  execute('''
+    CREATE TABLE categories (
+      id TEXT NOT NULL PRIMARY KEY,
+      name TEXT NOT NULL DEFAULT '',
+      lifecycle TEXT NOT NULL DEFAULT 'confirmed'
+    )
+  ''');
+  execute('''
+    CREATE TABLE event_categories (
+      event_id TEXT NOT NULL,
+      category_id TEXT NOT NULL
+    )
+  ''');
+  execute('''
+    CREATE TABLE evidence (
+      id TEXT NOT NULL PRIMARY KEY,
+      evidence_type TEXT NOT NULL
+    )
+  ''');
+  execute('''
+    CREATE TABLE field_provenance (
+      id TEXT NOT NULL PRIMARY KEY,
+      attachment_id TEXT
+    )
+  ''');
+  execute('''
+    CREATE TABLE attachments (
+      id TEXT NOT NULL PRIMARY KEY,
+      evidence_id TEXT NOT NULL,
+      privacy_classification TEXT NOT NULL,
+      lifecycle TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL,
+      deleted_at INTEGER,
+      display_name TEXT,
+      relative_path TEXT,
+      thumbnail_relative_path TEXT,
+      mime_type TEXT NOT NULL,
+      byte_size INTEGER NOT NULL,
+      checksum TEXT,
+      storage_state TEXT NOT NULL,
+      import_mode TEXT NOT NULL
+    )
+  ''');
 }

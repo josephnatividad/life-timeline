@@ -2,6 +2,11 @@
 
 import 'package:life_timeline/features/private_intelligence/application/capture_intelligence_use_case.dart';
 import 'package:life_timeline/features/private_intelligence/domain/intelligence_models.dart';
+import 'package:life_timeline/features/reminders/application/notification_ports.dart';
+import 'package:life_timeline/features/reminders/application/reminder_policy.dart';
+import 'package:life_timeline/features/reminders/application/reminder_scheduler.dart';
+import 'package:life_timeline/features/reminders/domain/reminder.dart';
+import 'package:life_timeline/features/reminders/domain/reminder_repository.dart';
 import 'package:life_timeline/shared/domain/model/field_provenance.dart';
 import 'package:life_timeline/shared/domain/model/memory_candidate.dart';
 import 'package:life_timeline/shared/domain/model/record_metadata.dart';
@@ -15,9 +20,11 @@ final class CandidateReviewDraft {
     required this.fields,
     this.linkedEntityId,
     this.createEntityName,
+    this.createSuggestedReminder = false,
   });
 
   final String? createEntityName;
+  final bool createSuggestedReminder;
   final List<ExtractedField> fields;
   final String? linkedEntityId;
   final String title;
@@ -28,9 +35,15 @@ final class ConfirmCandidateUseCase {
     required MemoryCandidateRepository candidates,
     required TimelineRepository timeline,
     IntelligenceIdGenerator? ids,
+    ReminderRepository? reminders,
+    ReminderScheduler? reminderScheduler,
+    DeviceTimeZoneService? timeZones,
     DateTime Function()? now,
   }) : _candidates = candidates,
        _timeline = timeline,
+       _reminders = reminders,
+       _reminderScheduler = reminderScheduler,
+       _timeZones = timeZones,
        _ids = ids ?? IntelligenceIdGenerator(),
        _now = now ?? DateTime.now;
 
@@ -38,6 +51,9 @@ final class ConfirmCandidateUseCase {
   final IntelligenceIdGenerator _ids;
   final DateTime Function() _now;
   final TimelineRepository _timeline;
+  final ReminderRepository? _reminders;
+  final ReminderScheduler? _reminderScheduler;
+  final DeviceTimeZoneService? _timeZones;
 
   Future<String> call(String candidateId, CandidateReviewDraft draft) async {
     final candidate = await _candidates.candidateById(candidateId);
@@ -144,6 +160,51 @@ final class ConfirmCandidateUseCase {
           updatedAt: now,
         ),
     ];
+    Reminder? reminder;
+    if (draft.createSuggestedReminder) {
+      final suggestion = CandidateReminderSuggestion.from(
+        candidate.documentType,
+        draft.fields,
+      );
+      final reminders = _reminders;
+      final timeZones = _timeZones;
+      if (suggestion == null || reminders == null || timeZones == null) {
+        throw ArgumentError(
+          'An exact reviewed expiry date is required for this reminder.',
+        );
+      }
+      final zone = await timeZones.currentTimeZoneId();
+      final reminderDate = ReminderPolicy.dateFor(
+        suggestion.targetDate,
+        suggestion.leadTime,
+      );
+      final scheduled = timeZones.scheduledUtc(
+        date: reminderDate,
+        time: LocalTimeOfDay.defaultReminderTime,
+        timeZoneId: zone,
+      );
+      reminder = Reminder(
+        id: _ids.next('reminder'),
+        linkedEventId: eventId,
+        linkedEntityId: entity?.metadata.id,
+        sourceEvidenceId: candidate.sourceEvidenceId,
+        title: title,
+        targetDate: suggestion.targetDate,
+        reminderDate: reminderDate,
+        reminderTime: LocalTimeOfDay.defaultReminderTime,
+        timeZoneId: zone,
+        scheduledAtUtc: scheduled,
+        type: suggestion.type,
+        leadTime: suggestion.leadTime,
+        status: scheduled.isAfter(now)
+            ? ReminderStatus.scheduled
+            : ReminderStatus.missed,
+        notificationId: await reminders.nextNotificationId(),
+        privacyClassification: candidate.metadata.privacyClassification,
+        createdAt: now,
+        updatedAt: now,
+      );
+    }
     await _candidates.confirmCandidate(
       candidateId: candidateId,
       confirmedEvent: event,
@@ -151,8 +212,74 @@ final class ConfirmCandidateUseCase {
       provenance: provenance,
       entities: entities,
       relationships: relationships,
+      reminder: reminder,
     );
+    if (reminder != null) {
+      try {
+        await _reminderScheduler?.reconcile();
+      } on Object {
+        // The reminder is durable. Startup/resume reconciliation safely
+        // retries platform scheduling without rolling back the memory.
+      }
+    }
     return eventId;
+  }
+}
+
+final class CandidateReminderSuggestion {
+  const CandidateReminderSuggestion({
+    required this.targetDate,
+    required this.type,
+    required this.leadTime,
+  });
+
+  final ReminderLeadTime leadTime;
+  final LocalDate targetDate;
+  final ReminderType type;
+
+  static CandidateReminderSuggestion? from(
+    DocumentType documentType,
+    List<ExtractedField> fields,
+  ) {
+    for (final field in fields) {
+      final key = field.key.toLowerCase();
+      final expiryKey =
+          key.contains('expiry') ||
+          key.contains('expiration') ||
+          key.contains('validuntil');
+      if (!expiryKey ||
+          field.valueType != ExtractedValueType.date ||
+          field.confidence < 0.7) {
+        continue;
+      }
+      final match = RegExp(
+        r'^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$',
+      ).firstMatch(field.value.trim());
+      if (match == null) continue;
+      try {
+        final target = LocalDate(
+          int.parse(match.group(1)!),
+          int.parse(match.group(2)!),
+          int.parse(match.group(3)!),
+        );
+        final type = documentType == DocumentType.warranty
+            ? ReminderType.warranty
+            : ReminderType.expiry;
+        final lead = switch (documentType) {
+          DocumentType.warranty => ReminderLeadTime.thirtyDays,
+          DocumentType.identity => ReminderLeadTime.sixMonths,
+          _ => ReminderLeadTime.ninetyDays,
+        };
+        return CandidateReminderSuggestion(
+          targetDate: target,
+          type: type,
+          leadTime: lead,
+        );
+      } on ArgumentError {
+        continue;
+      }
+    }
+    return null;
   }
 }
 

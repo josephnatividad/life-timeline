@@ -36,13 +36,26 @@ abstract final class PersistenceValueCodec {
     _ => throw FormatException('Unknown record lifecycle: $value'),
   };
 
-  static String evidenceTypeToStorage(EvidenceType value) => value.name;
+  static String evidenceTypeToStorage(EvidenceType value) => switch (value) {
+    EvidenceType.receipt => 'receipt',
+    EvidenceType.warranty => 'warranty',
+    EvidenceType.certificate => 'certificate',
+    EvidenceType.ticket => 'ticket',
+    EvidenceType.officialDocument => 'official_document',
+    EvidenceType.other => 'other',
+  };
 
-  static EvidenceType evidenceTypeFromStorage(String value) =>
-      EvidenceType.values.firstWhere(
-        (candidate) => candidate.name == value,
-        orElse: () => throw FormatException('Unknown evidence type: $value'),
-      );
+  static EvidenceType evidenceTypeFromStorage(String value) => switch (value) {
+    'receipt' => EvidenceType.receipt,
+    'warranty' => EvidenceType.warranty,
+    'certificate' => EvidenceType.certificate,
+    'ticket' => EvidenceType.ticket,
+    'official_document' || 'document' => EvidenceType.officialDocument,
+    // Legacy image evidence remains evidence after migration. Its type is
+    // intentionally made non-semantic instead of turning it into Memory Media.
+    'photo' || 'screenshot' || 'metadata' || 'other' => EvidenceType.other,
+    _ => throw FormatException('Unknown evidence type: $value'),
+  };
 
   static String attachmentStateToStorage(AttachmentStorageState value) =>
       value.name;
@@ -66,6 +79,21 @@ abstract final class PersistenceValueCodec {
         'optimized_copy' => AttachmentImportMode.optimizedCopy,
         'preserve_original' => AttachmentImportMode.preserveOriginal,
         _ => throw FormatException('Unknown attachment import mode: $value'),
+      };
+
+  static String attachmentRoleToStorage(AttachmentRole value) =>
+      switch (value) {
+        AttachmentRole.heroMedia => 'hero_media',
+        AttachmentRole.memoryMedia => 'memory_media',
+        AttachmentRole.evidence => 'evidence',
+      };
+
+  static AttachmentRole attachmentRoleFromStorage(String value) =>
+      switch (value) {
+        'hero_media' => AttachmentRole.heroMedia,
+        'memory_media' => AttachmentRole.memoryMedia,
+        'evidence' => AttachmentRole.evidence,
+        _ => throw FormatException('Unknown attachment role: $value'),
       };
 
   static String sourceTypeToStorage(ProvenanceSourceType value) =>

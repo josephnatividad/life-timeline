@@ -20,6 +20,11 @@ final class AddMemoryPage extends StatelessWidget {
             AppRoute.memoryDetail.name,
             pathParameters: {'memoryId': id},
           ),
+          onSavedAndAddPhoto: (id) => context.pushReplacementNamed(
+            AppRoute.memoryPhotos.name,
+            pathParameters: {'memoryId': id},
+            queryParameters: const {'returnToDetail': 'true'},
+          ),
         ),
       ),
     ),
@@ -54,12 +59,28 @@ final class EditMemoryPage extends ConsumerWidget {
               )
             : SingleChildScrollView(
                 child: ScreenContainer(
-                  child: MemoryEditor(
-                    initialDraft: MemoryEditorDraft.fromMemory(value),
-                    onSaved: (id) {
-                      ref.invalidate(memoryDetailProvider(id));
-                      context.pop();
-                    },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      MemoryEditor(
+                        initialDraft: MemoryEditorDraft.fromMemory(value),
+                        onSaved: (id) {
+                          ref.invalidate(memoryDetailProvider(id));
+                          context.pop();
+                        },
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      AppButton(
+                        key: const Key('edit-memory-add-photo'),
+                        label: 'Add photo',
+                        icon: AppIcons.image,
+                        variant: AppButtonVariant.secondary,
+                        onPressed: () => context.pushNamed(
+                          AppRoute.memoryPhotos.name,
+                          pathParameters: {'memoryId': memoryId},
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

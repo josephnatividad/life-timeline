@@ -1,11 +1,12 @@
-import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:drift/drift.dart' show Value, driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:life_timeline/features/media/infrastructure/drift_memory_media_repository.dart';
 import 'package:life_timeline/features/stories/application/default_story_privacy_sanitizer.dart';
 import 'package:life_timeline/features/stories/application/story_source_factory.dart';
 import 'package:life_timeline/features/stories/domain/story_models.dart';
 import 'package:life_timeline/shared/database/app_database.dart'
-    hide Attachment, Entity, Event, Relationship;
+    hide Attachment, AttachmentLink, Entity, Event, Relationship;
 import 'package:life_timeline/shared/database/repositories/drift_timeline_repository.dart';
 import 'package:life_timeline/shared/domain/model/record_metadata.dart';
 import 'package:life_timeline/shared/domain/model/temporal_value.dart';
@@ -14,6 +15,7 @@ import 'package:life_timeline/shared/domain/model/timeline_models.dart';
 void main() {
   late AppDatabase database;
   late DriftTimelineRepository repository;
+  late DriftMemoryMediaRepository mediaRepository;
   late LocalStorySourceFactory factory;
 
   setUpAll(() {
@@ -23,7 +25,12 @@ void main() {
   setUp(() async {
     database = AppDatabase.forTesting(NativeDatabase.memory());
     repository = DriftTimelineRepository(database);
-    factory = LocalStorySourceFactory(repository, const _FixedPathResolver());
+    mediaRepository = DriftMemoryMediaRepository(database);
+    factory = LocalStorySourceFactory(
+      repository,
+      mediaRepository,
+      const _FixedPathResolver(),
+    );
 
     final event = Event(
       metadata: _metadata('event-japan'),
@@ -62,12 +69,34 @@ void main() {
         relatedEntityRelationship: entityRelationship,
       ),
     );
+    final memoryPhoto = Attachment(
+      metadata: _metadata(
+        'attachment-memory-photo',
+        privacy: PrivacyClassification.personal,
+      ),
+      storageState: AttachmentStorageState.local,
+      importMode: AttachmentImportMode.preserveOriginal,
+      mimeType: 'image/jpeg',
+      byteSize: 1400,
+      relativePath: 'memories/japan.jpg',
+    );
+    await mediaRepository.add(
+      attachment: memoryPhoto,
+      link: AttachmentLink(
+        id: 'media-link-japan',
+        attachmentId: memoryPhoto.metadata.id,
+        eventId: event.metadata.id,
+        role: AttachmentRole.heroMedia,
+        sortOrder: 0,
+        importedAt: DateTime.utc(2025),
+      ),
+    );
     final evidence = Evidence(
       metadata: _metadata(
         'evidence-photo',
         privacy: PrivacyClassification.sensitive,
       ),
-      evidenceType: EvidenceType.photo,
+      evidenceType: EvidenceType.other,
       title: 'Trip photo',
     );
     await repository.saveEvidence(
@@ -78,7 +107,6 @@ void main() {
             'attachment-photo',
             privacy: PrivacyClassification.sensitive,
           ),
-          evidenceId: evidence.metadata.id,
           storageState: AttachmentStorageState.local,
           importMode: AttachmentImportMode.preserveOriginal,
           mimeType: 'image/jpeg',
@@ -125,7 +153,12 @@ void main() {
       expect(source.media.single.localPath, 'C:/local/story-photo.jpg');
       expect(
         source.media.single.privacyClassification,
-        PrivacyClassification.neverShare,
+        PrivacyClassification.personal,
+      );
+      expect(source.media.single.id, 'memory-media:media-link-japan');
+      expect(
+        source.media.map((media) => media.id),
+        isNot(contains('attachment:evidence-photo')),
       );
       expect(
         source.fields
@@ -187,6 +220,41 @@ void main() {
 
     expect(await factory.fromEvent('event-japan'), isNull);
   });
+
+  test(
+    'archived Memory Media requests original retrieval, never a thumbnail',
+    () async {
+      await (database.update(
+        database.attachments,
+      )..where((row) => row.id.equals('attachment-memory-photo'))).write(
+        const AttachmentsCompanion(
+          storageState: Value('archived'),
+          relativePath: Value(null),
+          thumbnailRelativePath: Value('thumbs/japan.jpg'),
+        ),
+      );
+
+      final source = (await factory.fromEvent('event-japan'))!;
+      expect(source.media, isEmpty);
+      expect(source.unavailableMedia, hasLength(1));
+      expect(
+        source.unavailableMedia.single.reason,
+        contains('Retrieve the original'),
+      );
+    },
+  );
+
+  test('never-share Memory Media is not offered to Story selection', () async {
+    await (database.update(
+      database.attachments,
+    )..where((row) => row.id.equals('attachment-memory-photo'))).write(
+      const AttachmentsCompanion(privacyClassification: Value('never_share')),
+    );
+
+    final source = (await factory.fromEvent('event-japan'))!;
+    expect(source.media, isEmpty);
+    expect(source.unavailableMedia, isEmpty);
+  });
 }
 
 RecordMetadata _metadata(
@@ -204,6 +272,8 @@ final class _FixedPathResolver implements StoryAttachmentPathResolver {
   const _FixedPathResolver();
 
   @override
-  Future<String?> resolve(Attachment attachment) async =>
-      'C:/local/story-photo.jpg';
+  Future<String?> resolve(Attachment attachment) async {
+    if (attachment.storageState != AttachmentStorageState.local) return null;
+    return 'C:/local/story-photo.jpg';
+  }
 }

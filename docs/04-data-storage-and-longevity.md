@@ -28,6 +28,20 @@ Filesystem
 
 ## Attachment storage states
 
+Attachment metadata is stored separately from contextual links. An attachment
+link has exactly one parent and one semantic role:
+
+``` text
+Event    -> hero_media | memory_media
+Evidence -> evidence
+```
+
+An Event has at most one `hero_media` link. Explicit `sort_order` provides
+stable gallery ordering. Removing a link is different from deleting an asset;
+physical deletion requires a reference check and staged filesystem cleanup.
+SQLite stores only metadata and app-relative/local references, never image or
+document bytes.
+
 ``` text
 local
 referenced

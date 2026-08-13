@@ -9,10 +9,16 @@ import 'package:life_timeline/shared/domain/model/record_metadata.dart';
 import 'package:life_timeline/shared/domain/model/temporal_value.dart';
 
 final class MemoryEditor extends ConsumerStatefulWidget {
-  const MemoryEditor({required this.onSaved, this.initialDraft, super.key});
+  const MemoryEditor({
+    required this.onSaved,
+    this.onSavedAndAddPhoto,
+    this.initialDraft,
+    super.key,
+  });
 
   final MemoryEditorDraft? initialDraft;
   final ValueChanged<String> onSaved;
+  final ValueChanged<String>? onSavedAndAddPhoto;
 
   @override
   ConsumerState<MemoryEditor> createState() => _MemoryEditorState();
@@ -167,12 +173,24 @@ final class _MemoryEditorState extends ConsumerState<MemoryEditor> {
         label: widget.initialDraft == null ? 'Save memory' : 'Save changes',
         loading: _saving,
         expanded: true,
-        onPressed: _save,
+        onPressed: () => _save(),
       ),
+      if (widget.onSavedAndAddPhoto != null) ...[
+        const SizedBox(height: AppSpacing.sm),
+        AppButton(
+          key: const Key('save-memory-add-photo'),
+          label: 'Save & add photo',
+          icon: AppIcons.image,
+          loading: _saving,
+          expanded: true,
+          variant: AppButtonVariant.secondary,
+          onPressed: () => _save(addPhoto: true),
+        ),
+      ],
     ],
   );
 
-  Future<void> _save() async {
+  Future<void> _save({bool addPhoto = false}) async {
     FocusScope.of(context).unfocus();
     setState(() {
       _showErrors = true;
@@ -206,7 +224,11 @@ final class _MemoryEditorState extends ConsumerState<MemoryEditor> {
         ),
       );
       if (mounted) {
-        widget.onSaved(id);
+        if (addPhoto && widget.onSavedAndAddPhoto != null) {
+          widget.onSavedAndAddPhoto!(id);
+        } else {
+          widget.onSaved(id);
+        }
       }
     } on MemoryValidationException catch (error) {
       if (mounted) {

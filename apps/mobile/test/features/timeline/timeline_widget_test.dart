@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:life_timeline/app/life_timeline_app.dart';
 import 'package:life_timeline/design_system/design_system.dart';
+import 'package:life_timeline/features/reminders/application/reminder_providers.dart';
 import 'package:life_timeline/features/security/application/security_providers.dart';
 import 'package:life_timeline/features/timeline/application/memory_editor_draft.dart';
 import 'package:life_timeline/features/timeline/application/timeline_providers.dart';
@@ -19,6 +20,7 @@ import 'package:life_timeline/shared/domain/model/record_metadata.dart';
 import 'package:life_timeline/shared/domain/model/temporal_value.dart';
 import 'package:life_timeline/shared/domain/model/timeline_models.dart';
 
+import '../../helpers/reminder_test_services.dart';
 import '../../helpers/security_test_controller.dart';
 
 void main() {
@@ -34,6 +36,13 @@ void main() {
           ),
           appDatabaseProvider.overrideWithValue(database),
           timelineMemoriesProvider.overrideWith((ref) => Stream.value([])),
+          localNotificationServiceProvider.overrideWithValue(
+            TestLocalNotificationService(),
+          ),
+          deviceTimeZoneServiceProvider.overrideWithValue(
+            TestDeviceTimeZoneService(),
+          ),
+          reminderStoreProvider.overrideWithValue(TestReminderRepository()),
         ],
         child: const MaterialApp(home: TimelineHomePage()),
       ),
@@ -160,17 +169,21 @@ void main() {
     await tester.ensureVisible(saveButton);
     await tester.pumpAndSettle();
     await tester.tap(saveButton);
-    await tester.pumpAndSettle();
+    await _pumpUntilFound(tester, find.text('Memory'));
+    await tester.pump(AppMotion.reveal);
 
     expect(find.text('Memory'), findsOneWidget);
     expect(find.text('First apartment'), findsOneWidget);
     expect(find.byType(BackButton), findsOneWidget);
 
     await tester.binding.handlePopRoute();
-    await tester.pumpAndSettle();
+    await _pumpUntilFound(tester, find.text('Your story starts here.'));
 
     expect(find.text('Timeline'), findsWidgets);
     expect(find.text('Your story starts here.'), findsOneWidget);
+    await tester.pump(AppMotion.reveal);
+    await tester.pump(const Duration(milliseconds: 1));
+    await _unmountProviderTree(tester);
   });
 
   testWidgets('Edit Memory persists changed controller values', (tester) async {
@@ -231,6 +244,7 @@ void main() {
     expect(find.text('Travel'), findsWidgets);
     expect(find.text('Sensitive'), findsOneWidget);
     expect(find.text('No evidence attached'), findsOneWidget);
+    await _unmountProviderTree(tester);
   });
 
   testWidgets('Timeline event opens Memory Detail', (tester) async {
@@ -248,6 +262,13 @@ void main() {
           timelineMemoriesProvider.overrideWith(
             (ref) => Stream.value([_memory()]),
           ),
+          localNotificationServiceProvider.overrideWithValue(
+            TestLocalNotificationService(),
+          ),
+          deviceTimeZoneServiceProvider.overrideWithValue(
+            TestDeviceTimeZoneService(),
+          ),
+          reminderStoreProvider.overrideWithValue(TestReminderRepository()),
         ],
         child: const LifeTimelineApp(),
       ),
@@ -259,7 +280,21 @@ void main() {
 
     expect(find.text('Memory'), findsOneWidget);
     expect(find.text('No evidence attached'), findsOneWidget);
+    await _unmountProviderTree(tester);
   });
+}
+
+Future<void> _pumpUntilFound(WidgetTester tester, Finder finder) async {
+  for (var attempt = 0; attempt < 30; attempt++) {
+    await tester.pump(const Duration(milliseconds: 100));
+    if (finder.evaluate().isNotEmpty) return;
+  }
+  fail('Expected destination did not appear within 3 seconds.');
+}
+
+Future<void> _unmountProviderTree(WidgetTester tester) async {
+  await tester.pumpWidget(const SizedBox.shrink());
+  await tester.pump(const Duration(milliseconds: 1));
 }
 
 TimelineMemory _memory() {

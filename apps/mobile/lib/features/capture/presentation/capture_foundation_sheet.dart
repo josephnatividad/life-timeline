@@ -12,12 +12,14 @@ import 'package:life_timeline/features/private_intelligence/domain/intelligence_
 final class CaptureFoundationSheet extends ConsumerStatefulWidget {
   const CaptureFoundationSheet({
     required this.onAddMemory,
+    required this.onAddPhotos,
     this.onCandidateCreated,
     this.onOpenInbox,
     super.key,
   });
 
   final VoidCallback onAddMemory;
+  final VoidCallback onAddPhotos;
   final ValueChanged<String>? onCandidateCreated;
   final VoidCallback? onOpenInbox;
 
@@ -29,6 +31,7 @@ final class CaptureFoundationSheet extends ConsumerStatefulWidget {
 final class _CaptureFoundationSheetState
     extends ConsumerState<CaptureFoundationSheet> {
   String? _stage;
+  var _showScanSources = false;
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +47,10 @@ final class _CaptureFoundationSheetState
             size: AppIconSize.signature,
           ),
           const SizedBox(height: AppSpacing.sm),
-          const Text(
-            'Images are read on this device. Nothing is uploaded.',
+          Text(
+            _showScanSources
+                ? 'Document text is read on this device. Nothing is uploaded.'
+                : 'Record a memory, add its photos, or scan supporting documents.',
             textAlign: TextAlign.center,
           ),
           if (usage != null) ...[
@@ -60,38 +65,60 @@ final class _CaptureFoundationSheetState
             const LinearProgressIndicator(),
             const SizedBox(height: AppSpacing.sm),
             Semantics(liveRegion: true, child: Text(stage)),
-          ] else ...[
+          ] else if (_showScanSources) ...[
             _action(
-              key: const Key('capture-scan'),
-              icon: AppIcons.intelligence,
-              title: 'Scan a document',
-              subtitle: 'Use the camera, then review every suggestion.',
+              key: const Key('scan-document-camera'),
+              icon: AppIcons.camera,
+              title: 'Take document photo',
+              subtitle:
+                  'Extract details locally, then review every suggestion.',
               source: CaptureSource.scan,
             ),
             _action(
-              key: const Key('capture-camera'),
-              icon: AppIcons.image,
-              title: 'Take a photo',
-              subtitle: 'Capture a receipt, product, ticket, or document.',
-              source: CaptureSource.camera,
-            ),
-            _action(
-              key: const Key('capture-photo'),
-              icon: AppIcons.image,
-              title: 'Choose an existing photo',
-              subtitle: 'The original remains unchanged.',
+              key: const Key('scan-document-library'),
+              icon: AppIcons.gallery,
+              title: 'Choose document photo',
+              subtitle:
+                  'Use an existing receipt, warranty, ticket, or document.',
               source: CaptureSource.photoLibrary,
             ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const AppIcon(icon: AppIcons.back),
+              title: const Text('Back to Capture'),
+              onTap: () => setState(() => _showScanSources = false),
+            ),
+          ] else ...[
             ListTile(
               key: const Key('capture-manual-memory'),
               contentPadding: EdgeInsets.zero,
               leading: const AppIcon(icon: AppIcons.capture),
-              title: const Text('Add memory manually'),
-              subtitle: const Text(
-                'Always available and never uses an AI action.',
-              ),
+              title: const Text('Add Memory'),
+              subtitle: const Text('Record something that happened.'),
               trailing: const AppIcon(icon: AppIcons.next),
               onTap: widget.onAddMemory,
+            ),
+            ListTile(
+              key: const Key('capture-add-photos'),
+              contentPadding: EdgeInsets.zero,
+              leading: const AppIcon(icon: AppIcons.gallery),
+              title: const Text('Add Photos'),
+              subtitle: const Text(
+                'Add photos to a memory without scanning them.',
+              ),
+              trailing: const AppIcon(icon: AppIcons.next),
+              onTap: widget.onAddPhotos,
+            ),
+            ListTile(
+              key: const Key('capture-scan'),
+              contentPadding: EdgeInsets.zero,
+              leading: const AppIcon(icon: AppIcons.intelligence),
+              title: const Text('Scan Document'),
+              subtitle: const Text(
+                'Extract details from a receipt, warranty, ticket, or document.',
+              ),
+              trailing: const AppIcon(icon: AppIcons.next),
+              onTap: () => setState(() => _showScanSources = true),
             ),
             if (widget.onOpenInbox != null)
               ListTile(

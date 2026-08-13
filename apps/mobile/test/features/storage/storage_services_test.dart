@@ -397,7 +397,6 @@ Attachment _attachment({
       createdAt: created,
       updatedAt: updated,
     ),
-    evidenceId: 'evidence-1',
     storageState: state,
     importMode: AttachmentImportMode.preserveOriginal,
     mimeType: 'image/jpeg',
@@ -569,7 +568,11 @@ final class _MemoryStorageRepository implements StorageRepository {
   Future<List<StoredAttachment>> attachments() async => [value];
 
   @override
-  Future<void> completeArchiveRemoval(String attachmentId, DateTime at) async {
+  Future<void> completeArchiveRemoval(
+    String attachmentId,
+    DateTime at, {
+    required ArchiveSourceKind sourceKind,
+  }) async {
     value = StoredAttachment(
       attachment: _copyAttachment(
         value.attachment,
@@ -606,6 +609,7 @@ final class _MemoryStorageRepository implements StorageRepository {
     required String relativePath,
     required int byteSize,
     required String checksum,
+    required ArchiveSourceKind sourceKind,
     required DateTime at,
   }) async {
     value = StoredAttachment(
@@ -672,8 +676,11 @@ final class _ListStorageRepository implements StorageRepository {
   Future<List<StoredAttachment>> attachments() async => values;
 
   @override
-  Future<void> completeArchiveRemoval(String attachmentId, DateTime at) =>
-      throw UnimplementedError();
+  Future<void> completeArchiveRemoval(
+    String attachmentId,
+    DateTime at, {
+    required ArchiveSourceKind sourceKind,
+  }) => throw UnimplementedError();
 
   @override
   Future<DateTime?> latestContentChangeAt() async => null;
@@ -688,6 +695,7 @@ final class _ListStorageRepository implements StorageRepository {
     required String relativePath,
     required int byteSize,
     required String checksum,
+    required ArchiveSourceKind sourceKind,
     required DateTime at,
   }) => throw UnimplementedError();
 
@@ -717,7 +725,6 @@ Attachment _copyAttachment(
   DateTime? updatedAt,
 }) => Attachment(
   metadata: source.metadata.copyWith(updatedAt: updatedAt),
-  evidenceId: source.evidenceId,
   storageState: state ?? source.storageState,
   importMode: source.importMode,
   mimeType: source.mimeType,
@@ -729,6 +736,8 @@ Attachment _copyAttachment(
       : (relativePath ?? source.relativePath),
   thumbnailRelativePath: thumbnailRelativePath ?? source.thumbnailRelativePath,
   preservedOriginalRelativePath: source.preservedOriginalRelativePath,
+  preservedOriginalByteSize: source.preservedOriginalByteSize,
+  preservedOriginalChecksum: source.preservedOriginalChecksum,
   pixelWidth: source.pixelWidth,
   pixelHeight: source.pixelHeight,
 );

@@ -33,13 +33,12 @@ abstract final class TestRecordFactory {
 
   static Evidence evidence({String id = 'evidence-1'}) => Evidence(
     metadata: metadata(id, privacy: PrivacyClassification.sensitive),
-    evidenceType: EvidenceType.photo,
+    evidenceType: EvidenceType.other,
     title: 'Reference photo',
   );
 
   static Attachment attachment({String id = 'attachment-1'}) => Attachment(
     metadata: metadata(id, privacy: PrivacyClassification.sensitive),
-    evidenceId: 'evidence-1',
     storageState: AttachmentStorageState.local,
     importMode: AttachmentImportMode.preserveOriginal,
     mimeType: 'image/jpeg',

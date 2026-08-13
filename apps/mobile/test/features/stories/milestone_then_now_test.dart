@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:life_timeline/features/media/domain/memory_media_repository.dart';
 import 'package:life_timeline/features/stories/application/deterministic_milestone_engine.dart';
 import 'package:life_timeline/features/stories/application/story_source_factory.dart';
 import 'package:life_timeline/features/stories/domain/milestone_models.dart';
@@ -108,6 +109,7 @@ void main() {
   test('Then & Now rejects the same source and supports missing media', () {
     final factory = LocalStorySourceFactory(
       _UnusedTimelineRepository(),
+      _UnusedMemoryMediaRepository(),
       const _UnusedPathResolver(),
     );
     final first = _source('first', 'First phone');
@@ -176,6 +178,13 @@ final class _UnusedPathResolver implements StoryAttachmentPathResolver {
 }
 
 final class _UnusedTimelineRepository implements TimelineRepository {
+  Never _unused() => throw UnimplementedError();
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => _unused();
+}
+
+final class _UnusedMemoryMediaRepository implements MemoryMediaRepository {
   Never _unused() => throw UnimplementedError();
 
   @override

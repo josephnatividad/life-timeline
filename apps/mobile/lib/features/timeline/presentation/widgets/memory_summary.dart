@@ -21,9 +21,18 @@ final class MemoryPrivacyBadge extends StatelessWidget {
 }
 
 final class MemorySummary extends StatelessWidget {
-  const MemorySummary({required this.memory, super.key});
+  const MemorySummary({
+    required this.memory,
+    this.showPrimary = true,
+    this.showSecondary = true,
+    this.evidenceSection,
+    super.key,
+  });
 
   final TimelineMemory memory;
+  final bool showPrimary;
+  final bool showSecondary;
+  final Widget? evidenceSection;
 
   @override
   Widget build(BuildContext context) {
@@ -31,73 +40,79 @@ final class MemorySummary extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(event.title, style: Theme.of(context).textTheme.headlineLarge),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          TemporalDisplay.label(event.temporalValue),
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: Theme.of(context).colorScheme.primary,
+        if (showPrimary) ...[
+          Text(event.title, style: Theme.of(context).textTheme.headlineLarge),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            TemporalDisplay.label(event.temporalValue),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        Wrap(
-          spacing: AppSpacing.xs,
-          runSpacing: AppSpacing.xs,
-          children: [
-            AppBadge(label: event.eventType ?? 'Memory', icon: AppIcons.time),
-            if (memory.category case final category?)
-              AppBadge(label: category.name, icon: AppIcons.explore),
-            MemoryPrivacyBadge(
-              classification: event.metadata.privacyClassification,
+          const SizedBox(height: AppSpacing.md),
+          Wrap(
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
+            children: [
+              AppBadge(label: event.eventType ?? 'Memory', icon: AppIcons.time),
+              if (memory.category case final category?)
+                AppBadge(label: category.name, icon: AppIcons.explore),
+              MemoryPrivacyBadge(
+                classification: event.metadata.privacyClassification,
+              ),
+            ],
+          ),
+          if (event.description case final description?) ...[
+            const SizedBox(height: AppSpacing.xl),
+            AppSectionHeader(title: 'About this memory'),
+            const SizedBox(height: AppSpacing.sm),
+            Text(description, style: Theme.of(context).textTheme.bodyLarge),
+          ],
+        ],
+        if (showSecondary)
+          if (memory.relatedEntity case final entity?) ...[
+            const SizedBox(height: AppSpacing.xl),
+            AppSectionHeader(title: 'Related'),
+            const SizedBox(height: AppSpacing.sm),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const AppIcon(icon: AppIcons.you),
+              title: Text(entity.name),
+              subtitle: Text(entity.entityType),
             ),
           ],
-        ),
-        if (event.description case final description?) ...[
+        if (showSecondary) ...[
           const SizedBox(height: AppSpacing.xl),
-          AppSectionHeader(title: 'About this memory'),
+          AppSectionHeader(title: 'Evidence'),
           const SizedBox(height: AppSpacing.sm),
-          Text(description, style: Theme.of(context).textTheme.bodyLarge),
-        ],
-        if (memory.relatedEntity case final entity?) ...[
+          evidenceSection ??
+              const AppEmptyState(
+                title: 'No evidence attached',
+                message: 'Receipts and supporting documents will appear here.',
+                icon: AppIcons.database,
+              ),
           const SizedBox(height: AppSpacing.xl),
-          AppSectionHeader(title: 'Related'),
+          AppSectionHeader(title: 'Timeline history'),
           const SizedBox(height: AppSpacing.sm),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const AppIcon(icon: AppIcons.you),
-            title: Text(entity.name),
-            subtitle: Text(entity.entityType),
+          _MetadataRow(
+            label: 'Created',
+            value: MaterialLocalizations.of(
+              context,
+            ).formatMediumDate(event.metadata.createdAt.toLocal()),
+          ),
+          _MetadataRow(
+            label: 'Last updated',
+            value: MaterialLocalizations.of(
+              context,
+            ).formatMediumDate(event.metadata.updatedAt.toLocal()),
+          ),
+          _MetadataRow(
+            label: 'Status',
+            value: event.metadata.lifecycle == RecordLifecycle.archived
+                ? 'Archived'
+                : 'Active',
           ),
         ],
-        const SizedBox(height: AppSpacing.xl),
-        AppSectionHeader(title: 'Evidence and attachments'),
-        const SizedBox(height: AppSpacing.sm),
-        const AppEmptyState(
-          title: 'No evidence attached',
-          message: 'Supporting photos and documents will appear here.',
-          icon: AppIcons.image,
-        ),
-        const SizedBox(height: AppSpacing.xl),
-        AppSectionHeader(title: 'Timeline history'),
-        const SizedBox(height: AppSpacing.sm),
-        _MetadataRow(
-          label: 'Created',
-          value: MaterialLocalizations.of(
-            context,
-          ).formatMediumDate(event.metadata.createdAt.toLocal()),
-        ),
-        _MetadataRow(
-          label: 'Last updated',
-          value: MaterialLocalizations.of(
-            context,
-          ).formatMediumDate(event.metadata.updatedAt.toLocal()),
-        ),
-        _MetadataRow(
-          label: 'Status',
-          value: event.metadata.lifecycle == RecordLifecycle.archived
-              ? 'Archived'
-              : 'Active',
-        ),
       ],
     );
   }

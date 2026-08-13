@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:life_timeline/design_system/design_system.dart';
+import 'package:life_timeline/features/media/application/media_providers.dart';
+import 'package:life_timeline/features/media/presentation/managed_memory_image.dart';
 import 'package:life_timeline/features/timeline/domain/temporal_display.dart';
 import 'package:life_timeline/shared/domain/model/timeline_models.dart';
 
-final class TimelineEventTile extends StatelessWidget {
+final class TimelineEventTile extends ConsumerWidget {
   const TimelineEventTile({
     required this.memory,
     required this.onTap,
@@ -16,8 +19,13 @@ final class TimelineEventTile extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final event = memory.event;
+    final hero = ref
+        .watch(memoryMediaProvider(event.metadata.id))
+        .value
+        ?.where((item) => item.isHero)
+        .firstOrNull;
     return Semantics(
       button: true,
       label:
@@ -65,6 +73,32 @@ final class TimelineEventTile extends StatelessWidget {
                         ].join(' · '),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
+                      if (hero != null) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: SizedBox(
+                            height: AppSpacing.massive,
+                            child: AspectRatio(
+                              aspectRatio: AppMediaRatio.timelineThumbnail,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.smallControl,
+                                ),
+                                child: MemoryMediaHero(
+                                  media: hero,
+                                  child: ManagedMemoryImage(
+                                    media: hero,
+                                    semanticLabel:
+                                        hero.link.caption ?? 'Memory photo',
+                                    cacheWidth: 256,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

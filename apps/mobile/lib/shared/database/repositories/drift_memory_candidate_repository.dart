@@ -1,7 +1,9 @@
 import 'package:drift/drift.dart';
 import 'package:life_timeline/features/private_intelligence/domain/intelligence_models.dart';
+import 'package:life_timeline/features/reminders/domain/reminder.dart';
 import 'package:life_timeline/shared/database/app_database.dart' as db;
 import 'package:life_timeline/shared/database/mappers/candidate_provenance_mapper.dart';
+import 'package:life_timeline/shared/database/mappers/reminder_mapper.dart';
 import 'package:life_timeline/shared/database/mappers/timeline_mapper.dart';
 import 'package:life_timeline/shared/domain/model/field_provenance.dart';
 import 'package:life_timeline/shared/domain/model/memory_candidate.dart';
@@ -84,6 +86,20 @@ final class DriftMemoryCandidateRepository
     await _database
         .into(_database.attachments)
         .insert(TimelineMapper.attachmentToCompanion(attachment));
+    await _database
+        .into(_database.attachmentLinks)
+        .insert(
+          TimelineMapper.attachmentLinkToCompanion(
+            AttachmentLink(
+              id: 'evidence-link:${evidence.metadata.id}:${attachment.metadata.id}',
+              attachmentId: attachment.metadata.id,
+              evidenceId: evidence.metadata.id,
+              role: AttachmentRole.evidence,
+              sortOrder: 0,
+              importedAt: attachment.metadata.createdAt,
+            ),
+          ),
+        );
     await _saveCandidateAggregate(candidate);
     for (final field in provenance) {
       await _database
@@ -212,6 +228,7 @@ final class DriftMemoryCandidateRepository
     List<FieldProvenance> provenance = const [],
     List<Entity> entities = const [],
     List<Relationship> relationships = const [],
+    Reminder? reminder,
   }) => _database.transaction(() async {
     final candidateQuery = _database.select(_database.memoryCandidates)
       ..where((row) => row.id.equals(candidateId));
@@ -280,15 +297,22 @@ final class DriftMemoryCandidateRepository
           updatedAt: Value(confirmedAt.toUtc()),
         ),
       );
+      final evidenceAttachmentIds =
+          _database.selectOnly(_database.attachmentLinks)
+            ..addColumns([_database.attachmentLinks.attachmentId])
+            ..where(
+              _database.attachmentLinks.evidenceId.equals(
+                candidate.sourceEvidenceId!,
+              ),
+            );
       await (_database.update(
-            _database.attachments,
-          )..where((row) => row.evidenceId.equals(candidate.sourceEvidenceId!)))
-          .write(
-            db.AttachmentsCompanion(
-              lifecycle: const Value('confirmed'),
-              updatedAt: Value(confirmedAt.toUtc()),
-            ),
-          );
+        _database.attachments,
+      )..where((row) => row.id.isInQuery(evidenceAttachmentIds))).write(
+        db.AttachmentsCompanion(
+          lifecycle: const Value('confirmed'),
+          updatedAt: Value(confirmedAt.toUtc()),
+        ),
+      );
     }
     for (final field in provenance) {
       await _database
@@ -297,14 +321,22 @@ final class DriftMemoryCandidateRepository
             CandidateProvenanceMapper.provenanceToCompanion(field),
           );
     }
+    if (reminder != null) {
+      await _database
+          .into(_database.reminders)
+          .insert(ReminderMapper.toCompanion(reminder));
+    }
     await _database.customStatement(
       'DELETE FROM event_search WHERE event_id = ?',
       [confirmedEvent.metadata.id],
     );
     await _database.customStatement(
       '''
-      INSERT INTO event_search(event_id, title, description, event_type, entity_names, category_names)
-      VALUES (?, ?, ?, ?, ?, '')
+      INSERT INTO event_search(
+        event_id, title, description, event_type, entity_names,
+        category_names, media_captions
+      )
+      VALUES (?, ?, ?, ?, ?, '', '')
     ''',
       [
         confirmedEvent.metadata.id,

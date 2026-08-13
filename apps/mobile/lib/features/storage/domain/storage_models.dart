@@ -2,6 +2,8 @@ import 'package:life_timeline/shared/domain/model/timeline_models.dart';
 
 enum ArchiveDestinationType { userSelectedFile }
 
+enum ArchiveSourceKind { main, preservedOriginal }
+
 final class ArchiveReference {
   ArchiveReference({
     required this.id,
@@ -16,6 +18,7 @@ final class ArchiveReference {
     required this.formatVersion,
     required DateTime archivedAt,
     required DateTime verifiedAt,
+    this.sourceKind = ArchiveSourceKind.main,
   }) : archivedAt = archivedAt.toUtc(),
        verifiedAt = verifiedAt.toUtc() {
     if (id.trim().isEmpty ||
@@ -34,6 +37,7 @@ final class ArchiveReference {
 
   final int archiveByteSize;
   final String archiveSha256;
+  final ArchiveSourceKind sourceKind;
   final DateTime archivedAt;
   final String attachmentId;
   final ArchiveDestinationType destinationType;
@@ -47,10 +51,15 @@ final class ArchiveReference {
 }
 
 final class StoredAttachment {
-  const StoredAttachment({required this.attachment, this.archiveReference});
+  const StoredAttachment({
+    required this.attachment,
+    this.archiveReference,
+    this.roles = const {},
+  });
 
   final ArchiveReference? archiveReference;
   final Attachment attachment;
+  final Set<AttachmentRole> roles;
 }
 
 final class ManagedFileMeasurement {

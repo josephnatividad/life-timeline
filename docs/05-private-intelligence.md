@@ -64,6 +64,12 @@ Never present unsupported model-generated personal history as fact.
 
 ## Capture pipeline
 
+Document scanning and Memory Media import are intentionally separate. Add
+Photos stores a curated memory image and never starts OCR automatically. Scan
+Document is the explicit extraction path for receipts, warranties, tickets,
+certificates, and official documents. Image recognition, face inference,
+location inference, and embeddings are not run for Memory Media in V1.
+
 ``` text
 Photo/document
       ↓

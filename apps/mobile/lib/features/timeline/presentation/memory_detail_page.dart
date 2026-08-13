@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:life_timeline/app/navigation/app_routes.dart';
 import 'package:life_timeline/design_system/design_system.dart';
+import 'package:life_timeline/features/media/presentation/memory_media_gallery.dart';
+import 'package:life_timeline/features/reminders/presentation/memory_reminder_section.dart';
 import 'package:life_timeline/features/stories/application/story_providers.dart';
 import 'package:life_timeline/features/timeline/application/timeline_providers.dart';
 import 'package:life_timeline/features/timeline/presentation/widgets/memory_summary.dart';
 import 'package:life_timeline/shared/domain/model/record_metadata.dart';
+import 'package:life_timeline/shared/domain/model/timeline_models.dart';
 
 final class MemoryDetailPage extends ConsumerWidget {
   const MemoryDetailPage({required this.memoryId, super.key});
@@ -57,7 +60,22 @@ final class MemoryDetailPage extends ConsumerWidget {
                 child: ScreenContainer(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [MemorySummary(memory: value)],
+                    children: [
+                      MemoryHeroMedia(memoryId: memoryId),
+                      const SizedBox(height: AppSpacing.xl),
+                      MemorySummary(memory: value, showSecondary: false),
+                      const SizedBox(height: AppSpacing.xxl),
+                      MemoryReminderSection(memory: value),
+                      const SizedBox(height: AppSpacing.xxl),
+                      MemoryMediaGallery(memoryId: memoryId, showHero: false),
+                      MemorySummary(
+                        memory: value,
+                        showPrimary: false,
+                        evidenceSection: _MemoryEvidenceSection(
+                          memoryId: memoryId,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -197,4 +215,50 @@ final class MemoryDetailPage extends ConsumerWidget {
       ),
     );
   }
+}
+
+final class _MemoryEvidenceSection extends ConsumerWidget {
+  const _MemoryEvidenceSection({required this.memoryId});
+
+  final String memoryId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final evidence = ref.watch(memoryEvidenceProvider(memoryId));
+    return evidence.when(
+      loading: () => const AppLoadingState(label: 'Loading evidence'),
+      error: (error, stackTrace) => const AppErrorState(
+        title: 'Evidence unavailable',
+        message: 'Supporting records could not be opened.',
+      ),
+      data: (values) => values.isEmpty
+          ? const AppEmptyState(
+              title: 'No evidence attached',
+              message: 'Receipts and supporting documents will appear here.',
+              icon: AppIcons.database,
+            )
+          : Column(
+              children: [
+                for (final item in values)
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const AppIcon(icon: AppIcons.database),
+                    title: Text(item.evidence.title),
+                    subtitle: Text(
+                      '${_evidenceTypeLabel(item.evidence.evidenceType)} · ${item.attachmentCount} ${item.attachmentCount == 1 ? 'attachment' : 'attachments'}',
+                    ),
+                  ),
+              ],
+            ),
+    );
+  }
+
+  String _evidenceTypeLabel(EvidenceType value) => switch (value) {
+    EvidenceType.receipt => 'Receipt',
+    EvidenceType.warranty => 'Warranty',
+    EvidenceType.certificate => 'Certificate',
+    EvidenceType.ticket => 'Ticket',
+    EvidenceType.officialDocument => 'Official document',
+    EvidenceType.other => 'Other evidence',
+  };
 }
