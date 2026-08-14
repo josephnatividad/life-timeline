@@ -81,6 +81,19 @@ void main() {
     expect(find.text('Add Photos'), findsOneWidget);
     expect(find.text('Scan Document'), findsOneWidget);
 
+    await tester.tap(find.text('Scan Document'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        'Documents stay on this device. Add the important details yourself.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Attach it privately, then enter the details yourself.'),
+      findsOneWidget,
+    );
+
     await tester.tapAt(const Offset(8, 8));
     await tester.pumpAndSettle();
     expect(find.text('Patterns in your life'), findsOneWidget);

@@ -68,14 +68,18 @@ cases on both Android and iOS unless marked otherwise.
   receipt, personal photo, exact travel dates, share-safe fields, and protected
   evidence media. `neverShare` cannot export; sensitive/personal inclusion
   follows explicit-sharing policy; evidence is never ordinary Story media.
-- [ ] Perform OCR in airplane mode. Confirm capture, candidate editing, linking,
-  and confirmation work without internet.
-- [ ] Inspect release-build network traffic before/during/after OCR on Android and
-  iOS. Record all DNS/connections and compare with Google's ML Kit disclosures.
-  Do not mark external-release privacy approved until the P0 owner decision is
-  closed.
-- [ ] Confirm Android release manifest lacks `INTERNET` and
-  `ACCESS_NETWORK_STATE`; do not use a debug manifest for this assertion.
+- [ ] With networking unavailable, confirm Scan Document still captures/imports
+  a document as local Evidence, supports manual details, and preserves Memory
+  Inbox state. No OCR or upload claim is shown.
+- [ ] Inspect release-build network traffic while using timeline, Scan Document,
+  Ask My Life, Insights, Stories, search, and image processing. These paths must
+  make no application network request.
+- [ ] Inspect Drive connect, automatic upload, list, download, retention, and
+  disconnect separately. Record all DNS/connections and confirm only approved
+  Google authorization/Drive endpoints are reached.
+- [ ] Confirm the Android release manifest contains `INTERNET` and
+  `ACCESS_NETWORK_STATE` only for the documented encrypted Drive backup path;
+  do not use a debug manifest for this assertion.
 - [ ] Verify PIN enrollment, 4-12 digit bounds, persisted retry throttling,
   successful reset of retry state, and no PIN/recovery password in screenshots,
   clipboard, logs, or crash output.

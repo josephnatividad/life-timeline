@@ -13,12 +13,35 @@ Flutter + Dart
 ├── local_auth            biometric authentication
 ├── flutter_secure_storage secure key material
 ├── share_plus            system sharing
-├── On-device OCR/ML      capture intelligence
+├── Local intelligence port capability-gated local processing
 └── Platform channels     only when required
 ```
 
 Package choices should be verified at implementation time for
 maintenance, platform support, license and compatibility.
+
+## Approved network services
+
+Network availability is not a general capability grant. Infrastructure may
+contact only an external service that has an accepted architecture/privacy
+decision and a narrow application port. Domain and presentation code must not
+create network clients or depend on provider SDK types.
+
+The initial approved service is Google Drive acting only as a user-owned
+encrypted `BackupDestination`. Timeline records and attachments must be
+packaged and encrypted locally before this boundary. OCR, Ask My Life,
+Insights, Stories, search, classification, extraction, and image processing
+remain local and have no network fallback.
+
+Every added network-capable dependency requires a dependency, data-flow,
+logging, privacy, and release-manifest review. Merely having `INTERNET`
+permission does not authorize a feature to use it.
+
+The production Drive implementation is isolated behind `BackupDestination`
+and `BackupDestinationAuthorization`. Provider SDK/API types stay in
+infrastructure. The only requested OAuth scope is `drive.appdata`; the app is
+not granted general access to the user's visible Drive. The connection is a
+backup destination, not a Life Timeline account.
 
 ## Architecture
 

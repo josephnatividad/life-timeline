@@ -1,12 +1,19 @@
 # Phase 1 Decisions Required
 
-Status: product/privacy-owner input required before external release
+Status: remaining product/privacy-owner input required before external release
 
 This register contains only choices that cannot be settled safely as technical
 stabilization. PDDs, accepted ADRs, and `AGENTS.md` remain authoritative until a
 decision is accepted and incorporated into them.
 
 ## P0 - OCR SDK metrics and the no-analytics promise
+
+**Resolved 2026-08-14:** the owner approved removal of ML Kit before enabling
+production Internet permission. The SDK and its native OCR dependency were
+removed; existing OCR-derived records/provenance and the extraction architecture
+remain. Manual document Evidence capture is the short-term bridge, no cloud OCR
+is permitted, and Android engine selection is deferred to the non-personal
+fixture benchmark in `research/LOCAL-OCR-REPLACEMENT.md`.
 
 **Decision**
 

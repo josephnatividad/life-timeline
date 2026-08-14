@@ -1,16 +1,19 @@
 # Phase 1 Security Review
 
-Status: implementation review for the local app lock and manual encrypted
-backup/restore foundation. This document describes the current implementation,
-not a promise that all device compromise is preventable.
+Status: implementation review for the local app lock, manual encrypted
+backup/restore, and optional user-owned Google Drive automatic-backup
+foundation. This document describes the current implementation, not a promise
+that all device compromise is preventable.
 
 ## Scope and authority
 
 This foundation follows `06-security-privacy.md`,
 `07-backup-archive-recovery.md`, accepted ADRs, and `AGENTS.md`. It adds no
-account, backend, analytics, developer-owned cloud storage, or cloud AI.
-Backup and archive are user-initiated local exports and remain distinct:
-backup protects against loss, while archive may free device space.
+account, backend, analytics, developer-owned cloud storage, cloud AI, or cloud
+OCR. Manual backup remains a user-selected local export. Optional automatic
+backup sends only an already encrypted LTBACK01 artifact directly to the
+user's Google Drive `appDataFolder` through the approved `BackupDestination`.
+Backup protects against loss, while archive may free device space.
 
 ## Threat model
 
@@ -44,6 +47,8 @@ guess the user's PIN or recovery password.
 | Biometrics | `local_auth` | Uses OS face/fingerprint authentication. The app neither receives nor stores biometric templates. |
 | Archive | `archive` ZIP | Portable, stream-oriented packaging before encryption. Archive paths, entry types, count, and expanded size are validated independently. |
 | File selection | `file_picker` | Provides native import/export selection on the supported Flutter targets. |
+| User-owned remote destination | `google_sign_in`, `googleapis` | Minimum `drive.appdata` authorization and direct Drive v3 transport for opaque encrypted backup objects only. |
+| Opportunistic scheduling | `workmanager` | Requests OS-controlled background work with the selected network/charging constraints; it is not a content transport. |
 
 `file_picker` is pinned to the 10.3.x line for Flutter 3.44 compatibility; the
 11.x line assumes AGP 9 built-in Kotlin. Android compilation also disables
@@ -95,11 +100,20 @@ from becoming necessary for recovery.
 ## Recovery-password lifecycle
 
 The user enters and confirms an independent recovery password when creating a
-backup. The raw password is held only for the operation and is not serialized.
-A separate salted Argon2id verifier may be retained in platform secure storage
-to report whether recovery has been configured; that verifier is not required
-to restore and cannot decrypt the backup. Choosing a new password for a future
-backup replaces this local verifier and does not re-encrypt older backups.
+manual backup. Its raw value is held only for that operation. A separate salted
+Argon2id verifier may be retained in platform secure storage to report whether
+recovery has been configured; that verifier is not required to restore and
+cannot decrypt the backup.
+
+Automatic backup is off by default. Enabling it is an explicit decision to
+retain the recovery password in device-only secure storage so unattended local
+encryption is possible. Android uses non-migrating secure-storage options and
+application backup is disabled; Apple uses
+`AfterFirstUnlockThisDeviceOnly`-equivalent accessibility without
+synchronization. The credential is deleted when automatic backup is disabled,
+is never uploaded or logged, and is not required on a replacement device when
+the user knows the password. Choosing a new password for a future backup does
+not re-encrypt older backups.
 
 There is no service-side escrow or password reset. Losing the password can make
 that backup permanently unrecoverable. The UI states this before export.
@@ -244,16 +258,18 @@ content, or attachments.
   compatibility. A future Flutter upgrade must migrate the app and plugins to
   built-in Kotlin before that compatibility is removed.
 - Google documents performance/utilization and diagnostic data collection for
-  the native ML Kit SDK used by OCR. Android release removes network permissions,
-  but iOS has no equivalent manifest gate. This conflicts with the unqualified
-  no-analytics product promise and is a P0 product/privacy decision. See
-  `PRIVATE-INTELLIGENCE-REVIEW.md`.
+  the former native ML Kit OCR SDK. That SDK was removed before production
+  Internet permission was enabled. Existing OCR-derived records and provenance
+  remain data-compatible, private OCR remains required, and no cloud OCR
+  fallback is permitted. See `PRIVATE-INTELLIGENCE-REVIEW.md` and
+  `../research/LOCAL-OCR-REPLACEMENT.md`.
 - Restore retains obsolete app-managed attachment generations after a
   successful replacement. They are app-private but consume space until a
   separately designed, transaction-aware cleanup policy exists.
-- No cloud redundancy, automatic backup scheduling, password escrow, or remote
-  recovery exists. Users remain responsible for securely retaining both file
-  and password.
+- Automatic Google Drive redundancy is opportunistic, optional, and limited to
+  the latest verified encrypted generations. There is no developer-operated
+  storage, password escrow, or password reset. Users remain responsible for
+  retaining the independent recovery password.
 
 ## Future hardening opportunities
 
@@ -276,8 +292,9 @@ content, or attachments.
 
 The design preserves the central recovery invariant: restoration does not
 depend on the original device or device-bound secure storage. App-lock and
-backup foundations have no known automated-test blocker. The ML Kit metrics
-conflict is separately blocking for an external release that includes OCR
-under the current privacy promise; the remaining device/platform checks are
-release gates for claims beyond local app locking and user-managed encrypted
-backup.
+backup foundations have no known automated-test blocker. ML Kit was removed
+rather than weakening the privacy promise. Public V1 still requires either a
+privacy-approved local OCR replacement or an explicit product decision to ship
+manual document capture without OCR. Google OAuth deployment configuration,
+physical-device network isolation checks, and iOS build verification remain
+release gates for automatic Drive backup.

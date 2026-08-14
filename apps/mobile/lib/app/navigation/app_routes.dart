@@ -16,10 +16,12 @@ enum AppRoute {
   security(name: 'security', path: '/security'),
   setPin(name: 'set-pin', path: '/security/pin'),
   createBackup(name: 'create-backup', path: '/backup/create'),
+  automaticBackup(name: 'automatic-backup', path: '/backup/automatic'),
   backupProgress(name: 'backup-progress', path: '/backup/progress'),
   backupComplete(name: 'backup-complete', path: '/backup/complete'),
   restoreEntry(name: 'restore-entry', path: '/restore'),
   chooseBackup(name: 'choose-backup', path: '/restore/choose'),
+  driveBackups(name: 'drive-backups', path: '/restore/drive'),
   enterRecoveryPassword(
     name: 'enter-recovery-password',
     path: '/restore/password',

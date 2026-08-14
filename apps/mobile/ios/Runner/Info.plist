@@ -29,9 +29,18 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>Use Face ID to unlock your private timeline on this device.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Capture a document or memory for private on-device reading.</string>
+	<string>Capture a document or memory to keep in your local timeline.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Choose a photo to read privately on this device.</string>
+	<string>Choose a photo or document to keep in your local timeline.</string>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.lifetimeline.lifeTimeline.automaticBackup</string>
+		<string>com.lifetimeline.lifeTimeline.automaticBackup.soon</string>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>processing</string>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

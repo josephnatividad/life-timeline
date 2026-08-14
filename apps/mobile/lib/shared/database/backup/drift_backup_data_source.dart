@@ -71,6 +71,45 @@ final class DriftBackupDataSource implements BackupDataSource {
   }
 
   @override
+  Future<DateTime?> latestUserChangeAt() async {
+    DateTime? latest;
+    for (final table in _tablesInInsertOrder) {
+      final columns = await _database
+          .customSelect('PRAGMA table_info("$table")')
+          .get();
+      final names = {for (final row in columns) row.read<String>('name')};
+      final timestampColumn = names.contains('updated_at')
+          ? 'updated_at'
+          : names.contains('created_at')
+          ? 'created_at'
+          : names.contains('imported_at')
+          ? 'imported_at'
+          : null;
+      if (timestampColumn == null) continue;
+      final row = await _database
+          .customSelect(
+            'SELECT MAX("$timestampColumn") AS latest FROM "$table"',
+          )
+          .getSingle();
+      final raw = row.data['latest'];
+      final value = switch (raw) {
+        final DateTime date => date.toUtc(),
+        // Drift's default SQLite mapping stores DateTime as Unix seconds.
+        final int seconds => DateTime.fromMillisecondsSinceEpoch(
+          seconds * 1000,
+          isUtc: true,
+        ),
+        final String text => DateTime.tryParse(text)?.toUtc(),
+        _ => null,
+      };
+      if (value != null && (latest == null || value.isAfter(latest))) {
+        latest = value;
+      }
+    }
+    return latest;
+  }
+
+  @override
   Future<void> replaceWithSnapshot(DatabaseSnapshot snapshot) async {
     if (snapshot.schemaVersion < 1 || snapshot.schemaVersion > schemaVersion) {
       throw const BackupFailure('unsupported_database_version');

@@ -35,7 +35,10 @@ final class _CaptureFoundationSheetState
 
   @override
   Widget build(BuildContext context) {
-    final usage = ref.watch(aiCaptureUsageProvider).value;
+    final capabilities = ref.watch(privateIntelligenceCapabilitiesProvider);
+    final usage = capabilities.documentExtractionAvailable
+        ? ref.watch(aiCaptureUsageProvider).value
+        : null;
     return AppBottomSheet(
       title: 'Capture',
       child: Column(
@@ -49,7 +52,9 @@ final class _CaptureFoundationSheetState
           const SizedBox(height: AppSpacing.sm),
           Text(
             _showScanSources
-                ? 'Document text is read on this device. Nothing is uploaded.'
+                ? capabilities.textRecognitionAvailable
+                      ? 'Document text is read on this device. Nothing is uploaded.'
+                      : 'Documents stay on this device. Add the important details yourself.'
                 : 'Record a memory, add its photos, or scan supporting documents.',
             textAlign: TextAlign.center,
           ),
@@ -70,16 +75,18 @@ final class _CaptureFoundationSheetState
               key: const Key('scan-document-camera'),
               icon: AppIcons.camera,
               title: 'Take document photo',
-              subtitle:
-                  'Extract details locally, then review every suggestion.',
+              subtitle: capabilities.documentExtractionAvailable
+                  ? 'Extract details locally, then review every suggestion.'
+                  : 'Attach it privately, then enter the details yourself.',
               source: CaptureSource.scan,
             ),
             _action(
               key: const Key('scan-document-library'),
               icon: AppIcons.gallery,
               title: 'Choose document photo',
-              subtitle:
-                  'Use an existing receipt, warranty, ticket, or document.',
+              subtitle: capabilities.documentExtractionAvailable
+                  ? 'Use an existing receipt, warranty, ticket, or document.'
+                  : 'Attach an existing document without uploading it.',
               source: CaptureSource.photoLibrary,
             ),
             ListTile(
@@ -115,7 +122,7 @@ final class _CaptureFoundationSheetState
               leading: const AppIcon(icon: AppIcons.intelligence),
               title: const Text('Scan Document'),
               subtitle: const Text(
-                'Extract details from a receipt, warranty, ticket, or document.',
+                'Attach a receipt, warranty, ticket, or document privately.',
               ),
               trailing: const AppIcon(icon: AppIcons.next),
               onTap: () => setState(() => _showScanSources = true),
@@ -155,6 +162,7 @@ final class _CaptureFoundationSheetState
   );
 
   Future<void> _capture(CaptureSource source) async {
+    final capabilities = ref.read(privateIntelligenceCapabilitiesProvider);
     setState(() => _stage = 'Starting private capture');
     try {
       final result = await ref
@@ -187,7 +195,9 @@ final class _CaptureFoundationSheetState
       if (!mounted) return;
       setState(() => _stage = null);
       _message(
-        'This image could not be read locally. Your timeline was not changed.',
+        capabilities.textRecognitionAvailable
+            ? 'This image could not be read locally. Your timeline was not changed.'
+            : 'This document could not be attached. Your timeline was not changed.',
       );
     }
   }

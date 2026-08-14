@@ -1,6 +1,27 @@
 import 'package:life_timeline/shared/crypto/crypto_models.dart';
 
-enum BackupDestinationType { localFile }
+enum BackupDestinationType { localFile, googleDrive }
+
+enum BackupDestinationAvailability {
+  ready,
+  needsAuthorization,
+  unavailable,
+  misconfigured,
+}
+
+final class BackupDestinationStatus {
+  const BackupDestinationStatus({
+    required this.availability,
+    this.accountLabel,
+    this.detailCode,
+  });
+
+  final String? accountLabel;
+  final BackupDestinationAvailability availability;
+  final String? detailCode;
+
+  bool get isReady => availability == BackupDestinationAvailability.ready;
+}
 
 enum BackupPhase { preparing, encrypting, packaging, saving, verifying }
 
@@ -206,6 +227,79 @@ final class BackupResult {
   final int byteSize;
   final DateTime createdAt;
   final String path;
+  final bool verified;
+}
+
+/// A complete LTBACK01 file that has been encrypted and verified locally.
+final class VerifiedBackupArtifact {
+  const VerifiedBackupArtifact({
+    required this.backupId,
+    required this.path,
+    required this.stagingDirectory,
+    required this.createdAt,
+    required this.byteSize,
+    required this.sha256,
+    required this.formatVersion,
+    required this.databaseSchemaVersion,
+    required this.attachmentCount,
+  });
+
+  final int attachmentCount;
+  final String backupId;
+  final int byteSize;
+  final DateTime createdAt;
+  final int databaseSchemaVersion;
+  final int formatVersion;
+  final String path;
+  final String sha256;
+  final String stagingDirectory;
+}
+
+final class BackupUploadResult {
+  const BackupUploadResult({
+    required this.providerReference,
+    required this.verified,
+    required this.byteSize,
+    required this.sha256,
+  });
+
+  final int byteSize;
+  final String providerReference;
+  final String sha256;
+  final bool verified;
+}
+
+final class RemoteBackupInfo {
+  const RemoteBackupInfo({
+    required this.providerReference,
+    required this.backupId,
+    required this.createdAt,
+    required this.formatVersion,
+    required this.databaseSchemaVersion,
+    required this.byteSize,
+    required this.sha256,
+  });
+
+  final String backupId;
+  final int byteSize;
+  final DateTime createdAt;
+  final int databaseSchemaVersion;
+  final int formatVersion;
+  final String providerReference;
+  final String sha256;
+}
+
+final class BackupDownloadResult {
+  const BackupDownloadResult({
+    required this.path,
+    required this.byteSize,
+    required this.sha256,
+    required this.verified,
+  });
+
+  final int byteSize;
+  final String path;
+  final String sha256;
   final bool verified;
 }
 

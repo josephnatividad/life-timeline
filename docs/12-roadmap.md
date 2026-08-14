@@ -45,6 +45,12 @@ Do not require:
 
 ## Phase 2 --- Private Intelligence
 
+Private OCR remains required unless product scope explicitly approves shipping
+manual document capture without OCR. The former ML Kit implementation was
+removed from network-enabled builds because of SDK metrics; a privacy-approved
+local replacement must pass the benchmark in
+`research/LOCAL-OCR-REPLACEMENT.md`. Cloud OCR is not an alternative.
+
 -   On-device OCR
 -   Receipt/document extraction
 -   Candidate memory generation
@@ -75,6 +81,10 @@ Do not require:
 -   Google Drive/user-selected provider integration
 -   Backup health
 -   Recovery Kit
+
+The Google Drive `appDataFolder` automatic-backup foundation is implemented
+early as a stabilization dependency. Phase 4 still owns broader provider
+support, Recovery Kit product work, and long-term backup-health refinement.
 
 ## Phase 5 --- Advanced Private AI
 

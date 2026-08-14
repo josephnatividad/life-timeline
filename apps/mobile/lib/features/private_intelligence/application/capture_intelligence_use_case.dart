@@ -3,6 +3,7 @@
 import 'dart:math';
 
 import 'package:life_timeline/features/private_intelligence/application/intelligence_ports.dart';
+import 'package:life_timeline/features/private_intelligence/application/private_intelligence_capabilities.dart';
 import 'package:life_timeline/features/private_intelligence/domain/document_intelligence.dart';
 import 'package:life_timeline/features/private_intelligence/domain/intelligence_models.dart';
 import 'package:life_timeline/shared/domain/model/field_provenance.dart';
@@ -45,6 +46,7 @@ final class CaptureIntelligenceUseCase {
     required FeatureUsageRepository usage,
     required EntitlementService entitlements,
     required ComplimentaryUsagePolicy usagePolicy,
+    required PrivateIntelligenceCapabilities capabilities,
     IntelligenceIdGenerator? ids,
     DeterministicDocumentClassifier classifier =
         const DeterministicDocumentClassifier(),
@@ -59,6 +61,7 @@ final class CaptureIntelligenceUseCase {
        _usage = usage,
        _entitlements = entitlements,
        _usagePolicy = usagePolicy,
+       _capabilities = capabilities,
        _ids = ids ?? IntelligenceIdGenerator(),
        _classifier = classifier,
        _extraction = extraction ?? DeterministicExtractionPipeline(),
@@ -67,6 +70,7 @@ final class CaptureIntelligenceUseCase {
   final ImageAcquisitionService _acquisition;
   final CandidateAttachmentStore _attachments;
   final MemoryCandidateRepository _candidates;
+  final PrivateIntelligenceCapabilities _capabilities;
   final DeterministicDocumentClassifier _classifier;
   final EntitlementService _entitlements;
   final DeterministicExtractionPipeline _extraction;
@@ -82,12 +86,14 @@ final class CaptureIntelligenceUseCase {
     CaptureSource source, {
     CaptureStageChanged? onStage,
   }) async {
-    final hasPro = await _entitlements.hasAccess(ProFeature.aiCapture);
-    final used = await _usage.usageCount(ProFeature.aiCapture);
-    if (!hasPro && used >= _usagePolicy.aiCaptureActions) {
-      return const CaptureIntelligenceResult(
-        CaptureIntelligenceOutcome.limitReached,
-      );
+    if (_capabilities.documentExtractionAvailable) {
+      final hasPro = await _entitlements.hasAccess(ProFeature.aiCapture);
+      final used = await _usage.usageCount(ProFeature.aiCapture);
+      if (!hasPro && used >= _usagePolicy.aiCaptureActions) {
+        return const CaptureIntelligenceResult(
+          CaptureIntelligenceOutcome.limitReached,
+        );
+      }
     }
     onStage?.call('Choose an image');
     final captured = await _acquisition.acquire(source);
@@ -102,6 +108,65 @@ final class CaptureIntelligenceUseCase {
     try {
       onStage?.call('Preparing image privately');
       prepared = await _preparation.prepare(captured);
+      if (!_capabilities.textRecognitionAvailable) {
+        onStage?.call('Creating a private document draft');
+        final candidateId = _ids.next('candidate');
+        final evidenceId = _ids.next('evidence');
+        final attachmentId = _ids.next('attachment');
+        managed = await _attachments.store(prepared, attachmentId);
+        final now = _now().toUtc();
+        const privacy = PrivacyClassification.sensitive;
+        await _candidates.saveCaptureCandidate(
+          candidate: MemoryCandidate(
+            metadata: RecordMetadata(
+              id: candidateId,
+              privacyClassification: privacy,
+              lifecycle: RecordLifecycle.candidate,
+              createdAt: now,
+              updatedAt: now,
+            ),
+            title: 'Document to review',
+            temporalValue: TemporalValue.unknown(),
+            sourceEvidenceId: evidenceId,
+            documentType: DocumentType.genericDocument,
+            extractedFields: const [],
+            entityProposals: const [],
+          ),
+          evidence: Evidence(
+            metadata: RecordMetadata(
+              id: evidenceId,
+              privacyClassification: privacy,
+              lifecycle: RecordLifecycle.candidate,
+              createdAt: now,
+              updatedAt: now,
+            ),
+            evidenceType: EvidenceType.officialDocument,
+            title: 'Document evidence',
+            summary: 'Document attached manually; review required.',
+          ),
+          attachment: Attachment(
+            metadata: RecordMetadata(
+              id: attachmentId,
+              privacyClassification: privacy,
+              lifecycle: RecordLifecycle.candidate,
+              createdAt: now,
+              updatedAt: now,
+            ),
+            storageState: AttachmentStorageState.local,
+            importMode: AttachmentImportMode.optimizedCopy,
+            mimeType: prepared.mimeType,
+            byteSize: managed.byteSize,
+            checksum: managed.checksum,
+            displayName: 'Document.jpg',
+            relativePath: managed.relativePath,
+          ),
+        );
+        managed = null;
+        return CaptureIntelligenceResult(
+          CaptureIntelligenceOutcome.created,
+          candidateId: candidateId,
+        );
+      }
       onStage?.call('Reading text on this device');
       final document = await _recognizer.recognize(prepared.path);
       if (document.isEmpty || document.text.trim().length < 8) {

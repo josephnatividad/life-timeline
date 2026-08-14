@@ -11,6 +11,40 @@ If future telemetry, purchases, support or optional services process
 personal data, those systems must remain clearly separated from timeline
 content.
 
+## Network boundary
+
+Network access is deny-by-default at the architecture level even when a
+platform grants the application Internet permission. The first approved
+network use is direct Google Drive access for the user's encrypted backup
+artifact. The provider receives the minimum OAuth/account/network metadata,
+opaque encrypted bytes, and non-sensitive operational metadata needed for
+backup generations. Life Timeline operates no proxy or server-side timeline
+copy.
+
+OCR, Ask My Life, Insights, Stories, search, extraction, and image processing
+must remain local. They must not reuse the backup network client or introduce a
+cloud fallback.
+
+The prior ML Kit OCR SDK was removed from network-enabled builds because Google
+documents collection of SDK utilization and performance metrics. OCR-derived
+records, Evidence, candidate state, and provenance remain compatible. Scan
+Document temporarily supports private manual Evidence capture while a
+telemetry-free local OCR engine is benchmarked. No cloud OCR replacement is
+permitted.
+
+Automatic backup may store the recovery password only after explicit opt-in.
+That copy is device-only: Android secure storage disables backup migration,
+and iOS uses `AfterFirstUnlockThisDeviceOnly` with synchronization disabled.
+It is never placed in LTBACK01, Drive metadata, logs, analytics, or app
+infrastructure. Disabling automatic backup deletes this unattended-use copy.
+
+Google Drive receives an opaque encrypted LTBACK01 file plus operational
+metadata required to list and verify generations (format/schema versions,
+creation time, byte count, and encrypted-file checksum). It does not receive
+plaintext timeline fields, attachment names, OCR text, recovery passwords, or
+encryption keys. Upload byte count and Drive's server-side SHA-256 must match
+before the generation is accepted.
+
 ## Data handling rules
 
 Never send these to analytics/crash systems:

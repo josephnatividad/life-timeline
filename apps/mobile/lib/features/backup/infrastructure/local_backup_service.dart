@@ -9,7 +9,8 @@ import 'package:life_timeline/features/backup/domain/backup_ports.dart';
 import 'package:life_timeline/shared/crypto/crypto_models.dart';
 import 'package:path/path.dart' as p;
 
-final class LocalBackupService implements BackupBuilder, BackupRestoreService {
+final class LocalBackupService
+    implements BackupBuilder, BackupArtifactBuilder, BackupRestoreService {
   const LocalBackupService(
     this._dataSource,
     this._attachmentStorage,
@@ -30,13 +31,46 @@ final class LocalBackupService implements BackupBuilder, BackupRestoreService {
   final AppVersionProvider _appVersion;
   final ManagedAttachmentStorage _attachmentStorage;
   final BackupDataSource _dataSource;
-  final BackupDestination _destination;
+  final BackupFileGateway _destination;
   final EncryptionService _encryption;
   final KdfParameters _kdf;
   final DateTime Function() _now;
 
   @override
   Future<BackupResult?> create({
+    required String recoveryPassword,
+    required void Function(BackupProgress progress) onProgress,
+  }) async {
+    final artifact = await build(
+      recoveryPassword: recoveryPassword,
+      onProgress: onProgress,
+    );
+    try {
+      onProgress(const BackupProgress(phase: BackupPhase.saving));
+      final destination = await _destination.saveExport(
+        sourcePath: artifact.path,
+        suggestedName: _suggestedName(artifact.createdAt),
+        expectedSha256: artifact.sha256,
+      );
+      if (destination == null) {
+        return null;
+      }
+      if (!destination.verified) {
+        throw const BackupFailure('backup_destination_verification_failed');
+      }
+      return BackupResult(
+        path: destination.displayPath,
+        createdAt: artifact.createdAt,
+        byteSize: artifact.byteSize,
+        verified: true,
+      );
+    } finally {
+      await discardArtifact(artifact);
+    }
+  }
+
+  @override
+  Future<VerifiedBackupArtifact> build({
     required String recoveryPassword,
     required void Function(BackupProgress progress) onProgress,
   }) async {
@@ -112,28 +146,27 @@ final class LocalBackupService implements BackupBuilder, BackupRestoreService {
         throw const BackupFailure('backup_verification_failed');
       }
 
-      onProgress(const BackupProgress(phase: BackupPhase.saving));
-      final destination = await _destination.saveExport(
-        sourcePath: encryptedPath,
-        suggestedName: _suggestedName(createdAt),
-        expectedSha256: await _encryption.sha256File(encryptedPath),
-      );
-      if (destination == null) {
-        return null;
-      }
-      if (!destination.verified) {
-        throw const BackupFailure('backup_destination_verification_failed');
-      }
-      return BackupResult(
-        path: destination.displayPath,
+      final encryptedSha256 = await _encryption.sha256File(encryptedPath);
+      return VerifiedBackupArtifact(
+        backupId: p.basename(operation.path),
+        path: encryptedPath,
+        stagingDirectory: operation.path,
         createdAt: createdAt,
         byteSize: await File(encryptedPath).length(),
-        verified: true,
+        sha256: encryptedSha256,
+        formatVersion: 1,
+        databaseSchemaVersion: snapshot.schemaVersion,
+        attachmentCount: manifest.attachmentCount,
       );
-    } finally {
+    } on Object {
       await _deleteDirectory(operation);
+      rethrow;
     }
   }
+
+  @override
+  Future<void> discardArtifact(VerifiedBackupArtifact artifact) =>
+      _deleteDirectory(Directory(artifact.stagingDirectory));
 
   @override
   Future<EncryptedContainerHeader> inspect(String path) =>

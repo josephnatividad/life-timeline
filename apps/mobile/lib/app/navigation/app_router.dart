@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:life_timeline/app/navigation/app_navigation_shell.dart';
 import 'package:life_timeline/app/navigation/app_routes.dart';
 import 'package:life_timeline/design_system/components/overlays/app_bottom_sheet.dart';
+import 'package:life_timeline/features/backup/presentation/automatic_backup_page.dart';
 import 'package:life_timeline/features/backup/presentation/create_backup_pages.dart';
 import 'package:life_timeline/features/backup/presentation/restore_pages.dart';
 import 'package:life_timeline/features/capture/presentation/capture_foundation_sheet.dart';
@@ -216,6 +217,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const CreateBackupPage(),
       ),
       GoRoute(
+        name: AppRoute.automaticBackup.name,
+        path: AppRoute.automaticBackup.path,
+        builder: (context, state) => const AutomaticBackupPage(),
+      ),
+      GoRoute(
         name: AppRoute.backupProgress.name,
         path: AppRoute.backupProgress.path,
         builder: (context, state) => const BackupProgressPage(),
@@ -234,6 +240,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoute.chooseBackup.name,
         path: AppRoute.chooseBackup.path,
         builder: (context, state) => const ChooseBackupPage(),
+      ),
+      GoRoute(
+        name: AppRoute.driveBackups.name,
+        path: AppRoute.driveBackups.path,
+        builder: (context, state) => const DriveBackupsPage(),
       ),
       GoRoute(
         name: AppRoute.enterRecoveryPassword.name,

@@ -6,6 +6,14 @@ Scope: frozen Phase 1 implementation in `apps/mobile`
 
 Authority: `AGENTS.md`, PDDs, accepted ADRs, then approved review documents
 
+> Update after the frozen audit: the ML Kit P0 described in this report was
+> resolved by removing ML Kit from network-enabled native dependency graphs.
+> Manual document Evidence capture remains, and the local OCR replacement is a
+> separate benchmark. The approved encrypted Google Drive `appDataFolder`
+> backup foundation was then added. Historical measurements and findings below
+> remain an audit record; current network findings are in
+> `research/NETWORK-DEPENDENCY-AUDIT.md`.
+
 ## Executive Summary
 
 The local-first core is coherent and the audit fixed concrete defects in
@@ -308,43 +316,48 @@ plan.
 ### Android
 
 - Flutter/FVM pin: 3.44.9 stable.
-- Source manifests preserve a release network boundary and deny application
-  backup; debug/profile include Flutter tooling internet permission.
-- Debug APK build and exact output are recorded after final validation.
-- Current builds warn that the app, `file_picker`, `flutter_timezone`,
-  `package_info_plus`, and `share_plus` still apply the Kotlin Gradle Plugin.
+- The release manifest now permits Internet/network-state access solely for
+  the approved encrypted Google Drive backup destination and still denies
+  Android application backup.
+- A release APK was built and its packaged manifest, DEX inventory, and
+  `releaseRuntimeClasspath` were audited after ML Kit removal.
+- Current builds warn that `file_picker`, `flutter_timezone`,
+  `package_info_plus`, `share_plus`, and the pinned `workmanager_android` still
+  apply the Kotlin Gradle Plugin.
   Flutter's documented app migration requires 3.47+, so the warning is WATCH
   rather than a risky RC-time migration.
 - Production application ID/signing are not approved.
 
 ### iOS
 
-- Target configuration is present with minimum iOS 15.5 for the OCR integration.
+- Target configuration remains at minimum iOS 15.5; ML Kit is no longer in the
+  dependency graph.
 - This Windows audit host cannot execute Xcode/iOS compilation, signing, SPM
   resolution, simulator, or physical-device checks. A macOS/Xcode run is required.
-- OCR metrics/privacy, Face ID/Touch ID, notification/Focus behavior, provider
-  file operations, secure-storage reinstall expectations, and snapshot cover are
+- Apple Vision/replacement-OCR evaluation, Face ID/Touch ID,
+  notification/Focus behavior, Google Drive OAuth/URL schemes, provider file
+  operations, device-only secure-storage behavior, and snapshot cover are
   explicit manual gates.
 
 Flutter's migration reference: [migrate an app to built-in Kotlin](https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers).
 
 ## Dependency Risks
 
-No audit-driven upgrades were made; dependency churn is not a substitute for
-stabilization.
+The Google Drive bridge added only the approved auth/transport/scheduler
+dependencies. Dependency churn remains separate from stabilization.
 
 | Class | Dependencies/findings | Action |
 | --- | --- | --- |
 | HEALTHY | `archive`, `cryptography`, Drift, Riverpod, GoRouter, local notifications, `image`, `image_picker`, `local_auth`, path/path-provider, timezone, Hugeicons behind `AppIcons` | Retain normal update/license review. |
-| WATCH | `google_mlkit_text_recognition` 0.15.1, `file_picker` 10.3.10, `flutter_timezone`, `package_info_plus` 9.0.1, `flutter_secure_storage` 10.3.1, `share_plus` 12.0.2, Flutter 3.44 Kotlin bridge | Reassess privacy, compatibility, changelogs, licenses, and majors in a separate upgrade branch. |
-| REPLACE LATER | EOL transitive `sqlite3_flutter_libs` and `sqlcipher_flutter_libs` compatibility packages resolved through `drift_flutter`; potentially ML Kit after the P0 decision | Follow upstream native-hook removal; do not delete transitives manually. Select/audit OCR replacement. |
+| WATCH | `file_picker` 10.3.10, `flutter_timezone`, `package_info_plus` 9.0.1, `flutter_secure_storage` 10.3.1, `share_plus` 12.0.2, the atomic Workmanager 0.9.0 compatibility set, and Flutter 3.44 Kotlin bridge | Reassess compatibility, changelogs, licenses, and majors in a separate upgrade branch; remove the Workmanager overrides after Flutter 3.47+ and plugin compatibility are verified. |
+| REPLACE LATER | EOL transitive `sqlite3_flutter_libs` and `sqlcipher_flutter_libs` compatibility packages resolved through `drift_flutter`; local OCR engine intentionally absent pending benchmark | Follow upstream native-hook removal; do not delete transitives manually. Select/audit the local OCR replacement from benchmark evidence. |
 | REMOVE | None confirmed | Avoid speculative removals during freeze. |
 
 Direct packages use permissive/open-source licenses or reviewed vendor terms.
-ML Kit is a community Flutter bridge over a Google-terms native SDK, not an
-official Google-maintained Flutter plugin. `file_picker` 11 includes fixes but
-also compatibility/API changes; upgrading solely to chase the Kotlin warning is
-not justified under the pinned toolchain.
+ML Kit was removed because its SDK metrics conflict with the privacy promise;
+no cloud OCR fallback is allowed. `file_picker` 11 includes fixes but also
+compatibility/API changes; upgrading solely to chase the Kotlin warning is not
+justified under the pinned toolchain.
 
 ## Manual QA Remaining
 
@@ -368,11 +381,11 @@ decision-gated.
 
 ## Release Recommendation
 
-**NOT READY**
+**NOT READY FOR PUBLIC V1**
 
-Reason: the known ML Kit utilization/diagnostic behavior is a P0 conflict with
-the authoritative no-analytics privacy promise. Resolve and document the product
-decision, rerun dependency/network/privacy review for the chosen implementation,
-then complete the Android/iOS device QA matrix. No known code-level P1 remains in
-the automated audit, but that does not override the P0 or unexecuted platform
-gates.
+The ML Kit privacy P0 is resolved by SDK removal, not by weakening the privacy
+promise. Remaining release gates are physical-device Drive/network QA, final
+Google OAuth/bundle identity configuration, iOS CocoaPods/Xcode build and
+dependency audit, and either restoration of a benchmarked privacy-approved
+local OCR engine or explicit product approval to ship manual document capture
+without OCR. No cloud OCR fallback is permitted.

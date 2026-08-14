@@ -1,7 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:life_timeline/design_system/design_system.dart';
+import 'package:life_timeline/features/backup/application/backup_providers.dart';
+import 'package:life_timeline/features/backup/domain/automatic_backup_models.dart';
+import 'package:life_timeline/features/backup/domain/backup_models.dart';
+import 'package:life_timeline/features/backup/presentation/automatic_backup_page.dart';
 import 'package:life_timeline/features/backup/presentation/create_backup_pages.dart';
 import 'package:life_timeline/features/backup/presentation/restore_pages.dart';
 import 'package:life_timeline/features/security/application/security_providers.dart';
@@ -108,7 +114,170 @@ void main() {
       findsOneWidget,
     );
     expect(find.byKey(const Key('restore-entry-continue')), findsOneWidget);
+    expect(find.text('Restore from Google Drive'), findsOneWidget);
   });
+
+  testWidgets('automatic backup requires matching device-only password', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          automaticBackupControllerProvider.overrideWith(
+            TestAutomaticBackupController.new,
+          ),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: const AutomaticBackupPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('never uploaded'), findsOneWidget);
+    await tester.enterText(
+      find.byKey(const Key('automatic-backup-password')),
+      'correct horse',
+    );
+    await tester.enterText(
+      find.byKey(const Key('automatic-backup-confirm-password')),
+      'different horse',
+    );
+    final enable = find.byKey(const Key('enable-automatic-backup'));
+    await tester.ensureVisible(enable);
+    await tester.pumpAndSettle();
+    await tester.tap(enable);
+    await tester.pump();
+
+    expect(find.text('The passwords do not match.'), findsOneWidget);
+  });
+
+  testWidgets('Drive authorization completion ignores a deactivated page', (
+    tester,
+  ) async {
+    final authorization = Completer<BackupDestinationStatus>();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          automaticBackupControllerProvider.overrideWith(
+            () => PendingAuthorizationBackupController(authorization),
+          ),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: const AutomaticBackupPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Connect Google Drive'));
+    await tester.pump();
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: _CompleteAuthorizationDuringBuild(authorization: authorization),
+      ),
+    );
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('missing Drive OAuth configuration is explained', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          automaticBackupControllerProvider.overrideWith(
+            MisconfiguredAutomaticBackupController.new,
+          ),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: const AutomaticBackupPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Google Drive setup required'), findsOneWidget);
+    await tester.tap(find.text('Connect Google Drive'));
+    await tester.pump();
+
+    expect(
+      find.text('Google Drive backup is not configured for this app build.'),
+      findsOneWidget,
+    );
+  });
+}
+
+final class _CompleteAuthorizationDuringBuild extends StatelessWidget {
+  const _CompleteAuthorizationDuringBuild({required this.authorization});
+
+  final Completer<BackupDestinationStatus> authorization;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!authorization.isCompleted) {
+      authorization.complete(
+        const BackupDestinationStatus(
+          availability: BackupDestinationAvailability.needsAuthorization,
+        ),
+      );
+    }
+    return const SizedBox.shrink();
+  }
+}
+
+final class PendingAuthorizationBackupController
+    extends AutomaticBackupController {
+  PendingAuthorizationBackupController(this.authorization);
+
+  final Completer<BackupDestinationStatus> authorization;
+
+  @override
+  Future<AutomaticBackupViewState> build() async =>
+      const AutomaticBackupViewState(
+        settings: AutomaticBackupSettings(),
+        runState: AutomaticBackupRunState(),
+        destinationStatus: BackupDestinationStatus(
+          availability: BackupDestinationAvailability.needsAuthorization,
+        ),
+      );
+
+  @override
+  Future<BackupDestinationStatus> authorize() => authorization.future;
+}
+
+final class MisconfiguredAutomaticBackupController
+    extends AutomaticBackupController {
+  static const missingConfiguration = BackupDestinationStatus(
+    availability: BackupDestinationAvailability.misconfigured,
+    detailCode: 'drive_client_configuration_missing',
+  );
+
+  @override
+  Future<AutomaticBackupViewState> build() async =>
+      const AutomaticBackupViewState(
+        settings: AutomaticBackupSettings(),
+        runState: AutomaticBackupRunState(),
+        destinationStatus: missingConfiguration,
+      );
+
+  @override
+  Future<BackupDestinationStatus> authorize() async => missingConfiguration;
+}
+
+final class TestAutomaticBackupController extends AutomaticBackupController {
+  @override
+  Future<AutomaticBackupViewState> build() async =>
+      const AutomaticBackupViewState(
+        settings: AutomaticBackupSettings(),
+        runState: AutomaticBackupRunState(),
+        destinationStatus: BackupDestinationStatus(
+          availability: BackupDestinationAvailability.ready,
+        ),
+      );
 }
 
 final class TestLockedSecurityController extends SecurityController {

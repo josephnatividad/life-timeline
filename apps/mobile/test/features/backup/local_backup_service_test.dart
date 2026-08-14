@@ -239,6 +239,16 @@ void main() {
     expect(snapshot.tables['memory_candidates'], hasLength(1));
   });
 
+  test('dirty-state timestamp reads Drift Unix seconds correctly', () async {
+    await _seedTimeline(sourceDatabase, sourceAttachments);
+
+    final latest = await DriftBackupDataSource(
+      sourceDatabase,
+    ).latestUserChangeAt();
+
+    expect(latest, DateTime.utc(2026, 8, 10));
+  });
+
   test('wrong password leaves an existing timeline unchanged', () async {
     await _seedTimeline(sourceDatabase, sourceAttachments);
     await _seedExistingTarget(targetDatabase);
@@ -986,7 +996,7 @@ final class TestAttachmentStorage implements ManagedAttachmentStorage {
   }
 }
 
-final class TestBackupDestination implements BackupDestination {
+final class TestBackupDestination implements BackupFileGateway {
   const TestBackupDestination(this.path);
 
   final String path;
@@ -1028,6 +1038,9 @@ final class LegacyV1BackupDataSource implements BackupDataSource {
 
   @override
   Future<bool> hasUserData() => delegate.hasUserData();
+
+  @override
+  Future<DateTime?> latestUserChangeAt() => delegate.latestUserChangeAt();
 
   @override
   Future<void> replaceWithSnapshot(DatabaseSnapshot snapshot) =>

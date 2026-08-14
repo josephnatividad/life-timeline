@@ -31,8 +31,26 @@ Implemented foundation:
 - Memory Media roles, hero/order links, captions, privacy, and checksums
 - Portable archive-reference metadata
 
-Future: - Automatic user-owned backup - Google Drive or other provider
-integration - Backup health
+Implemented automatic user-owned backup foundation:
+
+- Optional and off by default
+- Direct Google Drive `appDataFolder` destination using only `drive.appdata`
+- Existing LTBACK01 builder, encryption, restore, and integrity checks reused
+- Daily or weekly schedule, default weekly
+- Wi-Fi-only by default, with charging preferred for background work
+- Three verified generations retained by default
+- Retention runs only after a new upload passes server byte-count and SHA-256
+  verification; failure keeps older recovery points
+- Recovery password stored only on the opted-in device in non-migrating secure
+  storage and never uploaded
+- Background execution is opportunistic and operating-system controlled; the
+  UI exposes the last verified result and allows an explicit backup now
+- Fresh/empty timelines can restore either a user-selected LTBACK01 file or a
+  verified generation from the connected Drive app-data folder
+
+Provider SDK types remain in infrastructure behind `BackupDestination`.
+Additional providers remain future work and require separate privacy and
+architecture approval.
 
 ## Archive V1
 

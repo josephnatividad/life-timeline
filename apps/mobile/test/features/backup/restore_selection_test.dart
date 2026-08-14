@@ -137,7 +137,7 @@ void main() {
   );
 }
 
-final class _SelectionBackupDestination implements BackupDestination {
+final class _SelectionBackupDestination implements BackupFileGateway {
   const _SelectionBackupDestination({this.shouldFail = false});
 
   final bool shouldFail;
@@ -161,7 +161,7 @@ final class _SelectionBackupDestination implements BackupDestination {
   }
 }
 
-final class _CompletingBackupDestination implements BackupDestination {
+final class _CompletingBackupDestination implements BackupFileGateway {
   const _CompletingBackupDestination(this.selection);
 
   final Future<String?> selection;

@@ -3,6 +3,13 @@
 Status: implemented review, Phase 2 local vertical slice
 Authority: `AGENTS.md`, PDDs, and accepted ADRs remain authoritative.
 
+> Historical baseline: the ML Kit implementation reviewed below was removed
+> from network-enabled builds on 2026-08-14. It is not in the current native
+> dependency graph. The capability/repository/domain boundaries and stored
+> OCR-derived data remain, while Scan Document uses manual Evidence capture.
+> See `research/LOCAL-OCR-REPLACEMENT.md` and
+> `research/NETWORK-DEPENDENCY-AUDIT.md` for the active release position.
+
 ## Decision summary
 
 Private Intelligence V1 processes selected images on Android and iOS without an application-authored network request. The pipeline uses a bundled Latin-script ML Kit recognizer through a project-owned interface, deterministic Dart classifiers/extractors, app-private attachment storage, and the existing Drift domain/repository boundaries. OCR output remains candidate data until explicit confirmation.
@@ -117,4 +124,10 @@ Subject to a new dependency/privacy review: platform document scanners, offline 
 
 ## Review outcome
 
-A blocking privacy-policy conflict remains. OCR inference and application-authored processing are local, but the native ML Kit SDK's documented metrics are incompatible with the current unqualified no-analytics requirement. The implementation is suitable for controlled device QA; it is **not approved for external release** until the product/privacy owner chooses an audited no-telemetry OCR engine, narrows platform/release scope with a verified network boundary, or explicitly revises the privacy promise and disclosures. Physical-device traffic inspection, airplane-mode verification on both platforms, iOS build verification on Xcode, and human approval of ignored-candidate retention remain required.
+This review's blocking ML Kit conflict was resolved by removing the SDK rather
+than weakening the privacy promise. Private OCR remains a product requirement,
+and no cloud OCR fallback is approved. Public V1 is not feature-complete until
+a benchmarked privacy-approved local OCR engine is restored or product scope
+explicitly approves manual document capture without OCR. Physical-device
+network inspection and iOS build verification on Xcode remain required for the
+separate Google Drive encrypted-backup path.

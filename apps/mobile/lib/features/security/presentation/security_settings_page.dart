@@ -114,6 +114,15 @@ final class SecuritySettingsPage extends ConsumerWidget {
                   ),
                   const AppDivider(),
                   _SecurityActionRow(
+                    title: 'Automatic encrypted backup',
+                    subtitle:
+                        'Optional Google Drive app-data backup with device-only credentials.',
+                    icon: AppIcons.privacy,
+                    onTap: () =>
+                        context.pushNamed(AppRoute.automaticBackup.name),
+                  ),
+                  const AppDivider(),
+                  _SecurityActionRow(
                     title: 'Restore existing timeline',
                     subtitle: 'Restore from a backup you control.',
                     icon: AppIcons.success,

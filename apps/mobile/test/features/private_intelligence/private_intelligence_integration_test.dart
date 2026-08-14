@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:life_timeline/features/private_intelligence/application/capture_intelligence_use_case.dart';
 import 'package:life_timeline/features/private_intelligence/application/confirm_candidate_use_case.dart';
 import 'package:life_timeline/features/private_intelligence/application/intelligence_ports.dart';
+import 'package:life_timeline/features/private_intelligence/application/private_intelligence_capabilities.dart';
 import 'package:life_timeline/features/private_intelligence/domain/document_intelligence.dart';
 import 'package:life_timeline/features/private_intelligence/domain/intelligence_models.dart';
 import 'package:life_timeline/features/private_intelligence/infrastructure/drift_intelligence_services.dart';
@@ -74,6 +75,7 @@ void main() {
       usage: usage,
       entitlements: const _Entitlements(),
       usagePolicy: const ComplimentaryUsagePolicy(aiCaptureActions: 2),
+      capabilities: const PrivateIntelligenceCapabilities.localOcr(),
     );
     expect(
       (await cancelled(CaptureSource.camera)).outcome,
@@ -90,6 +92,7 @@ void main() {
       usage: usage,
       entitlements: const _Entitlements(),
       usagePolicy: const ComplimentaryUsagePolicy(aiCaptureActions: 2),
+      capabilities: const PrivateIntelligenceCapabilities.localOcr(),
     );
     expect(
       (await empty(CaptureSource.camera)).outcome,
@@ -97,6 +100,46 @@ void main() {
     );
     expect(await usage.usageCount(ProFeature.aiCapture), 0);
   });
+
+  test(
+    'manual document capture preserves Evidence without invoking OCR',
+    () async {
+      final preparation = _Preparation();
+      final attachments = _Attachments();
+      final useCase = CaptureIntelligenceUseCase(
+        acquisition: _Acquisition(),
+        preparation: preparation,
+        attachments: attachments,
+        recognizer: const _FailIfCalledRecognizer(),
+        candidates: candidates,
+        timeline: timeline,
+        usage: usage,
+        entitlements: const _Entitlements(),
+        usagePolicy: const ComplimentaryUsagePolicy(aiCaptureActions: 1),
+        capabilities:
+            const PrivateIntelligenceCapabilities.manualDocumentsOnly(),
+      );
+
+      final result = await useCase(CaptureSource.scan);
+      final candidate = await candidates.candidateById(result.candidateId!);
+      final evidence = await timeline.evidenceById(
+        candidate!.sourceEvidenceId!,
+      );
+
+      expect(result.outcome, CaptureIntelligenceOutcome.created);
+      expect(candidate.title, 'Document to review');
+      expect(candidate.documentType, DocumentType.genericDocument);
+      expect(candidate.extractedFields, isEmpty);
+      expect(
+        candidate.metadata.privacyClassification,
+        PrivacyClassification.sensitive,
+      );
+      expect(evidence?.evidenceType, EvidenceType.officialDocument);
+      expect(await usage.usageCount(ProFeature.aiCapture), 0);
+      expect(preparation.discarded, isTrue);
+      expect(attachments.removed, isFalse);
+    },
+  );
 
   test(
     'confirmation atomically connects evidence and appears in search',
@@ -195,6 +238,7 @@ void main() {
       usage: usage,
       entitlements: const _Entitlements(),
       usagePolicy: const ComplimentaryUsagePolicy(aiCaptureActions: 1),
+      capabilities: const PrivateIntelligenceCapabilities.localOcr(),
     );
 
     expect(
@@ -219,6 +263,7 @@ void main() {
         usage: usage,
         entitlements: const _Entitlements(),
         usagePolicy: const ComplimentaryUsagePolicy(aiCaptureActions: 1),
+        capabilities: const PrivateIntelligenceCapabilities.localOcr(),
       );
 
       await expectLater(useCase(CaptureSource.camera), throwsStateError);
@@ -243,6 +288,7 @@ void main() {
         usage: usage,
         entitlements: const _Entitlements(),
         usagePolicy: const ComplimentaryUsagePolicy(aiCaptureActions: 1),
+        capabilities: const PrivateIntelligenceCapabilities.localOcr(),
       );
 
       await expectLater(useCase(CaptureSource.camera), throwsStateError);
@@ -364,6 +410,7 @@ CaptureIntelligenceUseCase _capture({
   usage: usage,
   entitlements: const _Entitlements(),
   usagePolicy: const ComplimentaryUsagePolicy(aiCaptureActions: 3),
+  capabilities: const PrivateIntelligenceCapabilities.localOcr(),
 );
 
 final class _Acquisition implements ImageAcquisitionService {
@@ -433,6 +480,17 @@ final class _FailingRecognizer implements TextRecognitionEngine {
   @override
   Future<OcrDocument> recognize(String imagePath) =>
       throw StateError('simulated OCR interruption');
+
+  @override
+  Future<void> close() async {}
+}
+
+final class _FailIfCalledRecognizer implements TextRecognitionEngine {
+  const _FailIfCalledRecognizer();
+
+  @override
+  Future<OcrDocument> recognize(String imagePath) =>
+      throw StateError('OCR must not be invoked while unavailable.');
 
   @override
   Future<void> close() async {}

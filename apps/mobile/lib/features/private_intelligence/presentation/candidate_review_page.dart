@@ -109,6 +109,9 @@ final class _CandidateReviewFormState
       candidate.documentType,
       candidate.extractedFields,
     );
+    final isManualDocument =
+        candidate.extractedFields.isEmpty &&
+        candidate.overallConfidence == null;
     return SingleChildScrollView(
       child: ScreenContainer(
         maxWidth: 720,
@@ -116,8 +119,12 @@ final class _CandidateReviewFormState
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             IntelligenceCard(
-              title: 'A reviewable suggestion',
-              body: _confidenceCopy(candidate.overallConfidence),
+              title: isManualDocument
+                  ? 'A private document draft'
+                  : 'A reviewable suggestion',
+              body: isManualDocument
+                  ? 'No text was read automatically. Add a clear title, then confirm when this document belongs in your timeline.'
+                  : _confidenceCopy(candidate.overallConfidence),
             ),
             if (candidate.possibleDuplicateEventId case final eventId?) ...[
               const SizedBox(height: AppSpacing.md),
@@ -137,7 +144,11 @@ final class _CandidateReviewFormState
               spacing: AppSpacing.sm,
               runSpacing: AppSpacing.sm,
               children: [
-                AppBadge(label: _documentLabel(candidate.documentType)),
+                AppBadge(
+                  label: isManualDocument
+                      ? 'Document evidence'
+                      : _documentLabel(candidate.documentType),
+                ),
                 PrivacyBadge(
                   level: PrivacyBadgeLevel
                       .values[candidate.metadata.privacyClassification.index],

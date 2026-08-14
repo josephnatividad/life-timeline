@@ -40,8 +40,16 @@ final class RestoreEntryPage extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.xl),
             AppButton(
+              label: 'Restore from Google Drive',
+              icon: AppIcons.restore,
+              expanded: true,
+              onPressed: () => context.pushNamed(AppRoute.driveBackups.name),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            AppButton(
               key: const Key('restore-entry-continue'),
-              label: 'Continue',
+              label: 'Choose backup file',
+              variant: AppButtonVariant.secondary,
               expanded: true,
               onPressed: () => context.pushNamed(AppRoute.chooseBackup.name),
             ),
@@ -50,6 +58,158 @@ final class RestoreEntryPage extends StatelessWidget {
       ),
     ),
   );
+}
+
+final class DriveBackupsPage extends ConsumerStatefulWidget {
+  const DriveBackupsPage({super.key});
+
+  @override
+  ConsumerState<DriveBackupsPage> createState() => _DriveBackupsPageState();
+}
+
+final class _DriveBackupsPageState extends ConsumerState<DriveBackupsPage> {
+  BackupDestinationStatus? _status;
+  List<RemoteBackupInfo> _backups = const [];
+  bool _loading = true;
+  bool _selecting = false;
+  String? _errorCode;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(_load()));
+  }
+
+  @override
+  Widget build(BuildContext context) => AppScaffold(
+    appBar: AppBar(title: const Text('Google Drive backups')),
+    body: _loading || _selecting
+        ? AppLoadingState(
+            label: _selecting
+                ? 'Downloading and verifying encrypted backup'
+                : 'Checking Google Drive backup access',
+          )
+        : _errorCode != null
+        ? Center(
+            child: AppErrorState(
+              title: 'Drive backups unavailable',
+              message: _restoreError(_errorCode!),
+              actionLabel: 'Try again',
+              onAction: _load,
+            ),
+          )
+        : _status?.isReady != true
+        ? Center(
+            child: AppEmptyState(
+              title: 'Connect Google Drive',
+              message:
+                  'Life Timeline requests access only to its hidden app backup folder. Timeline content is encrypted locally before transfer.',
+              icon: AppIcons.privacy,
+              actionLabel: 'Connect Google Drive',
+              onAction: _connect,
+            ),
+          )
+        : _backups.isEmpty
+        ? const Center(
+            child: AppEmptyState(
+              title: 'No Drive backups yet',
+              message:
+                  'No verified Life Timeline backups were found in this Google Drive app-data folder.',
+              icon: AppIcons.database,
+            ),
+          )
+        : ListView.separated(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+            itemCount: _backups.length,
+            separatorBuilder: (context, index) => const AppDivider(),
+            itemBuilder: (context, index) {
+              final backup = _backups[index];
+              return ScreenContainer(
+                child: ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const AppIcon(icon: AppIcons.database),
+                  title: Text(_backupDate(backup.createdAt)),
+                  subtitle: Text(
+                    '${_fileSize(backup.byteSize)} • encrypted and verified',
+                  ),
+                  trailing: const AppIcon(icon: AppIcons.next),
+                  onTap: () => _select(backup),
+                ),
+              );
+            },
+          ),
+  );
+
+  Future<void> _load() async {
+    if (!mounted) return;
+    setState(() {
+      _loading = true;
+      _errorCode = null;
+    });
+    try {
+      final destination = ref.read(automaticBackupDestinationProvider);
+      final status = await destination.status();
+      final backups = status.isReady
+          ? await destination.listBackups()
+          : const <RemoteBackupInfo>[];
+      if (!mounted) return;
+      setState(() {
+        _status = status;
+        _backups = backups;
+      });
+    } on BackupFailure catch (error) {
+      if (mounted) setState(() => _errorCode = error.code);
+    } on Object {
+      if (mounted) setState(() => _errorCode = 'drive_unavailable');
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _connect() async {
+    setState(() => _loading = true);
+    final status = await ref
+        .read(automaticBackupAuthorizationProvider)
+        .authorize();
+    if (!mounted) return;
+    if (!status.isReady) {
+      setState(() {
+        _loading = false;
+        _status = status;
+        _errorCode = status.detailCode;
+      });
+      return;
+    }
+    await _load();
+  }
+
+  Future<void> _select(RemoteBackupInfo backup) async {
+    if (_selecting) return;
+    setState(() => _selecting = true);
+    final selected = await ref
+        .read(restoreControllerProvider.notifier)
+        .downloadAndInspect(backup);
+    if (!mounted) return;
+    if (selected) {
+      await context.pushNamed(AppRoute.enterRecoveryPassword.name);
+    } else {
+      setState(() {
+        _errorCode = ref.read(restoreControllerProvider).errorCode;
+      });
+    }
+    if (mounted) setState(() => _selecting = false);
+  }
+
+  static String _backupDate(DateTime value) =>
+      value.toLocal().toString().split('.').first;
+
+  static String _fileSize(int bytes) {
+    const mebibyte = 1024 * 1024;
+    if (bytes >= mebibyte) {
+      return '${(bytes / mebibyte).toStringAsFixed(1)} MB';
+    }
+    return '${(bytes / 1024).ceil()} KB';
+  }
 }
 
 final class ChooseBackupPage extends ConsumerStatefulWidget {

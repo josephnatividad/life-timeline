@@ -10,7 +10,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-final class FilePickerBackupDestination implements BackupDestination {
+final class FilePickerBackupDestination implements BackupFileGateway {
   const FilePickerBackupDestination([
     this._androidChannel = const MethodChannel(_androidChannelName),
   ]);

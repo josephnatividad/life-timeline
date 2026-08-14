@@ -1,9 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:life_timeline/features/private_intelligence/application/capture_intelligence_use_case.dart';
 import 'package:life_timeline/features/private_intelligence/application/confirm_candidate_use_case.dart';
 import 'package:life_timeline/features/private_intelligence/application/intelligence_ports.dart';
+import 'package:life_timeline/features/private_intelligence/application/private_intelligence_capabilities.dart';
 import 'package:life_timeline/features/private_intelligence/domain/document_intelligence.dart';
 import 'package:life_timeline/features/private_intelligence/domain/intelligence_models.dart';
 import 'package:life_timeline/features/private_intelligence/infrastructure/drift_intelligence_services.dart';
@@ -30,11 +29,14 @@ final imagePreparationServiceProvider = Provider<ImagePreparationService>(
 final candidateAttachmentStoreProvider = Provider<CandidateAttachmentStore>(
   (ref) => const AppPrivateCandidateAttachmentStore(),
 );
-final textRecognitionEngineProvider = Provider<TextRecognitionEngine>((ref) {
-  final engine = MlKitTextRecognitionEngine();
-  ref.onDispose(() => unawaited(engine.close()));
-  return engine;
-});
+final privateIntelligenceCapabilitiesProvider =
+    Provider<PrivateIntelligenceCapabilities>(
+      (ref) => const PrivateIntelligenceCapabilities.manualDocumentsOnly(),
+    );
+
+final textRecognitionEngineProvider = Provider<TextRecognitionEngine>(
+  (ref) => const UnavailableTextRecognitionEngine(),
+);
 
 final captureIntelligenceUseCaseProvider = Provider<CaptureIntelligenceUseCase>(
   (ref) => CaptureIntelligenceUseCase(
@@ -47,6 +49,7 @@ final captureIntelligenceUseCaseProvider = Provider<CaptureIntelligenceUseCase>(
     usage: ref.watch(featureUsageRepositoryProvider),
     entitlements: ref.watch(entitlementServiceProvider),
     usagePolicy: ref.watch(complimentaryUsagePolicyProvider),
+    capabilities: ref.watch(privateIntelligenceCapabilitiesProvider),
   ),
 );
 

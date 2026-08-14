@@ -4,8 +4,6 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:cryptography/cryptography.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart'
-    as ml;
 import 'package:image/image.dart' as image;
 import 'package:image_picker/image_picker.dart';
 import 'package:life_timeline/features/private_intelligence/application/intelligence_ports.dart';
@@ -14,28 +12,23 @@ import 'package:life_timeline/features/private_intelligence/domain/intelligence_
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-final class MlKitTextRecognitionEngine implements TextRecognitionEngine {
-  MlKitTextRecognitionEngine()
-    : _recognizer = ml.TextRecognizer(script: ml.TextRecognitionScript.latin);
-
-  final ml.TextRecognizer _recognizer;
-
-  @override
-  Future<OcrDocument> recognize(String imagePath) async {
-    final result = await _recognizer.processImage(
-      ml.InputImage.fromFilePath(imagePath),
-    );
-    return OcrDocument(
-      lines: [
-        for (final block in result.blocks)
-          for (final line in block.lines)
-            OcrLine(text: line.text, confidence: line.confidence),
-      ],
-    );
-  }
+/// Placeholder retained behind the project-owned recognition boundary.
+///
+/// Network-enabled builds intentionally ship without a native OCR SDK until a
+/// telemetry-free local engine passes the documented benchmark and review.
+final class UnavailableTextRecognitionEngine implements TextRecognitionEngine {
+  const UnavailableTextRecognitionEngine();
 
   @override
-  Future<void> close() => _recognizer.close();
+  Future<OcrDocument> recognize(String imagePath) =>
+      throw const TextRecognitionUnavailableException();
+
+  @override
+  Future<void> close() async {}
+}
+
+final class TextRecognitionUnavailableException implements Exception {
+  const TextRecognitionUnavailableException();
 }
 
 final class ImagePickerAcquisitionService implements ImageAcquisitionService {
