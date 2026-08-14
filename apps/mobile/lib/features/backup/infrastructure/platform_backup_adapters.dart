@@ -74,6 +74,13 @@ final class FilePickerBackupDestination implements BackupDestination {
 
   @override
   Future<String?> chooseImportPath() async {
+    if (Platform.isAndroid) {
+      try {
+        return await _androidChannel.invokeMethod<String>('openBackup');
+      } on PlatformException {
+        throw const BackupFailure('backup_file_selection_failed');
+      }
+    }
     final result = await FilePicker.platform.pickFiles(
       dialogTitle: 'Choose an encrypted timeline backup',
       type: FileType.custom,
@@ -81,7 +88,12 @@ final class FilePickerBackupDestination implements BackupDestination {
       allowMultiple: false,
       withData: false,
     );
-    return result?.files.single.path;
+    if (result == null) return null;
+    final path = result.files.single.path;
+    if (path == null || path.isEmpty) {
+      throw const BackupFailure('backup_file_selection_failed');
+    }
+    return path;
   }
 
   Future<bool> _matchesHash(String path, String expectedSha256) async {

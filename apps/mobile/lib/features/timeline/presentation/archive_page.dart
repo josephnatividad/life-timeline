@@ -81,9 +81,9 @@ final class ArchivePage extends ConsumerWidget {
     WidgetRef ref,
     TimelineMemory memory,
   ) async {
-    await ref
-        .read(deleteMemoryUseCaseProvider)
-        .moveToTrash(memory.event.metadata.id);
+    final deleteMemory = ref.read(deleteMemoryUseCaseProvider);
+    final archiveState = ref.read(setMemoryArchiveStateUseCaseProvider);
+    await deleteMemory.moveToTrash(memory.event.metadata.id);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -91,12 +91,8 @@ final class ArchivePage extends ConsumerWidget {
         action: SnackBarAction(
           label: 'Undo',
           onPressed: () async {
-            await ref
-                .read(deleteMemoryUseCaseProvider)
-                .restoreFromTrash(memory.event.metadata.id);
-            await ref
-                .read(setMemoryArchiveStateUseCaseProvider)
-                .archive(memory.event.metadata.id);
+            await deleteMemory.restoreFromTrash(memory.event.metadata.id);
+            await archiveState.archive(memory.event.metadata.id);
           },
         ),
       ),

@@ -68,14 +68,16 @@ final class _ChooseBackupPageState extends ConsumerState<ChooseBackupPage> {
     return AppScaffold(
       appBar: AppBar(title: const Text('Choose backup')),
       body: Center(
-        child: restore.errorCode == null
+        child: _working
+            ? const AppLoadingState(label: 'Inspecting backup locally')
+            : restore.errorCode == null
             ? AppEmptyState(
                 title: 'Select a backup file',
                 message:
                     'The file is inspected locally before a recovery password is requested.',
                 icon: AppIcons.database,
-                actionLabel: _working ? null : 'Choose backup',
-                onAction: _working ? null : _choose,
+                actionLabel: 'Choose backup',
+                onAction: _choose,
               )
             : AppErrorState(
                 title: 'This backup cannot be opened',
@@ -88,16 +90,19 @@ final class _ChooseBackupPageState extends ConsumerState<ChooseBackupPage> {
   }
 
   Future<void> _choose() async {
+    if (_working) return;
     setState(() => _working = true);
-    final selected = await ref
-        .read(restoreControllerProvider.notifier)
-        .chooseAndInspect();
-    if (!mounted) {
-      return;
-    }
-    setState(() => _working = false);
-    if (selected) {
-      await context.pushNamed(AppRoute.enterRecoveryPassword.name);
+    try {
+      final selected = await ref
+          .read(restoreControllerProvider.notifier)
+          .chooseAndInspect();
+      if (mounted && selected) {
+        await context.pushNamed(AppRoute.enterRecoveryPassword.name);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _working = false);
+      }
     }
   }
 }
@@ -400,6 +405,8 @@ String _restoreError(String code) => switch (code) {
     'The backup is damaged and cannot be restored. Current timeline data is unchanged.',
   'unsupported_database_version' =>
     'This database version cannot be restored safely by the current app.',
+  'backup_file_selection_failed' =>
+    'The selected file could not be copied for local inspection. Try the file again or choose another storage provider.',
   _ =>
     'The backup could not be restored safely. Current timeline data is unchanged.',
 };

@@ -76,6 +76,38 @@ void main() {
     expect(find.byType(InteractiveViewer), findsWidgets);
   });
 
+  testWidgets('viewer saves a caption without disposing its active field', (
+    tester,
+  ) async {
+    final repository = _MemoryRepository(media);
+    await tester.pumpWidget(
+      _app(
+        media: media,
+        repository: repository,
+        child: const MemoryMediaViewerPage(
+          memoryId: 'event-1',
+          initialLinkId: 'link-1',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.bySemanticsLabel('Photo options'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Edit caption'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const Key('photo-caption-input')),
+      'Updated caption',
+    );
+    await tester.tap(find.byKey(const Key('save-photo-caption')));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(repository.updatedLinkId, 'link-1');
+    expect(repository.updatedCaption, 'Updated caption');
+  });
+
   testWidgets('timeline uses the hero thumbnail without loading an original', (
     tester,
   ) async {
@@ -133,9 +165,12 @@ Widget _app({
   bool dark = false,
   double textScale = 1,
   bool reducedMotion = false,
+  MemoryMediaRepository? repository,
 }) => ProviderScope(
   overrides: [
-    memoryMediaRepositoryProvider.overrideWithValue(_MemoryRepository(media)),
+    memoryMediaRepositoryProvider.overrideWithValue(
+      repository ?? _MemoryRepository(media),
+    ),
     memoryMediaPathResolverProvider.overrideWithValue(const _NoPathResolver()),
   ],
   child: MaterialApp(
@@ -186,9 +221,11 @@ MemoryMedia _media(int index, {bool hero = false}) {
 }
 
 final class _MemoryRepository implements MemoryMediaRepository {
-  const _MemoryRepository(this.media);
+  _MemoryRepository(this.media);
 
   final List<MemoryMedia> media;
+  String? updatedCaption;
+  String? updatedLinkId;
 
   @override
   Future<List<MemoryMedia>> forEvent(String eventId) async => media;
@@ -196,6 +233,15 @@ final class _MemoryRepository implements MemoryMediaRepository {
   @override
   Stream<List<MemoryMedia>> watchForEvent(String eventId) =>
       Stream.value(media);
+
+  @override
+  Future<void> updateCaption({
+    required String linkId,
+    required String? caption,
+  }) async {
+    updatedLinkId = linkId;
+    updatedCaption = caption;
+  }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();

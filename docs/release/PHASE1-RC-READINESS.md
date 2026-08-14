@@ -53,11 +53,11 @@ Final validation results:
 - Drift/build_runner: completed successfully, 192 outputs verified/written with
   no generated source remaining changed;
 - `flutter analyze --no-pub`: no issues;
-- full `flutter test --no-pub`: 234/234 tests passed in 25.6 seconds, an
-  increase of 17 tests from the 217-test baseline;
-- Android debug APK: built successfully in 97.8 seconds at
-  `build/app/outputs/flutter-apk/app-debug.apk` (207,101,072 bytes,
-  SHA-256 `7B4DE779A8D1F5C88025F7CE63996FB9F8AE6779DF9047288C190A5BB3252B2E`);
+- full `flutter test --no-pub`: 238/238 tests passed after the restore-selection
+  lifecycle hotfix, an increase of 21 tests from the 217-test baseline;
+- Android debug APK: built successfully at
+  `build/app/outputs/flutter-apk/app-debug.apk` (207,118,716 bytes,
+  SHA-256 `B0A9E7F17B124C25747C9038CCB442802EE155581E85764A0F3032BA2178939E`);
 - additional split release-manifest verification: builds succeeded for
   `armeabi-v7a` (32,401,925 bytes), `arm64-v8a` (38,646,459 bytes), and
   `x86_64` (40,769,932 bytes). The current arm64 merged manifest retains
@@ -163,6 +163,13 @@ Closed P1 defects:
   Timeline is now established as root before pushing the destination;
 - restored read models and notification schedules are invalidated/reconciled on
   successful commit, so restored data does not require an app restart.
+- Android restore selection no longer depends on a document provider returning
+  a nullable filesystem path. The native picker streams the selected URI into a
+  controlled cache file and picker/inspection failures are visible. Privacy and
+  lock screens are opaque overlays that keep an admitted navigator mounted, so
+  platform picker/camera Futures survive background, immediate lock, and unlock.
+  Controller disposal also cleans prepared staging without invalid Riverpod
+  lifecycle reads.
 
 ## P2 Issues
 

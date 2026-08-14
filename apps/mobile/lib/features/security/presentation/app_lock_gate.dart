@@ -15,6 +15,7 @@ final class AppLockGate extends ConsumerStatefulWidget {
 
 final class _AppLockGateState extends ConsumerState<AppLockGate>
     with WidgetsBindingObserver {
+  bool _contentHasBeenPresented = false;
   bool _obscureForSystemSnapshot = false;
 
   @override
@@ -54,19 +55,8 @@ final class _AppLockGateState extends ConsumerState<AppLockGate>
 
   @override
   Widget build(BuildContext context) {
-    if (_obscureForSystemSnapshot) {
-      return Semantics(
-        label: 'Privacy screen',
-        child: ColoredBox(
-          color: Theme.of(context).colorScheme.surface,
-          child: const Center(
-            child: AppIcon(icon: AppIcons.privacy, size: AppIconSize.signature),
-          ),
-        ),
-      );
-    }
     final security = ref.watch(securityControllerProvider);
-    return security.when(
+    final accessOverlay = security.when<Widget?>(
       loading: () => const ColoredBox(
         color: AppColors.lightBackground,
         child: Center(
@@ -81,7 +71,60 @@ final class _AppLockGateState extends ConsumerState<AppLockGate>
           ),
         ),
       ),
-      data: (value) => value.locked ? const UnlockPage() : widget.child,
+      data: (value) {
+        if (!value.locked) {
+          // Once private content has been admitted, keep the navigator mounted
+          // behind future lock/snapshot overlays. External document and camera
+          // activities can then complete their pending Futures without losing
+          // the originating route state.
+          _contentHasBeenPresented = true;
+          return null;
+        }
+        return const UnlockPage();
+      },
+    );
+    final blocked = _obscureForSystemSnapshot || accessOverlay != null;
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        ExcludeSemantics(
+          excluding: blocked,
+          child: IgnorePointer(
+            ignoring: blocked,
+            child: TickerMode(
+              enabled: !blocked,
+              child: _contentHasBeenPresented
+                  ? widget.child
+                  : const SizedBox.expand(),
+            ),
+          ),
+        ),
+        if (accessOverlay != null)
+          Positioned.fill(
+            child: ExcludeSemantics(
+              excluding: _obscureForSystemSnapshot,
+              child: IgnorePointer(
+                ignoring: _obscureForSystemSnapshot,
+                child: accessOverlay,
+              ),
+            ),
+          ),
+        if (_obscureForSystemSnapshot)
+          Positioned.fill(
+            child: Semantics(
+              label: 'Privacy screen',
+              child: ColoredBox(
+                color: Theme.of(context).colorScheme.surface,
+                child: const Center(
+                  child: AppIcon(
+                    icon: AppIcons.privacy,
+                    size: AppIconSize.signature,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

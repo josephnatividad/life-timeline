@@ -171,7 +171,8 @@ final class MemoryDetailPage extends ConsumerWidget {
   }
 
   Future<void> _archive(BuildContext context, WidgetRef ref) async {
-    await ref.read(setMemoryArchiveStateUseCaseProvider).archive(memoryId);
+    final archiveState = ref.read(setMemoryArchiveStateUseCaseProvider);
+    await archiveState.archive(memoryId);
     if (context.mounted) {
       final messenger = ScaffoldMessenger.of(context);
       context.goNamed(AppRoute.timeline.name);
@@ -180,9 +181,7 @@ final class MemoryDetailPage extends ConsumerWidget {
           content: const Text('Memory archived.'),
           action: SnackBarAction(
             label: 'Undo',
-            onPressed: () => ref
-                .read(setMemoryArchiveStateUseCaseProvider)
-                .restore(memoryId),
+            onPressed: () => archiveState.restore(memoryId),
           ),
         ),
       );
@@ -200,7 +199,8 @@ final class MemoryDetailPage extends ConsumerWidget {
   }
 
   Future<void> _trash(BuildContext context, WidgetRef ref) async {
-    await ref.read(deleteMemoryUseCaseProvider).moveToTrash(memoryId);
+    final deleteMemory = ref.read(deleteMemoryUseCaseProvider);
+    await deleteMemory.moveToTrash(memoryId);
     if (!context.mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     context.goNamed(AppRoute.timeline.name);
@@ -209,8 +209,7 @@ final class MemoryDetailPage extends ConsumerWidget {
         content: const Text('Memory moved to Trash.'),
         action: SnackBarAction(
           label: 'Undo',
-          onPressed: () =>
-              ref.read(deleteMemoryUseCaseProvider).restoreFromTrash(memoryId),
+          onPressed: () => deleteMemory.restoreFromTrash(memoryId),
         ),
       ),
     );

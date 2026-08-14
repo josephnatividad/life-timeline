@@ -5,6 +5,7 @@ import 'package:life_timeline/app/navigation/app_routes.dart';
 import 'package:life_timeline/design_system/design_system.dart';
 import 'package:life_timeline/features/media/application/media_providers.dart';
 import 'package:life_timeline/features/media/presentation/managed_memory_image.dart';
+import 'package:life_timeline/features/media/presentation/memory_media_caption_sheet.dart';
 import 'package:life_timeline/features/timeline/application/timeline_providers.dart';
 import 'package:life_timeline/shared/domain/model/record_metadata.dart';
 import 'package:life_timeline/shared/domain/model/timeline_models.dart';
@@ -269,31 +270,10 @@ final class _MemoryMediaViewerPageState
       );
 
   Future<void> _editCaption(MemoryMedia media) async {
-    final controller = TextEditingController(text: media.link.caption);
-    final caption = await AppBottomSheet.show<String?>(
+    final caption = await MemoryMediaCaptionSheet.show(
       context: context,
-      builder: (sheetContext) => AppBottomSheet(
-        title: 'Photo caption',
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppTextField(
-              controller: controller,
-              label: 'Caption',
-              minLines: 2,
-              maxLines: 4,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            AppButton(
-              label: 'Save caption',
-              expanded: true,
-              onPressed: () => Navigator.of(sheetContext).pop(controller.text),
-            ),
-          ],
-        ),
-      ),
+      initialCaption: media.link.caption,
     );
-    controller.dispose();
     if (caption == null) return;
     await ref
         .read(memoryMediaRepositoryProvider)

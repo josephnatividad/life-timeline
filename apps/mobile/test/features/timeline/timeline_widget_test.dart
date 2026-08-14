@@ -247,6 +247,59 @@ void main() {
     await _unmountProviderTree(tester);
   });
 
+  testWidgets('archive Undo remains safe after Memory Detail is unmounted', (
+    tester,
+  ) async {
+    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(database.close);
+    final repository = DriftTimelineRepository(database);
+    await repository.saveMemory(_memory());
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          securityControllerProvider.overrideWith(
+            UnlockedSecurityController.new,
+          ),
+          appDatabaseProvider.overrideWithValue(database),
+          timelineMemoriesProvider.overrideWith(
+            (ref) => Stream.value([_memory()]),
+          ),
+          localNotificationServiceProvider.overrideWithValue(
+            TestLocalNotificationService(),
+          ),
+          deviceTimeZoneServiceProvider.overrideWithValue(
+            TestDeviceTimeZoneService(),
+          ),
+          reminderStoreProvider.overrideWithValue(TestReminderRepository()),
+        ],
+        child: const LifeTimelineApp(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Trip to Kyoto'));
+    await _pumpUntilFound(tester, find.byType(MemoryDetailPage));
+    await tester.tap(find.bySemanticsLabel('Memory options'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('archive-memory')));
+    await _pumpUntilFound(tester, find.text('Memory archived.'));
+    for (var frame = 0; frame < 6; frame++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    expect(find.byType(MemoryDetailPage), findsNothing);
+    await tester.tap(find.text('Undo'));
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(tester.takeException(), isNull);
+    expect(
+      (await repository.memoryById('memory-1'))?.event.metadata.lifecycle,
+      RecordLifecycle.confirmed,
+    );
+    await _unmountProviderTree(tester);
+  });
+
   testWidgets('Timeline event opens Memory Detail', (tester) async {
     final database = AppDatabase.forTesting(NativeDatabase.memory());
     addTearDown(database.close);

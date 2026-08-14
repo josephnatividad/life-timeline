@@ -33,6 +33,10 @@ cases on both Android and iOS unless marked otherwise.
   compare IDs, counts, temporal precision, relationships, media ordering/hero,
   captions, privacy, checksums, reminders, archive references, candidates,
   search results, Ask results, and Story eligibility.
+- [ ] Select the backup from device storage and at least one Android/iOS document
+  provider. Selection must show local inspection progress, advance to the
+  recovery-password screen, and show a retryable error rather than silently
+  disabling the page when the provider cannot supply the document.
 - [ ] Restore over existing data; confirm replacement warning, immediate screen
   refresh, no restart requirement, correct notification reconciliation, and no
   mixture of old/new timeline rows.

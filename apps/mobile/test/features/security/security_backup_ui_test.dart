@@ -84,7 +84,10 @@ void main() {
 
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
     await tester.pump();
-    expect(find.text('Private timeline content'), findsNothing);
+    // The opaque privacy cover prevents interaction while preserving the routed
+    // subtree for pending platform activity results.
+    expect(find.text('Private timeline content'), findsOneWidget);
+    expect(find.text('Private timeline content').hitTestable(), findsNothing);
     expect(find.bySemanticsLabel('Privacy screen'), findsOneWidget);
 
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);

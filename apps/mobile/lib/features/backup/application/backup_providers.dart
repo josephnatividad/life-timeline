@@ -170,12 +170,16 @@ final class RestoreOperationState {
 }
 
 final class RestoreController extends Notifier<RestoreOperationState> {
+  BackupRestoreService? _backupServiceForDisposal;
+  PreparedRestore? _preparedForDisposal;
+
   @override
   RestoreOperationState build() {
     ref.onDispose(() {
-      final prepared = state.prepared;
-      if (prepared != null && state.stage != RestoreOperationStage.complete) {
-        unawaited(ref.read(backupServiceProvider).discard(prepared));
+      final backupService = _backupServiceForDisposal;
+      final prepared = _preparedForDisposal;
+      if (backupService != null && prepared != null) {
+        unawaited(backupService.discard(prepared));
       }
     });
     return const RestoreOperationState();
@@ -185,12 +189,12 @@ final class RestoreController extends Notifier<RestoreOperationState> {
     state = const RestoreOperationState(
       stage: RestoreOperationStage.inspecting,
     );
-    final path = await ref.read(backupDestinationProvider).chooseImportPath();
-    if (path == null) {
-      state = const RestoreOperationState();
-      return false;
-    }
     try {
+      final path = await ref.read(backupDestinationProvider).chooseImportPath();
+      if (path == null) {
+        state = const RestoreOperationState();
+        return false;
+      }
       final header = await ref.read(backupServiceProvider).inspect(path);
       if (header.databaseSchemaVersion >
           ref.read(backupDataSourceProvider).schemaVersion) {
@@ -205,6 +209,9 @@ final class RestoreController extends Notifier<RestoreOperationState> {
         stage: RestoreOperationStage.idle,
       );
       return true;
+    } on BackupFailure catch (error) {
+      state = RestoreOperationState(errorCode: error.code);
+      return false;
     } on CryptoFailure catch (error) {
       state = RestoreOperationState(errorCode: error.code);
       return false;
@@ -227,21 +234,22 @@ final class RestoreController extends Notifier<RestoreOperationState> {
       stage: RestoreOperationStage.preparing,
     );
     try {
-      final prepared = await ref
-          .read(backupServiceProvider)
-          .prepare(
-            path: path,
-            recoveryPassword: password,
-            onProgress: (progress) {
-              state = RestoreOperationState(
-                sourcePath: path,
-                header: header,
-                progress: progress,
-                stage: RestoreOperationStage.preparing,
-              );
-            },
+      final backupService = ref.read(backupServiceProvider);
+      final prepared = await backupService.prepare(
+        path: path,
+        recoveryPassword: password,
+        onProgress: (progress) {
+          state = RestoreOperationState(
+            sourcePath: path,
+            header: header,
+            progress: progress,
+            stage: RestoreOperationStage.preparing,
           );
+        },
+      );
       final existing = await ref.read(backupDataSourceProvider).hasUserData();
+      _backupServiceForDisposal = backupService;
+      _preparedForDisposal = prepared;
       state = RestoreOperationState(
         sourcePath: path,
         header: header,
@@ -300,6 +308,8 @@ final class RestoreController extends Notifier<RestoreOperationState> {
         prepared: prepared,
         stage: RestoreOperationStage.complete,
       );
+      _backupServiceForDisposal = null;
+      _preparedForDisposal = null;
       ref.invalidate(backupHealthProvider);
     } on BackupFailure catch (error) {
       state = RestoreOperationState(
@@ -321,6 +331,8 @@ final class RestoreController extends Notifier<RestoreOperationState> {
     if (prepared != null && state.stage != RestoreOperationStage.complete) {
       await ref.read(backupServiceProvider).discard(prepared);
     }
+    _backupServiceForDisposal = null;
+    _preparedForDisposal = null;
     state = const RestoreOperationState();
   }
 }

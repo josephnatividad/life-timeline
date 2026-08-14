@@ -8,12 +8,14 @@ import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.security.MessageDigest
 
 class BackupDestinationHandler(private val activity: Activity) {
     private companion object {
         const val BACKUP_CHANNEL = "life_timeline/backup_destination"
         const val CREATE_BACKUP_DOCUMENT = 47621
+        const val OPEN_BACKUP_DOCUMENT = 47622
     }
 
     private data class PendingBackup(
@@ -23,7 +25,12 @@ class BackupDestinationHandler(private val activity: Activity) {
         val result: MethodChannel.Result,
     )
 
+    private data class PendingImport(
+        val result: MethodChannel.Result,
+    )
+
     private var pendingBackup: PendingBackup? = null
+    private var pendingImport: PendingImport? = null
 
     fun register(binaryMessenger: BinaryMessenger) {
         MethodChannel(binaryMessenger, BACKUP_CHANNEL).setMethodCallHandler { call, result ->
@@ -34,6 +41,7 @@ class BackupDestinationHandler(private val activity: Activity) {
                     call.argument<String>("expectedSha256"),
                     result,
                 )
+                "openBackup" -> beginBackupOpen(result)
                 else -> result.notImplemented()
             }
         }
@@ -45,7 +53,7 @@ class BackupDestinationHandler(private val activity: Activity) {
         expectedSha256: String?,
         result: MethodChannel.Result,
     ) {
-        if (pendingBackup != null) {
+        if (pendingBackup != null || pendingImport != null) {
             result.error("backup_destination_busy", "A destination picker is already open.", null)
             return
         }
@@ -89,10 +97,50 @@ class BackupDestinationHandler(private val activity: Activity) {
         }
     }
 
-    fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        if (requestCode != CREATE_BACKUP_DOCUMENT) {
-            return false
+    private fun beginBackupOpen(result: MethodChannel.Result) {
+        if (pendingBackup != null || pendingImport != null) {
+            result.error("backup_destination_busy", "A document picker is already open.", null)
+            return
         }
+        pendingImport = PendingImport(result)
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            // Backup contents are authenticated after selection, so accepting
+            // every provider MIME type is safer than relying on inconsistent
+            // custom-extension mappings for .timelinebackup files.
+            type = "*/*"
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        try {
+            @Suppress("DEPRECATION")
+            activity.startActivityForResult(intent, OPEN_BACKUP_DOCUMENT)
+        } catch (_: Exception) {
+            pendingImport = null
+            result.error("backup_file_selection_failed", "No document source is available.", null)
+        }
+    }
+
+    fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
+        if (requestCode == OPEN_BACKUP_DOCUMENT) {
+            val pending = pendingImport ?: return true
+            pendingImport = null
+            if (resultCode != Activity.RESULT_OK) {
+                pending.result.success(null)
+                return true
+            }
+            val source = data?.data
+            if (source == null) {
+                pending.result.error(
+                    "backup_file_selection_failed",
+                    "The selected document was unavailable.",
+                    null,
+                )
+                return true
+            }
+            Thread { copyImportForInspection(source, pending) }.start()
+            return true
+        }
+        if (requestCode != CREATE_BACKUP_DOCUMENT) return false
         val pending = pendingBackup ?: return true
         pendingBackup = null
         if (resultCode != Activity.RESULT_OK) {
@@ -106,6 +154,40 @@ class BackupDestinationHandler(private val activity: Activity) {
         }
         Thread { saveAndVerify(destination, pending) }.start()
         return true
+    }
+
+    private fun copyImportForInspection(source: Uri, pending: PendingImport) {
+        var target: File? = null
+        try {
+            val root = File(activity.cacheDir, "backup_import_selection")
+            if (!root.exists() && !root.mkdirs()) {
+                error("Import cache could not be created")
+            }
+            root.listFiles()?.forEach { old -> old.delete() }
+            val selectedFile = File.createTempFile("selected_", ".timelinebackup", root)
+            target = selectedFile
+            activity.contentResolver.openInputStream(source).use { input ->
+                requireNotNull(input)
+                FileOutputStream(selectedFile).use { output ->
+                    input.copyTo(output)
+                    output.flush()
+                }
+            }
+            if (!selectedFile.isFile || selectedFile.length() == 0L) {
+                error("Selected backup was empty")
+            }
+            val selectedPath = selectedFile.canonicalPath
+            activity.runOnUiThread { pending.result.success(selectedPath) }
+        } catch (_: Exception) {
+            target?.delete()
+            activity.runOnUiThread {
+                pending.result.error(
+                    "backup_file_selection_failed",
+                    "The selected backup could not be copied for inspection.",
+                    null,
+                )
+            }
+        }
     }
 
     private fun saveAndVerify(destination: Uri, pending: PendingBackup) {
