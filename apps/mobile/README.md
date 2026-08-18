@@ -42,6 +42,12 @@ LTBACK01 artifacts in Google Drive `appDataFolder`. It is not an application
 account. Do not add broad Drive scopes or reuse this transport from product
 features.
 
+The complete cost-safe Google Cloud, OAuth-client, Android Studio, validation,
+and troubleshooting procedure is documented in
+[`docs/setup/GOOGLE-DRIVE-BACKUP-SETUP.md`](../../docs/setup/GOOGLE-DRIVE-BACKUP-SETUP.md).
+Project-wide no-silent-billing rules are documented in
+[`docs/15-cost-safety.md`](../../docs/15-cost-safety.md).
+
 Deployment must create Google OAuth clients for the final approved identities
 and signing certificates. Current provisional identifiers are:
 

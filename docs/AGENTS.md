@@ -68,6 +68,24 @@ Design language: **Quiet Intelligence**.
 - Subscription only for a future service with genuine recurring cost.
 - No advertising without an explicit product decision.
 
+## Cost safety
+
+- No setup, dependency, development tool, cloud project, API, background job,
+  trial or production configuration may create an undisclosed developer-side
+  charge.
+- Do not attach billing, accept a paid tier, request paid quota, or enable a
+  metered service without explicit human approval.
+- Free tiers are not permanent guarantees. Verify current pricing and quotas
+  against primary provider documentation before every release and at least
+  quarterly while a network service is enabled.
+- Background and retry behavior must be bounded and fail closed at quota or
+  rate limits; never switch automatically to a paid service.
+- Prefer user-owned storage and direct-to-provider flows where architecture and
+  privacy allow. State clearly when a feature consumes the user's own quota.
+- Follow `15-cost-safety.md` for the approval gate, estimates, and release
+  audit. Google Drive setup must follow
+  `setup/GOOGLE-DRIVE-BACKUP-SETUP.md`.
+
 ## Code quality
 
 - Keep widgets presentation-focused.

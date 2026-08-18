@@ -52,6 +52,11 @@ Provider SDK types remain in infrastructure behind `BackupDestination`.
 Additional providers remain future work and require separate privacy and
 architecture approval.
 
+Google Drive stores these generations against the connected user's storage
+quota rather than developer-owned storage. The integration must remain within
+the cost and billing constraints in `15-cost-safety.md`; setup and OAuth client
+configuration must follow `setup/GOOGLE-DRIVE-BACKUP-SETUP.md`.
+
 ## Archive V1
 
 Archive moves selected large attachments away from the device while

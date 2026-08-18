@@ -37,6 +37,11 @@ Every added network-capable dependency requires a dependency, data-flow,
 logging, privacy, and release-manifest review. Merely having `INTERNET`
 permission does not authorize a feature to use it.
 
+Network approval also does not authorize developer-funded usage. Cloud/API
+configuration must follow the no-silent-billing gate in `15-cost-safety.md`.
+Quota exhaustion must fail closed without automatic paid fallback, and
+provider pricing must be revalidated before release.
+
 The production Drive implementation is isolated behind `BackupDestination`
 and `BackupDestinationAuthorization`. Provider SDK/API types stay in
 infrastructure. The only requested OAuth scope is `drive.appdata`; the app is
