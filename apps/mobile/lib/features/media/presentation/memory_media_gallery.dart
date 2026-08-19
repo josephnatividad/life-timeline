@@ -46,10 +46,9 @@ final class MemoryHeroMedia extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final media = ref.watch(memoryMediaProvider(memoryId));
+    final media = ref.watch(memoryHeroMediaProvider(memoryId));
     return media.maybeWhen(
-      data: (values) {
-        final hero = values.where((item) => item.isHero).firstOrNull;
+      data: (hero) {
         if (hero == null) return const SizedBox.shrink();
         return Semantics(
           button: true,
@@ -82,6 +81,101 @@ final class MemoryHeroMedia extends ConsumerWidget {
       orElse: () => const SizedBox.shrink(),
     );
   }
+}
+
+/// Bounded, read-only media preview for parent/detail screens.
+final class MemoryMediaPreview extends ConsumerWidget {
+  const MemoryMediaPreview({required this.memoryId, super.key});
+
+  final String memoryId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final count = ref.watch(memoryMediaCountProvider(memoryId));
+    final preview = ref.watch(memoryMediaPreviewProvider(memoryId));
+    final total = count.value;
+    if (total == null || total == 0) return const SizedBox.shrink();
+    return preview.when(
+      loading: () => const AppLoadingState(label: 'Loading photo preview'),
+      error: (error, stackTrace) => AppErrorState(
+        title: 'Photo preview unavailable',
+        message: 'Open the gallery to try again.',
+        actionLabel: 'Open gallery',
+        onAction: () => _openGallery(context),
+      ),
+      data: (items) => Padding(
+        padding: const EdgeInsets.only(top: AppSpacing.xxxl),
+        child: AppCollectionPreview(
+          title: 'Photos',
+          count: total,
+          viewAllLabel: 'View all photos',
+          onViewAll: () => _openGallery(context),
+          child: items.isEmpty
+              ? Text(
+                  'The hero photo is shown above.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                )
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    final columns = constraints.maxWidth >= 720
+                        ? 4
+                        : constraints.maxWidth >= 440
+                        ? 3
+                        : 2;
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: items.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: columns,
+                        crossAxisSpacing: AppSpacing.sm,
+                        mainAxisSpacing: AppSpacing.sm,
+                        childAspectRatio: AppMediaRatio.galleryThumbnail,
+                      ),
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        return Semantics(
+                          button: true,
+                          label:
+                              'Open photo ${index + 1} of $total. ${item.link.caption ?? ''}',
+                          child: InkWell(
+                            onTap: () => context.pushNamed(
+                              AppRoute.mediaViewer.name,
+                              pathParameters: {
+                                'memoryId': memoryId,
+                                'linkId': item.link.id,
+                              },
+                            ),
+                            borderRadius: BorderRadius.circular(AppRadius.card),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.card,
+                              ),
+                              child: MemoryMediaHero(
+                                media: item,
+                                child: ManagedMemoryImage(
+                                  media: item,
+                                  semanticLabel:
+                                      item.link.caption ?? 'Memory photo',
+                                  cacheWidth: 512,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+        ),
+      ),
+    );
+  }
+
+  void _openGallery(BuildContext context) => context.pushNamed(
+    AppRoute.memoryGallery.name,
+    pathParameters: {'memoryId': memoryId},
+  );
 }
 
 final class _MemoryMediaContent extends ConsumerWidget {

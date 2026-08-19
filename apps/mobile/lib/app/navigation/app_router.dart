@@ -11,6 +11,7 @@ import 'package:life_timeline/features/capture/presentation/capture_foundation_s
 import 'package:life_timeline/features/explore/presentation/explore_foundation_page.dart';
 import 'package:life_timeline/features/insights/presentation/ask_my_life_page.dart';
 import 'package:life_timeline/features/media/presentation/add_photos_page.dart';
+import 'package:life_timeline/features/media/presentation/memory_gallery_page.dart';
 import 'package:life_timeline/features/media/presentation/memory_media_viewer_page.dart';
 import 'package:life_timeline/features/media/presentation/reorder_memory_media_page.dart';
 import 'package:life_timeline/features/private_intelligence/presentation/candidate_review_page.dart';
@@ -25,11 +26,13 @@ import 'package:life_timeline/features/storage/presentation/storage_manager_page
 import 'package:life_timeline/features/stories/domain/story_models.dart';
 import 'package:life_timeline/features/stories/presentation/stories_home_page.dart';
 import 'package:life_timeline/features/stories/presentation/story_editor_page.dart';
+import 'package:life_timeline/features/stories/presentation/story_memory_sources_page.dart';
 import 'package:life_timeline/features/stories/presentation/story_preview_page.dart';
 import 'package:life_timeline/features/stories/presentation/then_now_selection_page.dart';
 import 'package:life_timeline/features/timeline/presentation/archive_page.dart';
 import 'package:life_timeline/features/timeline/presentation/memory_detail_page.dart';
 import 'package:life_timeline/features/timeline/presentation/memory_editor_page.dart';
+import 'package:life_timeline/features/timeline/presentation/memory_evidence_page.dart';
 import 'package:life_timeline/features/timeline/presentation/timeline_home_page.dart';
 import 'package:life_timeline/features/timeline/presentation/trash_page.dart';
 
@@ -99,6 +102,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             EditMemoryPage(memoryId: state.pathParameters['memoryId']!),
       ),
       GoRoute(
+        name: AppRoute.memoryGallery.name,
+        path: AppRoute.memoryGallery.path,
+        builder: (context, state) =>
+            MemoryGalleryPage(memoryId: state.pathParameters['memoryId']!),
+      ),
+      GoRoute(
+        name: AppRoute.memoryEvidence.name,
+        path: AppRoute.memoryEvidence.path,
+        builder: (context, state) =>
+            MemoryEvidencePage(memoryId: state.pathParameters['memoryId']!),
+      ),
+      GoRoute(
         name: AppRoute.addPhotos.name,
         path: AppRoute.addPhotos.path,
         builder: (context, state) => const AddPhotosPage(returnToDetail: true),
@@ -137,6 +152,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             AskMyLifePage(initialQuestion: state.extra as String?),
       ),
       GoRoute(
+        name: AppRoute.insights.name,
+        path: AppRoute.insights.path,
+        builder: (context, state) => const ExploreInsightsPage(),
+      ),
+      GoRoute(
         name: AppRoute.storyEditor.name,
         path: AppRoute.storyEditor.path,
         redirect: (context, state) =>
@@ -151,6 +171,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             state.extra is StoryComposition ? null : AppRoute.stories.path,
         builder: (context, state) =>
             StoryPreviewPage(composition: state.extra! as StoryComposition),
+      ),
+      GoRoute(
+        name: AppRoute.storyMemorySources.name,
+        path: AppRoute.storyMemorySources.path,
+        builder: (context, state) => const StoryMemorySourcesPage(),
       ),
       GoRoute(
         name: AppRoute.thenNowSelection.name,
@@ -168,9 +193,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const StorageManagerPage(),
       ),
       GoRoute(
+        name: AppRoute.storageArchive.name,
+        path: AppRoute.storageArchive.path,
+        builder: (context, state) => const StorageArchivePage(),
+      ),
+      GoRoute(
         name: AppRoute.reminders.name,
         path: AppRoute.reminders.path,
-        builder: (context, state) => const RemindersPage(),
+        builder: (context, state) =>
+            RemindersPage(memoryId: state.uri.queryParameters['memoryId']),
       ),
       GoRoute(
         name: AppRoute.addReminder.name,

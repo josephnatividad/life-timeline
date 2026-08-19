@@ -243,7 +243,8 @@ void main() {
     expect(find.text('Around 2019'), findsOneWidget);
     expect(find.text('Travel'), findsWidgets);
     expect(find.text('Sensitive'), findsOneWidget);
-    expect(find.text('No evidence attached'), findsOneWidget);
+    expect(find.text('No evidence attached'), findsNothing);
+    expect(find.byKey(const Key('memory-add-photo')), findsOneWidget);
     await _unmountProviderTree(tester);
   });
 
@@ -332,7 +333,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Memory'), findsOneWidget);
-    expect(find.text('No evidence attached'), findsOneWidget);
+    expect(find.text('No evidence attached'), findsNothing);
     await _unmountProviderTree(tester);
   });
 }

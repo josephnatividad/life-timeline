@@ -17,7 +17,8 @@ final class StoriesHomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(storyTemporaryCleanupProvider);
-    final memories = ref.watch(timelineMemoriesProvider);
+    final memories = ref.watch(timelineMemoryPreviewProvider(6));
+    final memoryCount = ref.watch(timelineMemoryCountProvider).value;
     return AppScaffold(
       appBar: AppBar(title: const Text('Stories')),
       body: memories.when(
@@ -28,19 +29,26 @@ final class StoriesHomePage extends ConsumerWidget {
             title: 'Stories unavailable',
             message: 'Confirmed memories could not be read on this device.',
             actionLabel: 'Try again',
-            onAction: () => ref.invalidate(timelineMemoriesProvider),
+            onAction: () => ref.invalidate(timelineMemoryPreviewProvider(6)),
           ),
         ),
-        data: (value) => _StoriesContent(memories: value),
+        data: (value) => _StoriesContent(
+          memories: value,
+          totalMemoryCount: memoryCount ?? value.length,
+        ),
       ),
     );
   }
 }
 
 final class _StoriesContent extends ConsumerWidget {
-  const _StoriesContent({required this.memories});
+  const _StoriesContent({
+    required this.memories,
+    required this.totalMemoryCount,
+  });
 
   final List<TimelineMemory> memories;
+  final int totalMemoryCount;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -93,18 +101,34 @@ final class _StoriesContent extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.xxl),
-          AppButton(
-            key: const Key('create-then-now'),
-            label: 'Create Then & Now',
-            icon: AppIcons.stories,
-            onPressed: memories.length < 2
-                ? null
-                : () => context.pushNamed(AppRoute.thenNowSelection.name),
-            variant: AppButtonVariant.secondary,
+          AppSection(
+            title: 'Create something',
+            child: Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: [
+                AppButton(
+                  key: const Key('choose-story-memory'),
+                  label: 'From a memory',
+                  icon: AppIcons.timeline,
+                  onPressed: () =>
+                      context.pushNamed(AppRoute.storyMemorySources.name),
+                ),
+                AppButton(
+                  key: const Key('create-then-now'),
+                  label: 'Then & Now',
+                  icon: AppIcons.stories,
+                  onPressed: totalMemoryCount < 2
+                      ? null
+                      : () => context.pushNamed(AppRoute.thenNowSelection.name),
+                  variant: AppButtonVariant.secondary,
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: AppSpacing.xxxl),
           const AppSectionHeader(
-            title: 'Milestones',
+            title: 'For you',
             supportingText:
                 'Only dates and counts with enough evidence become candidates.',
           ),
@@ -134,27 +158,36 @@ final class _StoriesContent extends ConsumerWidget {
                   ),
           ),
           const SizedBox(height: AppSpacing.xxxl),
-          const AppSectionHeader(
-            title: 'Create from a memory',
-            supportingText: 'Confirmed active memories only.',
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          for (final memory in memories.take(20))
-            _StorySourceRow(
-              title: memory.event.title,
-              temporalLabel: TemporalLabel.format(memory.event.temporalValue),
-              semanticLabel: 'Create a Story from ${memory.event.title}',
-              onTap: () => _openEvent(context, ref, memory.event.metadata.id),
+          AppCollectionPreview(
+            title: 'Recent memories',
+            count: totalMemoryCount,
+            viewAllLabel: 'Choose another memory',
+            onViewAll: () =>
+                context.pushNamed(AppRoute.storyMemorySources.name),
+            child: Column(
+              children: [
+                for (final memory in memories.take(3))
+                  _StorySourceRow(
+                    title: memory.event.title,
+                    temporalLabel: TemporalLabel.format(
+                      memory.event.temporalValue,
+                    ),
+                    semanticLabel: 'Create a Story from ${memory.event.title}',
+                    onTap: () =>
+                        _openEvent(context, ref, memory.event.metadata.id),
+                  ),
+              ],
             ),
+          ),
           if (entities.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xxxl),
             const AppSectionHeader(
-              title: 'Create from a thing or place',
+              title: 'Things and places',
               supportingText:
                   'Compose a Story from the confirmed history of an entity.',
             ),
             const SizedBox(height: AppSpacing.sm),
-            for (final entity in entities.values.take(10))
+            for (final entity in entities.values.take(3))
               _StorySourceRow(
                 title: entity.name,
                 temporalLabel: entity.entityType,

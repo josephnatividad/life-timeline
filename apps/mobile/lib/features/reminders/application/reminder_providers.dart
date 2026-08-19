@@ -54,6 +54,16 @@ final eventRemindersProvider = StreamProvider.family<List<Reminder>, String>((
   return ref.watch(reminderStoreProvider).watchForEvent(eventId);
 });
 
+final eventReminderPreviewProvider = StreamProvider.autoDispose
+    .family<List<Reminder>, String>((ref, eventId) {
+      return ref.watch(reminderStoreProvider).watchForEvent(eventId, limit: 2);
+    });
+
+final eventReminderCountProvider = StreamProvider.autoDispose
+    .family<int, String>((ref, eventId) {
+      return ref.watch(reminderStoreProvider).watchCountForEvent(eventId);
+    });
+
 final reminderProvider = FutureProvider.autoDispose.family<Reminder?, String>((
   ref,
   id,

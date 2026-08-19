@@ -5,11 +5,13 @@ final class AppSectionHeader extends StatelessWidget {
   const AppSectionHeader({
     required this.title,
     this.action,
+    this.count,
     this.supportingText,
     super.key,
   });
 
   final Widget? action;
+  final int? count;
   final String? supportingText;
   final String title;
 
@@ -21,7 +23,22 @@ final class AppSectionHeader extends StatelessWidget {
       children: [
         Semantics(
           header: true,
-          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
+          label: count == null ? title : '$title, $count items',
+          excludeSemantics: true,
+          child: Wrap(
+            spacing: AppSpacing.xs,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(title, style: Theme.of(context).textTheme.titleLarge),
+              if (count != null)
+                Text(
+                  '$count',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+            ],
+          ),
         ),
         if (supportingText case final supportingText?) ...[
           const SizedBox(height: AppSpacing.xxs),

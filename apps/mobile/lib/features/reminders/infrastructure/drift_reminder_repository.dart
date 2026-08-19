@@ -18,12 +18,27 @@ final class DriftReminderRepository implements ReminderRepository {
           .map((rows) => rows.map(_fromRow).toList(growable: false));
 
   @override
-  Stream<List<Reminder>> watchForEvent(String eventId) =>
-      (_database.select(_database.reminders)
-            ..where((row) => row.linkedEventId.equals(eventId))
-            ..orderBy([(row) => OrderingTerm.asc(row.scheduledAtUtc)]))
-          .watch()
-          .map((rows) => rows.map(_fromRow).toList(growable: false));
+  Stream<List<Reminder>> watchForEvent(String eventId, {int? limit}) {
+    if (limit != null && limit <= 0) {
+      throw ArgumentError.value(limit, 'limit');
+    }
+    final query = _database.select(_database.reminders)
+      ..where((row) => row.linkedEventId.equals(eventId))
+      ..orderBy([(row) => OrderingTerm.asc(row.scheduledAtUtc)]);
+    if (limit != null) query.limit(limit);
+    return query.watch().map(
+      (rows) => rows.map(_fromRow).toList(growable: false),
+    );
+  }
+
+  @override
+  Stream<int> watchCountForEvent(String eventId) {
+    final count = _database.reminders.id.count();
+    final query = _database.selectOnly(_database.reminders)
+      ..addColumns([count])
+      ..where(_database.reminders.linkedEventId.equals(eventId));
+    return query.watchSingle().map((row) => row.read(count) ?? 0);
+  }
 
   @override
   Future<List<Reminder>> all() async =>

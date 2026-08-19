@@ -62,9 +62,16 @@ final class TestReminderRepository implements ReminderRepository {
   @override
   Stream<List<Reminder>> watchAll() => Stream.value(_values.values.toList());
   @override
-  Stream<List<Reminder>> watchForEvent(String eventId) => Stream.value(
-    _values.values
-        .where((reminder) => reminder.linkedEventId == eventId)
-        .toList(),
+  Stream<List<Reminder>> watchForEvent(String eventId, {int? limit}) =>
+      Stream.value(
+        _values.values
+            .where((reminder) => reminder.linkedEventId == eventId)
+            .take(limit ?? _values.length)
+            .toList(),
+      );
+
+  @override
+  Stream<int> watchCountForEvent(String eventId) => Stream.value(
+    _values.values.where((item) => item.linkedEventId == eventId).length,
   );
 }

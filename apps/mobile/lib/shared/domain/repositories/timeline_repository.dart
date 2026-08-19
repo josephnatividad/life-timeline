@@ -6,6 +6,9 @@ import 'package:life_timeline/shared/domain/model/timeline_models.dart';
 
 abstract interface class TimelineRepository {
   Stream<List<TimelineMemory>> watchMemories({bool archived = false});
+  Stream<List<TimelineMemory>> watchMemoryPreview({required int limit});
+  Stream<int> watchMemoryCount();
+  Stream<String> watchTimelineRevision();
   Stream<List<TimelineMemory>> watchTrashedMemories();
   Future<TimelineMemory?> memoryById(String id);
   Future<List<MemorySearchResult>> searchMemories(String query);
@@ -31,6 +34,10 @@ abstract interface class TimelineRepository {
   Future<List<Entity>> matchableEntities();
   Future<Event?> eventById(String id, {bool includeDeleted = false});
   Future<Evidence?> evidenceById(String id, {bool includeDeleted = false});
+  Future<MemoryEvidenceCollection> evidenceForMemory(
+    String eventId, {
+    int? limit,
+  });
   Future<List<Attachment>> attachmentsForEvidence(String evidenceId);
   Future<List<Relationship>> relationshipsFor(TimelineRecordReference record);
   Future<List<FieldProvenance>> provenanceFor(ProvenanceTarget target);
@@ -45,6 +52,26 @@ abstract interface class TimelineRepository {
   Future<void> restoreSoftDeletedEvent(String id, DateTime restoredAt);
   Future<PermanentMemoryDeletion> permanentlyDeleteEvent(String id);
   Future<void> softDeleteEvidence(String id, DateTime deletedAt);
+}
+
+final class MemoryEvidenceCollection {
+  MemoryEvidenceCollection({
+    required List<MemoryEvidenceItem> items,
+    required this.totalCount,
+  }) : items = List.unmodifiable(items);
+
+  final List<MemoryEvidenceItem> items;
+  final int totalCount;
+}
+
+final class MemoryEvidenceItem {
+  const MemoryEvidenceItem({
+    required this.evidence,
+    required this.attachmentCount,
+  });
+
+  final int attachmentCount;
+  final Evidence evidence;
 }
 
 final class PermanentMemoryDeletion {

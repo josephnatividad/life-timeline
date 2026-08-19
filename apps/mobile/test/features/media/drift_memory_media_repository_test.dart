@@ -86,6 +86,35 @@ void main() {
   });
 
   test(
+    '50-photo parent preview is query-bounded and reports full count',
+    () async {
+      for (var index = 0; index < 50; index++) {
+        await repository.add(
+          attachment: _attachment('preview-asset-$index'),
+          link: _link(
+            'preview-link-$index',
+            'preview-asset-$index',
+            sortOrder: index,
+          ),
+        );
+      }
+      await repository.setHero(eventId: 'event-a', linkId: 'preview-link-0');
+
+      final preview = await repository
+          .watchGalleryPreview('event-a', limit: 4)
+          .first;
+
+      expect(await repository.watchMediaCount('event-a').first, 50);
+      expect(preview, hasLength(4));
+      expect(preview.every((item) => !item.isHero), isTrue);
+      expect(
+        (await repository.watchHeroForEvent('event-a').first)?.link.id,
+        'preview-link-0',
+      );
+    },
+  );
+
+  test(
     'shared asset survives unlink and deletes only after final reference',
     () async {
       final attachment = _attachment('shared');

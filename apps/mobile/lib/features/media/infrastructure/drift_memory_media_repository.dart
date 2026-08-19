@@ -15,6 +15,34 @@ final class DriftMemoryMediaRepository implements MemoryMediaRepository {
       _eventQuery(eventId).watch().map(_mapRows);
 
   @override
+  Stream<List<MemoryMedia>> watchGalleryPreview(
+    String eventId, {
+    required int limit,
+  }) {
+    if (limit <= 0) throw ArgumentError.value(limit, 'limit');
+    final query = _eventQuery(eventId, galleryOnly: true)..limit(limit);
+    return query.watch().map(_mapRows);
+  }
+
+  @override
+  Stream<MemoryMedia?> watchHeroForEvent(String eventId) {
+    final query = _eventQuery(eventId, heroOnly: true)..limit(1);
+    return query.watch().map((rows) => rows.isEmpty ? null : _mapRow(rows[0]));
+  }
+
+  @override
+  Stream<int> watchMediaCount(String eventId) {
+    final count = _database.attachmentLinks.id.count();
+    final query = _database.selectOnly(_database.attachmentLinks)
+      ..addColumns([count])
+      ..where(
+        _database.attachmentLinks.eventId.equals(eventId) &
+            _database.attachmentLinks.role.isNotValue('evidence'),
+      );
+    return query.watchSingle().map((row) => row.read(count) ?? 0);
+  }
+
+  @override
   Future<List<MemoryMedia>> forEvent(String eventId) async =>
       _mapRows(await _eventQuery(eventId).get());
 
@@ -293,11 +321,22 @@ final class DriftMemoryMediaRepository implements MemoryMediaRepository {
         ),
       ]);
 
-  JoinedSelectStatement<HasResultSet, dynamic> _eventQuery(String eventId) {
+  JoinedSelectStatement<HasResultSet, dynamic> _eventQuery(
+    String eventId, {
+    bool galleryOnly = false,
+    bool heroOnly = false,
+  }) {
+    assert(!(galleryOnly && heroOnly));
     final query = _baseQuery()
       ..where(
         _database.attachmentLinks.eventId.equals(eventId) &
             _database.attachmentLinks.role.isNotValue('evidence') &
+            (galleryOnly
+                ? _database.attachmentLinks.role.equals('memory_media')
+                : const Constant(true)) &
+            (heroOnly
+                ? _database.attachmentLinks.role.equals('hero_media')
+                : const Constant(true)) &
             _database.attachments.lifecycle.isNotValue('soft_deleted'),
       )
       ..orderBy([

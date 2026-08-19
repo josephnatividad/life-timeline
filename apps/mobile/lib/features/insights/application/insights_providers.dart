@@ -36,18 +36,12 @@ final askMyLifeServiceProvider = Provider<AskMyLifeService>((ref) {
 });
 
 final lifeInsightsProvider = FutureProvider<List<LifeInsight>>((ref) {
-  ref
-    ..watch(timelineMemoriesProvider)
-    ..watch(archivedMemoriesProvider)
-    ..watch(trashedMemoriesProvider);
+  ref.watch(timelineRevisionProvider);
   return ref.watch(insightEngineProvider).generate(now: DateTime.now().toUtc());
 });
 
 final exploreOverviewProvider = FutureProvider<ExploreOverview>((ref) {
-  ref
-    ..watch(timelineMemoriesProvider)
-    ..watch(archivedMemoriesProvider)
-    ..watch(trashedMemoriesProvider);
+  ref.watch(timelineRevisionProvider);
   return ExploreOverviewLoader(
     ref.watch(lifeQueryExecutorProvider),
     ref.watch(insightEngineProvider),

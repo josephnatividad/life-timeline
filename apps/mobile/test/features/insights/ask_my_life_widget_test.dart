@@ -11,6 +11,16 @@ import 'package:life_timeline/features/insights/presentation/ask_my_life_page.da
 import 'package:life_timeline/shared/domain/model/temporal_value.dart';
 
 void main() {
+  test('Explore overview bounds a 10,000-record place fixture', () async {
+    final overview = await ExploreOverviewLoader(
+      const _LargeFixtureExecutor(),
+      _NoOpInsightEngine(),
+    ).load(now: DateTime.utc(2026, 8, 19));
+
+    expect(overview.places, hasLength(6));
+    expect(overview.insights, isEmpty);
+  });
+
   testWidgets('Ask My Life renders suggestions and an evidence-backed answer', (
     tester,
   ) async {
@@ -163,7 +173,13 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Insights'), findsOneWidget);
+      expect(find.text('For you'), findsOneWidget);
+      await _reveal(
+        tester,
+        find.text('Browse your life'),
+        const Key('explore-content'),
+      );
+      expect(find.text('Browse your life'), findsOneWidget);
       await _reveal(tester, find.text('Things'), const Key('explore-content'));
       expect(find.text('Things'), findsOneWidget);
       await _reveal(tester, find.text('Years'), const Key('explore-content'));
@@ -172,10 +188,10 @@ void main() {
       expect(find.text('Places'), findsOneWidget);
       await _reveal(
         tester,
-        find.text('Categories'),
+        find.text('Phones · 2'),
         const Key('explore-content'),
       );
-      expect(find.text('Categories'), findsOneWidget);
+      expect(find.text('Phones · 2'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -279,6 +295,34 @@ final class _ResultExecutor implements LifeQueryExecutor {
     LifeQueryIntent intent, {
     required DateTime now,
   }) async => result;
+}
+
+final class _LargeFixtureExecutor implements LifeQueryExecutor {
+  const _LargeFixtureExecutor();
+
+  @override
+  Future<LifeQueryResult> execute(
+    LifeQueryIntent intent, {
+    required DateTime now,
+  }) async {
+    if (intent is! FindPlacesVisited) {
+      return LifeQueryResult.insufficient(subject: 'confirmed history');
+    }
+    return LifeQueryResult(
+      answerType: LifeQueryAnswerType.records,
+      headline: 'Places',
+      status: LifeQueryStatus.answered,
+      summary: 'Confirmed places.',
+      supportingRecords: List.generate(
+        10000,
+        (index) => LifeSupportingRecord(
+          id: 'place-$index',
+          recordType: LifeSupportingRecordType.entity,
+          title: 'Place $index',
+        ),
+      ),
+    );
+  }
 }
 
 final class _NoOpInsightEngine implements InsightEngine {

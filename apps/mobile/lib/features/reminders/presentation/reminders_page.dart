@@ -8,15 +8,24 @@ import 'package:life_timeline/features/reminders/application/reminder_providers.
 import 'package:life_timeline/features/reminders/domain/reminder.dart';
 
 final class RemindersPage extends ConsumerWidget {
-  const RemindersPage({super.key});
+  const RemindersPage({this.memoryId, super.key});
+
+  final String? memoryId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final reminders = ref.watch(remindersProvider);
+    final reminders = memoryId == null
+        ? ref.watch(remindersProvider)
+        : ref.watch(eventRemindersProvider(memoryId!));
     return AppScaffold(
-      appBar: AppBar(title: const Text('Reminders')),
+      appBar: AppBar(
+        title: Text(memoryId == null ? 'Reminders' : 'Memory reminders'),
+      ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.pushNamed(AppRoute.addReminder.name),
+        onPressed: () => context.pushNamed(
+          AppRoute.addReminder.name,
+          queryParameters: {'memoryId': ?memoryId},
+        ),
         icon: const AppIcon(icon: AppIcons.reminder),
         label: const Text('Add reminder'),
       ),
@@ -31,12 +40,18 @@ final class RemindersPage extends ConsumerWidget {
         ),
         data: (items) {
           if (items.isEmpty) {
-            return const Center(
+            return Center(
               child: ScreenContainer(
                 child: AppEmptyState(
-                  title: 'Nothing to remember yet',
-                  message:
-                      'Add a reminder from a dated memory, or create one here.',
+                  title: 'Nothing needs your attention',
+                  message: memoryId == null
+                      ? 'Create a reminder when a future date matters.'
+                      : 'This memory has no saved reminders.',
+                  actionLabel: 'Add reminder',
+                  onAction: () => context.pushNamed(
+                    AppRoute.addReminder.name,
+                    queryParameters: {'memoryId': ?memoryId},
+                  ),
                   icon: AppIcons.reminder,
                 ),
               ),

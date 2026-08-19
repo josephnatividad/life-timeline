@@ -1,6 +1,7 @@
 export 'components/actions/app_button.dart';
 export 'components/actions/app_icon_button.dart';
 export 'components/content/app_divider.dart';
+export 'components/content/app_section.dart';
 export 'components/content/app_section_header.dart';
 export 'components/feedback/app_badge.dart';
 export 'components/feedback/app_state_views.dart';

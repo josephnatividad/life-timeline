@@ -7,6 +7,7 @@ import 'package:life_timeline/features/media/presentation/memory_media_gallery.d
 import 'package:life_timeline/features/reminders/presentation/memory_reminder_section.dart';
 import 'package:life_timeline/features/stories/application/story_providers.dart';
 import 'package:life_timeline/features/timeline/application/timeline_providers.dart';
+import 'package:life_timeline/features/timeline/presentation/memory_evidence_page.dart';
 import 'package:life_timeline/features/timeline/presentation/widgets/memory_summary.dart';
 import 'package:life_timeline/shared/domain/model/record_metadata.dart';
 import 'package:life_timeline/shared/domain/model/timeline_models.dart';
@@ -64,17 +65,24 @@ final class MemoryDetailPage extends ConsumerWidget {
                       MemoryHeroMedia(memoryId: memoryId),
                       const SizedBox(height: AppSpacing.xl),
                       MemorySummary(memory: value, showSecondary: false),
-                      const SizedBox(height: AppSpacing.xxl),
-                      MemoryReminderSection(memory: value),
-                      const SizedBox(height: AppSpacing.xxl),
-                      MemoryMediaGallery(memoryId: memoryId, showHero: false),
-                      MemorySummary(
-                        memory: value,
-                        showPrimary: false,
-                        evidenceSection: _MemoryEvidenceSection(
-                          memoryId: memoryId,
+                      const SizedBox(height: AppSpacing.xl),
+                      _PrimaryActions(
+                        onAddPhoto: () => context.pushNamed(
+                          AppRoute.memoryPhotos.name,
+                          pathParameters: {'memoryId': memoryId},
                         ),
+                        onCreateStory:
+                            value.event.metadata.lifecycle ==
+                                RecordLifecycle.confirmed
+                            ? () => _createStory(context, ref)
+                            : null,
                       ),
+                      MemoryMediaPreview(memoryId: memoryId),
+                      if (value.relatedEntity case final entity?)
+                        _RelatedSection(entity: entity),
+                      MemoryEvidencePreview(memoryId: memoryId),
+                      MemoryReminderSection(memory: value),
+                      const SizedBox(height: AppSpacing.xxxl),
                     ],
                   ),
                 ),
@@ -95,20 +103,31 @@ final class MemoryDetailPage extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (memory.event.metadata.lifecycle == RecordLifecycle.confirmed)
-              ListTile(
-                key: const Key('create-memory-story'),
-                contentPadding: EdgeInsets.zero,
-                leading: const AppIcon(icon: AppIcons.stories),
-                title: const Text('Create Story'),
-                subtitle: const Text(
-                  'Review fields before a local share image is made',
-                ),
-                onTap: () {
-                  Navigator.of(sheetContext).pop();
-                  _createStory(context, ref);
-                },
-              ),
+            ListTile(
+              key: const Key('add-memory-reminder'),
+              contentPadding: EdgeInsets.zero,
+              leading: const AppIcon(icon: AppIcons.reminder),
+              title: const Text('Add reminder'),
+              subtitle: const Text('Choose a local date and notification'),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                context.pushNamed(
+                  AppRoute.addReminder.name,
+                  queryParameters: {'memoryId': memoryId},
+                );
+              },
+            ),
+            ListTile(
+              key: const Key('memory-technical-details'),
+              contentPadding: EdgeInsets.zero,
+              leading: const AppIcon(icon: AppIcons.information),
+              title: const Text('Memory details'),
+              subtitle: const Text('Privacy, status, and record dates'),
+              onTap: () {
+                Navigator.of(sheetContext).pop();
+                _showMemoryDetails(context, memory);
+              },
+            ),
             if (memory.event.metadata.lifecycle == RecordLifecycle.archived)
               ListTile(
                 key: const Key('restore-memory'),
@@ -155,6 +174,45 @@ final class MemoryDetailPage extends ConsumerWidget {
       ),
     );
   }
+
+  Future<void> _showMemoryDetails(
+    BuildContext context,
+    TimelineMemory memory,
+  ) => AppBottomSheet.show<void>(
+    context: context,
+    builder: (sheetContext) => AppBottomSheet(
+      title: 'Memory details',
+      description:
+          'Technical record information is kept separate from the memory itself.',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _UtilityRow(
+            label: 'Privacy',
+            value: _privacyLabel(memory.event.metadata.privacyClassification),
+          ),
+          _UtilityRow(
+            label: 'Created',
+            value: MaterialLocalizations.of(
+              sheetContext,
+            ).formatMediumDate(memory.event.metadata.createdAt.toLocal()),
+          ),
+          _UtilityRow(
+            label: 'Last updated',
+            value: MaterialLocalizations.of(
+              sheetContext,
+            ).formatMediumDate(memory.event.metadata.updatedAt.toLocal()),
+          ),
+          _UtilityRow(
+            label: 'Status',
+            value: memory.event.metadata.lifecycle == RecordLifecycle.archived
+                ? 'Archived'
+                : 'Active',
+          ),
+        ],
+      ),
+    ),
+  );
 
   Future<void> _createStory(BuildContext context, WidgetRef ref) async {
     final source = await ref
@@ -216,48 +274,79 @@ final class MemoryDetailPage extends ConsumerWidget {
   }
 }
 
-final class _MemoryEvidenceSection extends ConsumerWidget {
-  const _MemoryEvidenceSection({required this.memoryId});
+final class _PrimaryActions extends StatelessWidget {
+  const _PrimaryActions({required this.onAddPhoto, this.onCreateStory});
 
-  final String memoryId;
+  final VoidCallback onAddPhoto;
+  final VoidCallback? onCreateStory;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final evidence = ref.watch(memoryEvidenceProvider(memoryId));
-    return evidence.when(
-      loading: () => const AppLoadingState(label: 'Loading evidence'),
-      error: (error, stackTrace) => const AppErrorState(
-        title: 'Evidence unavailable',
-        message: 'Supporting records could not be opened.',
+  Widget build(BuildContext context) => Wrap(
+    spacing: AppSpacing.sm,
+    runSpacing: AppSpacing.sm,
+    children: [
+      if (onCreateStory != null)
+        AppButton(
+          key: const Key('create-memory-story'),
+          label: 'Create Story',
+          icon: AppIcons.stories,
+          onPressed: onCreateStory,
+        ),
+      AppButton(
+        key: const Key('memory-add-photo'),
+        label: 'Add photo',
+        icon: AppIcons.image,
+        variant: AppButtonVariant.secondary,
+        onPressed: onAddPhoto,
       ),
-      data: (values) => values.isEmpty
-          ? const AppEmptyState(
-              title: 'No evidence attached',
-              message: 'Receipts and supporting documents will appear here.',
-              icon: AppIcons.database,
-            )
-          : Column(
-              children: [
-                for (final item in values)
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    leading: const AppIcon(icon: AppIcons.database),
-                    title: Text(item.evidence.title),
-                    subtitle: Text(
-                      '${_evidenceTypeLabel(item.evidence.evidenceType)} · ${item.attachmentCount} ${item.attachmentCount == 1 ? 'attachment' : 'attachments'}',
-                    ),
-                  ),
-              ],
-            ),
-    );
-  }
-
-  String _evidenceTypeLabel(EvidenceType value) => switch (value) {
-    EvidenceType.receipt => 'Receipt',
-    EvidenceType.warranty => 'Warranty',
-    EvidenceType.certificate => 'Certificate',
-    EvidenceType.ticket => 'Ticket',
-    EvidenceType.officialDocument => 'Official document',
-    EvidenceType.other => 'Other evidence',
-  };
+    ],
+  );
 }
+
+final class _RelatedSection extends StatelessWidget {
+  const _RelatedSection({required this.entity});
+
+  final Entity entity;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(top: AppSpacing.xxxl),
+    child: AppSection(
+      title: 'Related',
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: const AppIcon(icon: AppIcons.you),
+        title: Text(entity.name),
+        subtitle: Text(entity.entityType),
+      ),
+    ),
+  );
+}
+
+final class _UtilityRow extends StatelessWidget {
+  const _UtilityRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+    contentPadding: EdgeInsets.zero,
+    title: Text(label),
+    trailing: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 180),
+      child: Text(
+        value,
+        textAlign: TextAlign.end,
+        style: Theme.of(context).textTheme.bodyMedium,
+      ),
+    ),
+  );
+}
+
+String _privacyLabel(PrivacyClassification value) => switch (value) {
+  PrivacyClassification.shareSafe => 'Share safe',
+  PrivacyClassification.personal => 'Personal',
+  PrivacyClassification.sensitive => 'Sensitive',
+  PrivacyClassification.neverShare => 'Never share',
+};

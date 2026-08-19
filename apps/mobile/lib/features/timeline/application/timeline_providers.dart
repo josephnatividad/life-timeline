@@ -4,8 +4,8 @@ import 'package:life_timeline/features/timeline/application/memory_use_cases.dar
 import 'package:life_timeline/features/timeline/domain/temporal_display.dart';
 import 'package:life_timeline/features/timeline/infrastructure/path_provider_attachment_cleanup.dart';
 import 'package:life_timeline/shared/database/app_database_provider.dart';
-import 'package:life_timeline/shared/domain/model/record_metadata.dart';
 import 'package:life_timeline/shared/domain/model/timeline_models.dart';
+import 'package:life_timeline/shared/domain/repositories/timeline_repository.dart';
 
 final recordIdGeneratorProvider = Provider<RecordIdGenerator>((ref) {
   return LocalRecordIdGenerator();
@@ -46,6 +46,22 @@ final timelineMemoriesProvider = StreamProvider<List<TimelineMemory>>((ref) {
       .map(TemporalDisplay.sortNewestFirst);
 });
 
+final timelineMemoryPreviewProvider = StreamProvider.autoDispose
+    .family<List<TimelineMemory>, int>((ref, limit) {
+      return ref
+          .watch(timelineRepositoryProvider)
+          .watchMemoryPreview(limit: limit)
+          .map(TemporalDisplay.sortNewestFirst);
+    });
+
+final timelineMemoryCountProvider = StreamProvider.autoDispose<int>((ref) {
+  return ref.watch(timelineRepositoryProvider).watchMemoryCount();
+});
+
+final timelineRevisionProvider = StreamProvider<String>((ref) {
+  return ref.watch(timelineRepositoryProvider).watchTimelineRevision();
+});
+
 final archivedMemoriesProvider = StreamProvider<List<TimelineMemory>>((ref) {
   return ref
       .watch(timelineRepositoryProvider)
@@ -73,48 +89,13 @@ final memorySearchProvider =
     });
 
 final memoryEvidenceProvider =
-    FutureProvider.family<List<MemoryEvidenceItem>, String>((
-      ref,
-      eventId,
-    ) async {
-      final repository = ref.watch(timelineRepositoryProvider);
-      final relationships = await repository.relationshipsFor(
-        TimelineRecordReference(type: TimelineRecordType.event, id: eventId),
-      );
-      final evidenceIds = <String>{};
-      for (final relationship in relationships) {
-        if (relationship.metadata.lifecycle == RecordLifecycle.softDeleted) {
-          continue;
-        }
-        if (relationship.source.type == TimelineRecordType.evidence) {
-          evidenceIds.add(relationship.source.id);
-        }
-        if (relationship.target.type == TimelineRecordType.evidence) {
-          evidenceIds.add(relationship.target.id);
-        }
-      }
-      final items = <MemoryEvidenceItem>[];
-      for (final id in evidenceIds) {
-        final evidence = await repository.evidenceById(id);
-        if (evidence == null) continue;
-        items.add(
-          MemoryEvidenceItem(
-            evidence: evidence,
-            attachmentCount: (await repository.attachmentsForEvidence(
-              id,
-            )).length,
-          ),
-        );
-      }
-      return List.unmodifiable(items);
+    FutureProvider.family<MemoryEvidenceCollection, String>((ref, eventId) {
+      return ref.watch(timelineRepositoryProvider).evidenceForMemory(eventId);
     });
 
-final class MemoryEvidenceItem {
-  const MemoryEvidenceItem({
-    required this.evidence,
-    required this.attachmentCount,
-  });
-
-  final int attachmentCount;
-  final Evidence evidence;
-}
+final memoryEvidencePreviewProvider =
+    FutureProvider.family<MemoryEvidenceCollection, String>((ref, eventId) {
+      return ref
+          .watch(timelineRepositoryProvider)
+          .evidenceForMemory(eventId, limit: 3);
+    });

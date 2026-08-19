@@ -151,7 +151,15 @@ final class _MemoryReminderRepository implements ReminderRepository {
   @override
   Stream<List<Reminder>> watchAll() => controller.stream;
   @override
-  Stream<List<Reminder>> watchForEvent(String eventId) => controller.stream;
+  Stream<List<Reminder>> watchForEvent(String eventId, {int? limit}) =>
+      controller.stream.map(
+        (values) => values.take(limit ?? values.length).toList(),
+      );
+
+  @override
+  Stream<int> watchCountForEvent(String eventId) => controller.stream.map(
+    (values) => values.where((item) => item.linkedEventId == eventId).length,
+  );
 }
 
 final class _FakeNotifications implements LocalNotificationService {

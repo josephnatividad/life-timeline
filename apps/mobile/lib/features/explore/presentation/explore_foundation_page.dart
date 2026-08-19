@@ -7,7 +7,6 @@ import 'package:life_timeline/features/insights/application/explore_overview.dar
 import 'package:life_timeline/features/insights/application/insights_providers.dart';
 import 'package:life_timeline/features/insights/domain/life_query_models.dart';
 import 'package:life_timeline/features/insights/presentation/widgets/supporting_records_sheet.dart';
-import 'package:life_timeline/shared/domain/formatting/temporal_label.dart';
 
 final class ExploreFoundationPage extends ConsumerWidget {
   const ExploreFoundationPage({super.key});
@@ -71,18 +70,16 @@ final class _ExploreContent extends ConsumerWidget {
           onPressed: () => context.pushNamed(AppRoute.askMyLife.name),
         ),
         const SizedBox(height: AppSpacing.xxxl),
-        const AppSectionHeader(
-          title: 'Insights',
-          supportingText:
-              'Eligible insights appear only when the supporting history is strong enough.',
-        ),
+        const AppSectionHeader(title: 'For you'),
         const SizedBox(height: AppSpacing.md),
         if (overview.insights.isEmpty)
-          const _SectionEmpty(
-            message:
-                'Add and confirm more history to reveal durable patterns without guesswork.',
+          const AppEmptyState(
+            title: 'Your patterns are still taking shape',
+            message: 'Confirmed history can reveal a useful pattern over time.',
+            icon: AppIcons.intelligence,
+            variant: AppEmptyStateVariant.compact,
           )
-        else ...[
+        else
           _PrimaryInsight(
             insight: overview.insights.first,
             onDismiss: () => _dismiss(ref, overview.insights.first),
@@ -91,83 +88,92 @@ final class _ExploreContent extends ConsumerWidget {
               overview.insights.first.result.supportingRecords,
             ),
           ),
-          for (final insight in overview.insights.skip(1)) ...[
-            const SizedBox(height: AppSpacing.sm),
-            _CompactInsightRow(
-              insight: insight,
-              onDismiss: () => _dismiss(ref, insight),
-              onTap: () =>
-                  _showRecords(context, insight.result.supportingRecords),
+        if (overview.insights.length > 1) ...[
+          const SizedBox(height: AppSpacing.xxxl),
+          AppCollectionPreview(
+            title: 'Recent insights',
+            count: overview.insights.length - 1,
+            viewAllLabel: overview.insights.length > 3
+                ? 'View all insights'
+                : null,
+            onViewAll: overview.insights.length > 3
+                ? () => context.pushNamed(AppRoute.insights.name)
+                : null,
+            child: Column(
+              children: [
+                for (final insight in overview.insights.skip(1).take(2))
+                  _CompactInsightRow(
+                    insight: insight,
+                    onDismiss: () => _dismiss(ref, insight),
+                    onTap: () =>
+                        _showRecords(context, insight.result.supportingRecords),
+                  ),
+              ],
             ),
-          ],
+          ),
         ],
         const SizedBox(height: AppSpacing.xxxl),
-        const AppSectionHeader(
-          title: 'Things',
-          supportingText: 'A few confirmed things from across your timeline.',
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        if (overview.things.isEmpty)
-          const _SectionEmpty(
-            message: 'No categorized things are recorded yet.',
-          )
-        else
-          for (final record in overview.things.take(6))
-            _RecordRow(record: record),
-        const SizedBox(height: AppSpacing.xxxl),
-        const AppSectionHeader(
-          title: 'Years',
-          supportingText: 'Recent years with confirmed memories.',
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        if (overview.years.isEmpty)
-          const _SectionEmpty(message: 'No year summaries are ready yet.')
-        else
-          for (final year in overview.years)
-            _SummaryRow(
-              summary: year,
-              onTap: year.result == null
-                  ? null
-                  : () => _showRecords(context, year.result!.supportingRecords),
-            ),
-        const SizedBox(height: AppSpacing.xxxl),
-        const AppSectionHeader(
-          title: 'Places',
-          supportingText: 'Places connected to confirmed history.',
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        if (overview.places.isEmpty)
-          const _SectionEmpty(
-            message: 'Travel and place history will appear here.',
-          )
-        else
-          for (final place in overview.places.take(6))
-            _RecordRow(record: place),
-        const SizedBox(height: AppSpacing.xxxl),
-        const AppSectionHeader(
-          title: 'Categories',
-          supportingText: 'Ask a focused question about a category.',
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        if (overview.categories.isEmpty)
-          const _SectionEmpty(
-            message: 'Categories appear as records are confirmed.',
-          )
-        else
-          Wrap(
-            spacing: AppSpacing.xs,
-            runSpacing: AppSpacing.xs,
+        AppSection(
+          title: 'Browse your life',
+          supportingText:
+              'Move through confirmed history without leaving Explore.',
+          child: Column(
             children: [
-              for (final category in overview.categories)
-                AppChip(
-                  label: '${category.label} · ${category.value}',
-                  onSelected: (_) => context.pushNamed(
-                    AppRoute.askMyLife.name,
-                    extra: 'What ${category.label.toLowerCase()} have I owned?',
-                  ),
+              if (overview.things.isNotEmpty)
+                _BrowseRow(
+                  title: 'Things',
+                  value: '${overview.things.length} recent records',
+                  icon: AppIcons.explore,
+                  onTap: () => _showRecords(context, overview.things),
+                ),
+              if (overview.places.isNotEmpty)
+                _BrowseRow(
+                  title: 'Places',
+                  value: '${overview.places.length} confirmed places',
+                  icon: AppIcons.explore,
+                  onTap: () => _showRecords(context, overview.places),
+                ),
+              if (overview.years.isNotEmpty)
+                _BrowseRow(
+                  title: 'Years',
+                  value: '${overview.years.length} recent years',
+                  icon: AppIcons.time,
+                  onTap: () => _showRecords(context, [
+                    for (final year in overview.years)
+                      ...?year.result?.supportingRecords,
+                  ]),
+                ),
+              if (overview.categories.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Wrap(
+                  spacing: AppSpacing.xs,
+                  runSpacing: AppSpacing.xs,
+                  children: [
+                    for (final category in overview.categories)
+                      AppChip(
+                        label: '${category.label} · ${category.value}',
+                        onSelected: (_) => context.pushNamed(
+                          AppRoute.askMyLife.name,
+                          extra:
+                              'What ${category.label.toLowerCase()} have I owned?',
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+              if (overview.things.isEmpty &&
+                  overview.places.isEmpty &&
+                  overview.years.isEmpty &&
+                  overview.categories.isEmpty)
+                const AppEmptyState(
+                  title: 'Your browse paths will appear here',
+                  message: 'Add confirmed memories to begin.',
+                  icon: AppIcons.explore,
+                  variant: AppEmptyStateVariant.compact,
                 ),
             ],
           ),
+        ),
         const SizedBox(height: AppSpacing.xxxl),
       ],
     ),
@@ -264,52 +270,102 @@ final class _CompactInsightRow extends StatelessWidget {
   );
 }
 
-final class _RecordRow extends StatelessWidget {
-  const _RecordRow({required this.record});
+final class _BrowseRow extends StatelessWidget {
+  const _BrowseRow({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.onTap,
+  });
 
-  final LifeSupportingRecord record;
-
-  @override
-  Widget build(BuildContext context) => ListTile(
-    contentPadding: EdgeInsets.zero,
-    leading: const AppIcon(icon: AppIcons.explore),
-    title: Text(record.title),
-    subtitle: Text(
-      [
-        ?record.temporalValue == null
-            ? null
-            : TemporalLabel.format(record.temporalValue!),
-        ?record.typeLabel,
-      ].join(' · '),
-    ),
-  );
-}
-
-final class _SummaryRow extends StatelessWidget {
-  const _SummaryRow({required this.summary, this.onTap});
-
-  final VoidCallback? onTap;
-  final ExploreSummary summary;
+  final AppIconData icon;
+  final VoidCallback onTap;
+  final String title;
+  final String value;
 
   @override
   Widget build(BuildContext context) => ListTile(
     contentPadding: EdgeInsets.zero,
-    leading: const TimelineNode(icon: AppIcons.time, label: 'Year summary'),
-    title: Text(summary.label),
-    subtitle: Text(summary.value),
-    trailing: onTap == null ? null : const AppIcon(icon: AppIcons.next),
+    leading: AppIcon(icon: icon),
+    title: Text(title),
+    subtitle: Text(value),
+    trailing: const AppIcon(icon: AppIcons.next),
     onTap: onTap,
   );
 }
 
-final class _SectionEmpty extends StatelessWidget {
-  const _SectionEmpty({required this.message});
-
-  final String message;
+final class ExploreInsightsPage extends ConsumerWidget {
+  const ExploreInsightsPage({super.key});
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-    child: Text(message, style: Theme.of(context).textTheme.bodyMedium),
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final insights = ref.watch(lifeInsightsProvider);
+    return AppScaffold(
+      appBar: AppBar(title: const Text('Insights')),
+      body: insights.when(
+        loading: () => const Center(
+          child: AppLoadingState(label: 'Reading local insights'),
+        ),
+        error: (error, stackTrace) => Center(
+          child: AppErrorState(
+            title: 'Insights unavailable',
+            message: 'Your local timeline could not be summarized.',
+            actionLabel: 'Try again',
+            onAction: () => ref.invalidate(lifeInsightsProvider),
+          ),
+        ),
+        data: (values) => values.isEmpty
+            ? const Center(
+                child: AppEmptyState(
+                  title: 'No durable patterns yet',
+                  message: 'Confirmed history can reveal patterns over time.',
+                  icon: AppIcons.intelligence,
+                ),
+              )
+            : ListView.separated(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                itemCount: values.length,
+                separatorBuilder: (context, index) => const AppDivider(),
+                itemBuilder: (context, index) {
+                  final insight = values[index];
+                  return _CompactInsightRow(
+                    insight: insight,
+                    onDismiss: () async {
+                      await ref
+                          .read(insightEngineProvider)
+                          .dismiss(insight, DateTime.now().toUtc());
+                      ref
+                        ..invalidate(lifeInsightsProvider)
+                        ..invalidate(exploreOverviewProvider);
+                    },
+                    onTap: () => _openSupportingRecords(
+                      context,
+                      insight.result.supportingRecords,
+                    ),
+                  );
+                },
+              ),
+      ),
+    );
+  }
+
+  Future<void> _openSupportingRecords(
+    BuildContext context,
+    List<LifeSupportingRecord> records,
+  ) {
+    if (records.isEmpty) return Future.value();
+    return AppBottomSheet.show<void>(
+      context: context,
+      builder: (sheetContext) => SupportingRecordsSheet(
+        records: records,
+        onOpenEvent: (eventId) {
+          Navigator.of(sheetContext).pop();
+          context.pushNamed(
+            AppRoute.memoryDetail.name,
+            pathParameters: {'memoryId': eventId},
+          );
+        },
+      ),
+    );
+  }
 }

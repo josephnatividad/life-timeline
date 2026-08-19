@@ -8,7 +8,7 @@ final class AppBottomSheet extends StatelessWidget {
   const AppBottomSheet({
     required this.child,
     this.description,
-    this.showCloseButton = false,
+    this.showCloseButton = true,
     this.title,
     super.key,
   });

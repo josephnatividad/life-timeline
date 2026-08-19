@@ -81,7 +81,7 @@ final class ExploreOverviewLoader {
       categories: categories,
       insights: insights,
       places: placeResult.status == LifeQueryStatus.answered
-          ? placeResult.supportingRecords
+          ? placeResult.supportingRecords.take(6).toList(growable: false)
           : const [],
       things: things,
       years: years,

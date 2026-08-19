@@ -41,3 +41,23 @@ final memoryMediaProvider = StreamProvider.autoDispose
     .family<List<MemoryMedia>, String>((ref, eventId) {
       return ref.watch(memoryMediaRepositoryProvider).watchForEvent(eventId);
     });
+
+final memoryMediaPreviewProvider = StreamProvider.autoDispose
+    .family<List<MemoryMedia>, String>((ref, eventId) {
+      return ref
+          .watch(memoryMediaRepositoryProvider)
+          .watchGalleryPreview(eventId, limit: 4);
+    });
+
+final memoryHeroMediaProvider = StreamProvider.autoDispose
+    .family<MemoryMedia?, String>((ref, eventId) {
+      return ref
+          .watch(memoryMediaRepositoryProvider)
+          .watchHeroForEvent(eventId);
+    });
+
+final memoryMediaCountProvider = StreamProvider.autoDispose.family<int, String>(
+  (ref, eventId) {
+    return ref.watch(memoryMediaRepositoryProvider).watchMediaCount(eventId);
+  },
+);

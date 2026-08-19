@@ -170,6 +170,35 @@ void main() {
     expect(find.byTooltip('Restore memory'), findsOneWidget);
     expect(find.byTooltip('Move memory to Trash'), findsOneWidget);
   });
+
+  testWidgets('collection preview exposes count and labeled drill-down', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    var opened = false;
+    await tester.pumpWidget(
+      _TestApp(
+        textScaler: const TextScaler.linear(1.8),
+        child: SingleChildScrollView(
+          child: AppCollectionPreview(
+            title: 'Photos',
+            count: 24,
+            viewAllLabel: 'View all photos',
+            onViewAll: () => opened = true,
+            child: const Text('Four bounded previews'),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Photos'), findsOneWidget);
+    expect(find.text('24'), findsOneWidget);
+    expect(find.bySemanticsLabel('Photos, 24 items'), findsOneWidget);
+    await tester.tap(find.text('View all photos'));
+    expect(opened, isTrue);
+    expect(tester.takeException(), isNull);
+    semantics.dispose();
+  });
 }
 
 final class _TestApp extends StatelessWidget {

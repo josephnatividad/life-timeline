@@ -74,10 +74,11 @@ final class _MemorySearchPageState extends ConsumerState<MemorySearchPage> {
       ),
       data: (values) {
         if (values.isEmpty) {
-          return const AppEmptyState(
-            title: 'Nothing found yet',
-            message:
-                'Your timeline may not know about this part of your life yet.',
+          return AppEmptyState(
+            title: 'No memories matched your search',
+            message: 'Try another word or clear the search.',
+            actionLabel: 'Clear search',
+            onAction: _clearSearch,
             icon: AppIcons.search,
           );
         }
@@ -112,5 +113,11 @@ final class _MemorySearchPageState extends ConsumerState<MemorySearchPage> {
   void _searchNow(String value) {
     _debounce?.cancel();
     setState(() => _query = value);
+  }
+
+  void _clearSearch() {
+    _debounce?.cancel();
+    _controller.clear();
+    setState(() => _query = '');
   }
 }

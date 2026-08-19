@@ -188,10 +188,20 @@ final class _UiReminderRepository implements ReminderRepository {
     values.removeWhere((item) => item.id == reminder.id);
     values.add(reminder);
   }
+
   @override
   Stream<List<Reminder>> watchAll() => Stream.value(values);
   @override
-  Stream<List<Reminder>> watchForEvent(String eventId) => Stream.value(
-    values.where((item) => item.linkedEventId == eventId).toList(),
+  Stream<List<Reminder>> watchForEvent(String eventId, {int? limit}) =>
+      Stream.value(
+        values
+            .where((item) => item.linkedEventId == eventId)
+            .take(limit ?? values.length)
+            .toList(),
+      );
+
+  @override
+  Stream<int> watchCountForEvent(String eventId) => Stream.value(
+    values.where((item) => item.linkedEventId == eventId).length,
   );
 }

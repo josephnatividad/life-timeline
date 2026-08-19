@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:life_timeline/app/navigation/app_routes.dart';
 import 'package:life_timeline/design_system/design_system.dart';
 import 'package:life_timeline/features/storage/application/storage_providers.dart';
 import 'package:life_timeline/features/storage/domain/storage_models.dart';
@@ -14,13 +16,11 @@ final class StorageManagerPage extends ConsumerStatefulWidget {
 }
 
 final class _StorageManagerPageState extends ConsumerState<StorageManagerPage> {
-  final _selected = <String>{};
-
   @override
   Widget build(BuildContext context) {
     ref.listen(storageOperationControllerProvider, (previous, next) {
+      if (!(ModalRoute.of(context)?.isCurrent ?? false)) return;
       if (next.completedMessage case final message?) {
-        if (next.kind == StorageOperationKind.archive) _selected.clear();
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(message)));
@@ -52,15 +52,78 @@ final class _StorageManagerPageState extends ConsumerState<StorageManagerPage> {
         data: (value) => _StorageContent(
           overview: value,
           operation: operation,
+          onCleanup: () =>
+              ref.read(storageOperationControllerProvider.notifier).cleanup(),
+          onOptimize: (id) => _optimize(id),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _optimize(String attachmentId) async {
+    final preserve = await AppBottomSheet.show<bool>(
+      context: context,
+      builder: (context) => const _OptimizationConfirmationSheet(),
+    );
+    if (preserve == null || !mounted) return;
+    await ref
+        .read(storageOperationControllerProvider.notifier)
+        .optimize(attachmentId: attachmentId, preserveOriginal: preserve);
+  }
+}
+
+final class StorageArchivePage extends ConsumerStatefulWidget {
+  const StorageArchivePage({super.key});
+
+  @override
+  ConsumerState<StorageArchivePage> createState() => _StorageArchivePageState();
+}
+
+final class _StorageArchivePageState extends ConsumerState<StorageArchivePage> {
+  final _selected = <String>{};
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(storageOperationControllerProvider, (previous, next) {
+      if (!(ModalRoute.of(context)?.isCurrent ?? false)) return;
+      if (next.completedMessage case final message?) {
+        if (next.kind == StorageOperationKind.archive) _selected.clear();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+        ref.read(storageOperationControllerProvider.notifier).reset();
+      } else if (next.errorCode case final code?) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(_operationErrorMessage(code))));
+        ref.read(storageOperationControllerProvider.notifier).reset();
+      }
+    });
+    final overview = ref.watch(storageOverviewProvider);
+    final operation = ref.watch(storageOperationControllerProvider);
+    return AppScaffold(
+      appBar: AppBar(title: const Text('Archived originals')),
+      body: overview.when(
+        loading: () => const Center(
+          child: AppLoadingState(label: 'Reading app-managed originals'),
+        ),
+        error: (error, stackTrace) => Center(
+          child: AppErrorState(
+            title: 'Archive unavailable',
+            message: 'App-managed originals could not be inspected safely.',
+            actionLabel: 'Try again',
+            onAction: () => ref.invalidate(storageOverviewProvider),
+          ),
+        ),
+        data: (value) => _StorageArchiveContent(
+          overview: value,
+          operation: operation,
           selected: _selected,
           onSelected: (id, selected) {
             setState(() => selected ? _selected.add(id) : _selected.remove(id));
           },
           onArchive: () => _archive(value),
-          onRetrieve: (id) => _retrieve(id),
-          onCleanup: () =>
-              ref.read(storageOperationControllerProvider.notifier).cleanup(),
-          onOptimize: (id) => _optimize(id),
+          onRetrieve: _retrieve,
         ),
       ),
     );
@@ -106,16 +169,135 @@ final class _StorageManagerPageState extends ConsumerState<StorageManagerPage> {
         .read(storageOperationControllerProvider.notifier)
         .retrieve(attachmentId: attachmentId, recoveryPassword: password);
   }
+}
 
-  Future<void> _optimize(String attachmentId) async {
-    final preserve = await AppBottomSheet.show<bool>(
-      context: context,
-      builder: (context) => const _OptimizationConfirmationSheet(),
+final class _StorageArchiveContent extends StatelessWidget {
+  const _StorageArchiveContent({
+    required this.overview,
+    required this.operation,
+    required this.selected,
+    required this.onSelected,
+    required this.onArchive,
+    required this.onRetrieve,
+  });
+
+  final VoidCallback onArchive;
+  final Future<void> Function(String id) onRetrieve;
+  final void Function(String id, bool selected) onSelected;
+  final StorageOperationState operation;
+  final StorageOverview overview;
+  final Set<String> selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final inventory = overview.inventory;
+    final available = inventory.attachments
+        .where((stored) {
+          final attachment = stored.attachment;
+          return attachment.storageState == AttachmentStorageState.local &&
+              attachment.relativePath != null &&
+              stored.archiveReference == null &&
+              inventory.managedFiles.any(
+                (file) =>
+                    file.attachmentId == attachment.metadata.id &&
+                    !file.preservedOriginal &&
+                    file.exists,
+              );
+        })
+        .toList(growable: false);
+    final archived = inventory.attachments
+        .where(
+          (stored) =>
+              stored.archiveReference != null &&
+              stored.attachment.storageState == AttachmentStorageState.archived,
+        )
+        .toList(growable: false);
+    return ListView(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+      children: [
+        ScreenContainer(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (operation.running) ...[
+                StorageOperationProgressView(
+                  progress: operation.progress,
+                  label: _operationLabel(operation.kind),
+                ),
+                const SizedBox(height: AppSpacing.xl),
+              ],
+              const AppSectionHeader(
+                title: 'Available originals',
+                supportingText:
+                    'Selected originals are encrypted and verified through the system picker.',
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              if (available.isEmpty)
+                const AppEmptyState(
+                  title: 'No originals are ready to archive',
+                  message: '',
+                  icon: AppIcons.archive,
+                  variant: AppEmptyStateVariant.compact,
+                )
+              else ...[
+                for (final stored in available)
+                  StorageAttachmentTile(
+                    key: Key(
+                      'archive-candidate-${stored.attachment.metadata.id}',
+                    ),
+                    stored: stored,
+                    selected: selected.contains(stored.attachment.metadata.id),
+                    onSelected: operation.running
+                        ? null
+                        : (value) => onSelected(
+                            stored.attachment.metadata.id,
+                            value ?? false,
+                          ),
+                  ),
+                const SizedBox(height: AppSpacing.md),
+                AppButton(
+                  key: const Key('archive-selected-button'),
+                  label: selected.isEmpty
+                      ? 'Select originals to archive'
+                      : 'Archive ${selected.length} selected',
+                  icon: AppIcons.archive,
+                  expanded: true,
+                  onPressed: selected.isEmpty || operation.running
+                      ? null
+                      : onArchive,
+                ),
+              ],
+              const SizedBox(height: AppSpacing.xxxl),
+              const AppSectionHeader(
+                title: 'Archived originals',
+                supportingText:
+                    'Previews and timeline metadata remain on this device.',
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              if (archived.isEmpty)
+                const AppEmptyState(
+                  title: 'No originals are archived',
+                  message: '',
+                  icon: AppIcons.archive,
+                  variant: AppEmptyStateVariant.compact,
+                )
+              else
+                for (final stored in archived)
+                  StorageAttachmentTile(
+                    key: Key(
+                      'archived-attachment-${stored.attachment.metadata.id}',
+                    ),
+                    stored: stored,
+                    actionLabel: 'Retrieve',
+                    onAction: operation.running
+                        ? null
+                        : () => onRetrieve(stored.attachment.metadata.id),
+                  ),
+            ],
+          ),
+        ),
+      ],
     );
-    if (preserve == null || !mounted) return;
-    await ref
-        .read(storageOperationControllerProvider.notifier)
-        .optimize(attachmentId: attachmentId, preserveOriginal: preserve);
   }
 }
 
@@ -123,22 +305,14 @@ final class _StorageContent extends StatelessWidget {
   const _StorageContent({
     required this.overview,
     required this.operation,
-    required this.selected,
-    required this.onSelected,
-    required this.onArchive,
-    required this.onRetrieve,
     required this.onCleanup,
     required this.onOptimize,
   });
 
-  final VoidCallback onArchive;
   final VoidCallback onCleanup;
   final Future<void> Function(String id) onOptimize;
-  final Future<void> Function(String id) onRetrieve;
-  final void Function(String id, bool selected) onSelected;
   final StorageOperationState operation;
   final StorageOverview overview;
-  final Set<String> selected;
 
   @override
   Widget build(BuildContext context) {
@@ -207,67 +381,22 @@ final class _StorageContent extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.xxxl),
               const AppSectionHeader(
-                title: 'Archive selected originals',
+                title: 'Originals and archive',
                 supportingText:
-                    'Archive is for saving device space. It is not a second backup.',
+                    'Archive can save device space. It is not a second backup.',
               ),
               const SizedBox(height: AppSpacing.sm),
-              if (archiveCandidates.isEmpty)
-                const AppEmptyState(
-                  title: 'No archive candidates',
-                  message:
-                      'Only available app-managed originals can be archived.',
-                  icon: AppIcons.archive,
-                )
-              else ...[
-                for (final stored in archiveCandidates)
-                  StorageAttachmentTile(
-                    key: Key(
-                      'archive-candidate-${stored.attachment.metadata.id}',
-                    ),
-                    stored: stored,
-                    selected: selected.contains(stored.attachment.metadata.id),
-                    onSelected: operation.running
-                        ? null
-                        : (value) => onSelected(
-                            stored.attachment.metadata.id,
-                            value ?? false,
-                          ),
-                  ),
-                const SizedBox(height: AppSpacing.md),
-                AppButton(
-                  key: const Key('archive-selected-button'),
-                  label: selected.isEmpty
-                      ? 'Select originals to archive'
-                      : 'Archive ${selected.length} selected',
-                  icon: AppIcons.archive,
-                  expanded: true,
-                  onPressed: selected.isEmpty || operation.running
-                      ? null
-                      : onArchive,
+              ListTile(
+                key: const Key('manage-storage-archive-row'),
+                contentPadding: EdgeInsets.zero,
+                leading: const AppIcon(icon: AppIcons.archive),
+                title: const Text('Manage archived originals'),
+                subtitle: Text(
+                  '${archiveCandidates.length} available · ${archived.length} archived',
                 ),
-              ],
-              const SizedBox(height: AppSpacing.xxxl),
-              const AppSectionHeader(
-                title: 'Archived originals',
-                supportingText:
-                    'Previews and timeline metadata stay local. Reconnect the encrypted original when needed.',
+                trailing: const AppIcon(icon: AppIcons.next),
+                onTap: () => context.pushNamed(AppRoute.storageArchive.name),
               ),
-              const SizedBox(height: AppSpacing.sm),
-              if (archived.isEmpty)
-                const Text('No originals are currently archived off-device.')
-              else
-                for (final stored in archived)
-                  StorageAttachmentTile(
-                    key: Key(
-                      'archived-attachment-${stored.attachment.metadata.id}',
-                    ),
-                    stored: stored,
-                    actionLabel: 'Retrieve',
-                    onAction: operation.running
-                        ? null
-                        : () => onRetrieve(stored.attachment.metadata.id),
-                  ),
               if (inventory.referencedContentCount > 0 ||
                   inventory.unavailableContentCount > 0 ||
                   inventory.missingManagedFileCount > 0) ...[

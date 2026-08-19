@@ -27,8 +27,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          timelineMemoriesProvider.overrideWith(
-            (ref) => Stream.value(memories),
+          timelineMemoryPreviewProvider(
+            6,
+          ).overrideWith((ref) => Stream.value(memories)),
+          timelineMemoryCountProvider.overrideWith(
+            (ref) => Stream.value(memories.length),
           ),
           milestoneCandidatesProvider.overrideWithValue(
             AsyncData([
@@ -50,10 +53,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Share a moment, not your timeline'), findsOneWidget);
-    expect(find.text('Milestones'), findsOneWidget);
+    expect(find.text('For you'), findsOneWidget);
     expect(find.text('About 5 years ago'), findsOneWidget);
     expect(find.byKey(const Key('create-then-now')), findsOneWidget);
-    await _reveal(tester, find.text('Create from a memory'));
+    await _reveal(tester, find.text('Recent memories'));
     expect(find.text('First phone'), findsWidgets);
     expect(tester.takeException(), isNull);
   });
@@ -62,7 +65,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          timelineMemoriesProvider.overrideWith((ref) => Stream.value([])),
+          timelineMemoryPreviewProvider(
+            6,
+          ).overrideWith((ref) => Stream.value([])),
+          timelineMemoryCountProvider.overrideWith((ref) => Stream.value(0)),
           storyTemporaryCleanupProvider.overrideWith((ref) async {}),
         ],
         child: const _TestApp(child: StoriesHomePage()),
@@ -71,6 +77,36 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Your first Story begins with a memory'), findsOneWidget);
+  });
+
+  testWidgets('Stories root remains bounded with 100 source memories', (
+    tester,
+  ) async {
+    final preview = List.generate(
+      6,
+      (index) => _memory('event-$index', 'Memory $index', 2020 + index),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          timelineMemoryPreviewProvider(
+            6,
+          ).overrideWith((ref) => Stream.value(preview)),
+          timelineMemoryCountProvider.overrideWith((ref) => Stream.value(100)),
+          milestoneCandidatesProvider.overrideWithValue(const AsyncData([])),
+          storyTemporaryCleanupProvider.overrideWith((ref) async {}),
+        ],
+        child: const _TestApp(child: StoriesHomePage()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await _reveal(tester, find.text('Recent memories'));
+
+    expect(find.text('100'), findsOneWidget);
+    expect(find.text('Memory 0'), findsOneWidget);
+    expect(find.text('Memory 2'), findsOneWidget);
+    expect(find.text('Memory 3'), findsNothing);
+    expect(find.text('Choose another memory'), findsOneWidget);
   });
 
   testWidgets(

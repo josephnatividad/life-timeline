@@ -2,6 +2,12 @@ import 'package:life_timeline/shared/domain/model/timeline_models.dart';
 
 abstract interface class MemoryMediaRepository {
   Stream<List<MemoryMedia>> watchForEvent(String eventId);
+  Stream<List<MemoryMedia>> watchGalleryPreview(
+    String eventId, {
+    required int limit,
+  });
+  Stream<MemoryMedia?> watchHeroForEvent(String eventId);
+  Stream<int> watchMediaCount(String eventId);
   Future<List<MemoryMedia>> forEvent(String eventId);
   Future<MemoryMedia?> byLinkId(String linkId);
 

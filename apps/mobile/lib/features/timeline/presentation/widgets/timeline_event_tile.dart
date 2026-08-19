@@ -21,11 +21,7 @@ final class TimelineEventTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final event = memory.event;
-    final hero = ref
-        .watch(memoryMediaProvider(event.metadata.id))
-        .value
-        ?.where((item) => item.isHero)
-        .firstOrNull;
+    final hero = ref.watch(memoryHeroMediaProvider(event.metadata.id)).value;
     return Semantics(
       button: true,
       label:

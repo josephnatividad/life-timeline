@@ -1,7 +1,7 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:life_timeline/shared/database/app_database.dart'
-    hide Category, Entity, Event, Relationship;
+    hide Attachment, Category, Entity, Event, Relationship;
 import 'package:life_timeline/shared/database/repositories/drift_memory_candidate_repository.dart';
 import 'package:life_timeline/shared/database/repositories/drift_timeline_repository.dart';
 import 'package:life_timeline/shared/domain/model/field_provenance.dart';
@@ -75,6 +75,42 @@ void main() {
       );
     },
   );
+
+  test('30 evidence records use a bounded joined memory preview', () async {
+    await timeline.saveEvent(TestRecordFactory.event());
+    for (var index = 0; index < 30; index++) {
+      final evidence = TestRecordFactory.evidence(id: 'evidence-$index');
+      final attachment = Attachment(
+        metadata: TestRecordFactory.metadata('evidence-attachment-$index'),
+        storageState: AttachmentStorageState.local,
+        importMode: AttachmentImportMode.preserveOriginal,
+        mimeType: 'image/jpeg',
+        byteSize: 1024,
+        relativePath: 'evidence/$index.jpg',
+      );
+      await timeline.saveEvidence(evidence, attachments: [attachment]);
+      await timeline.saveRelationship(
+        Relationship(
+          metadata: TestRecordFactory.metadata('event-evidence-$index'),
+          source: TimelineRecordReference(
+            type: TimelineRecordType.event,
+            id: 'event-1',
+          ),
+          target: TimelineRecordReference(
+            type: TimelineRecordType.evidence,
+            id: evidence.metadata.id,
+          ),
+          relationshipType: 'supported_by',
+        ),
+      );
+    }
+
+    final preview = await timeline.evidenceForMemory('event-1', limit: 3);
+
+    expect(preview.totalCount, 30);
+    expect(preview.items, hasLength(3));
+    expect(preview.items.every((item) => item.attachmentCount == 1), isTrue);
+  });
 
   test(
     'soft deletion hides a user record unless explicitly requested',

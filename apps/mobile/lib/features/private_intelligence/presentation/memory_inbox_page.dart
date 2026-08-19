@@ -27,8 +27,9 @@ final class MemoryInboxPage extends ConsumerWidget {
         data: (items) => items.isEmpty
             ? const Center(
                 child: AppEmptyState(
-                  title: 'Nothing waiting for review',
-                  message: 'Private capture suggestions will appear here.',
+                  title: "You're all caught up",
+                  message:
+                      'There are no private capture suggestions to review.',
                   icon: AppIcons.database,
                 ),
               )

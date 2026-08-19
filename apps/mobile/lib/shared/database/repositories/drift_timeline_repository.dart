@@ -21,6 +21,38 @@ final class DriftTimelineRepository implements TimelineRepository {
       ).watch().map((rows) => rows.map(_memoryFromRow).toList());
 
   @override
+  Stream<List<TimelineMemory>> watchMemoryPreview({required int limit}) {
+    if (limit <= 0) throw ArgumentError.value(limit, 'limit');
+    return _memoryQuery(
+      whereSql: 'e.lifecycle = ?',
+      variables: [const Variable<String>('confirmed')],
+      limit: limit,
+    ).watch().map((rows) => rows.map(_memoryFromRow).toList());
+  }
+
+  @override
+  Stream<int> watchMemoryCount() {
+    final count = _database.events.id.count();
+    final query = _database.selectOnly(_database.events)
+      ..addColumns([count])
+      ..where(_database.events.lifecycle.equals('confirmed'));
+    return query.watchSingle().map((row) => row.read(count) ?? 0);
+  }
+
+  @override
+  Stream<String> watchTimelineRevision() => _database
+      .customSelect(
+        '''
+          SELECT CAST(COUNT(*) AS TEXT) || ':' ||
+                 COALESCE(CAST(MAX(updated_at) AS TEXT), '') AS revision
+          FROM events
+        ''',
+        readsFrom: {_database.events},
+      )
+      .watchSingle()
+      .map((row) => row.read<String>('revision'));
+
+  @override
   Stream<List<TimelineMemory>> watchTrashedMemories() => _memoryQuery(
     whereSql: 'e.lifecycle = ?',
     variables: [const Variable<String>('soft_deleted')],
@@ -264,6 +296,75 @@ final class DriftTimelineRepository implements TimelineRepository {
       );
     final row = await query.getSingleOrNull();
     return row == null ? null : TimelineMapper.evidenceFromRow(row);
+  }
+
+  @override
+  Future<MemoryEvidenceCollection> evidenceForMemory(
+    String eventId, {
+    int? limit,
+  }) async {
+    if (limit != null && limit <= 0) {
+      throw ArgumentError.value(limit, 'limit');
+    }
+    const relationshipJoin = '''
+      ((r.source_event_id = ? AND r.target_evidence_id = e.id) OR
+       (r.target_event_id = ? AND r.source_evidence_id = e.id))
+    ''';
+    final totalRow = await _database
+        .customSelect(
+          '''
+        SELECT COUNT(DISTINCT e.id) AS evidence_count
+        FROM relationships r
+        JOIN evidence e ON $relationshipJoin
+        WHERE r.lifecycle <> 'soft_deleted'
+          AND e.lifecycle <> 'soft_deleted'
+      ''',
+          variables: [
+            Variable.withString(eventId),
+            Variable.withString(eventId),
+          ],
+          readsFrom: {_database.relationships, _database.evidenceRecords},
+        )
+        .getSingle();
+    final limitSql = limit == null ? '' : 'LIMIT ?';
+    final rows = await _database
+        .customSelect(
+          '''
+        SELECT e.*, COUNT(DISTINCT al.id) AS attachment_count
+        FROM relationships r
+        JOIN evidence e ON $relationshipJoin
+        LEFT JOIN attachment_links al
+          ON al.evidence_id = e.id AND al.role = 'evidence'
+        WHERE r.lifecycle <> 'soft_deleted'
+          AND e.lifecycle <> 'soft_deleted'
+        GROUP BY e.id
+        ORDER BY e.created_at ASC
+        $limitSql
+      ''',
+          variables: [
+            Variable.withString(eventId),
+            Variable.withString(eventId),
+            if (limit != null) Variable.withInt(limit),
+          ],
+          readsFrom: {
+            _database.relationships,
+            _database.evidenceRecords,
+            _database.attachmentLinks,
+          },
+        )
+        .get();
+    return MemoryEvidenceCollection(
+      totalCount: totalRow.read<int>('evidence_count'),
+      items: [
+        for (final row in rows)
+          MemoryEvidenceItem(
+            evidence: TimelineMapper.evidenceFromRow(
+              _database.evidenceRecords.map(row.data),
+            ),
+            attachmentCount: row.read<int>('attachment_count'),
+          ),
+      ],
+    );
   }
 
   @override
@@ -673,6 +774,7 @@ final class DriftTimelineRepository implements TimelineRepository {
   Selectable<QueryRow> _memoryQuery({
     required String whereSql,
     required List<Variable<Object>> variables,
+    int? limit,
   }) => _database.customSelect(
     '''
       SELECT
@@ -728,8 +830,9 @@ final class DriftTimelineRepository implements TimelineRepository {
         COALESCE(e.start_month, 0) DESC,
         COALESCE(e.start_day, 0) DESC,
         e.updated_at DESC
+      ${limit == null ? '' : 'LIMIT ?'}
     ''',
-    variables: variables,
+    variables: [...variables, if (limit != null) Variable.withInt(limit)],
     readsFrom: {
       _database.events,
       _database.relationships,

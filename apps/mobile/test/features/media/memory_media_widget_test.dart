@@ -56,6 +56,29 @@ void main() {
     expect(find.text('Photos'), findsOneWidget);
   });
 
+  testWidgets('50-photo parent preview renders only four gallery cells', (
+    tester,
+  ) async {
+    final many = [
+      _media(0, hero: true),
+      for (var index = 1; index < 50; index++) _media(index),
+    ];
+    await tester.pumpWidget(
+      _app(
+        media: many,
+        child: const SingleChildScrollView(
+          child: MemoryMediaPreview(memoryId: 'event-1'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('50'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp('Open photo')), findsNWidgets(4));
+    expect(find.text('View all photos'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('viewer exposes count and non-gesture photo controls', (
     tester,
   ) async {
@@ -233,6 +256,21 @@ final class _MemoryRepository implements MemoryMediaRepository {
   @override
   Stream<List<MemoryMedia>> watchForEvent(String eventId) =>
       Stream.value(media);
+
+  @override
+  Stream<List<MemoryMedia>> watchGalleryPreview(
+    String eventId, {
+    required int limit,
+  }) => Stream.value(
+    media.where((item) => !item.isHero).take(limit).toList(growable: false),
+  );
+
+  @override
+  Stream<MemoryMedia?> watchHeroForEvent(String eventId) =>
+      Stream.value(media.where((item) => item.isHero).firstOrNull);
+
+  @override
+  Stream<int> watchMediaCount(String eventId) => Stream.value(media.length);
 
   @override
   Future<void> updateCaption({

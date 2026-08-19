@@ -6,7 +6,6 @@ import 'package:life_timeline/design_system/design_system.dart';
 import 'package:life_timeline/features/reminders/application/reminder_providers.dart';
 import 'package:life_timeline/features/reminders/domain/reminder.dart';
 import 'package:life_timeline/features/reminders/presentation/reminders_page.dart';
-import 'package:life_timeline/shared/domain/model/temporal_value.dart';
 import 'package:life_timeline/shared/domain/model/timeline_models.dart';
 
 final class MemoryReminderSection extends ConsumerWidget {
@@ -17,41 +16,32 @@ final class MemoryReminderSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final eventId = memory.event.metadata.id;
-    final reminders = ref.watch(eventRemindersProvider(eventId));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        AppSectionHeader(
-          title: 'Reminder',
-          supportingText:
-              memory.event.temporalValue.precision ==
-                  TemporalPrecision.exactDate
-              ? 'A quiet nudge before this date.'
-              : "This memory doesn't have an exact date yet. You can choose a separate reminder date.",
-          action: AppButton(
-            key: const Key('add-memory-reminder'),
-            label: 'Add reminder',
-            variant: AppButtonVariant.tertiary,
-            onPressed: () => context.pushNamed(
-              AppRoute.addReminder.name,
-              queryParameters: {'memoryId': eventId},
-            ),
-          ),
-        ),
-        reminders.when(
-          loading: () => const Padding(
-            padding: EdgeInsets.only(top: AppSpacing.sm),
-            child: AppLoadingState(label: 'Loading reminders'),
-          ),
-          error: (error, stackTrace) => const SizedBox.shrink(),
-          data: (items) => Column(
+    final count = ref.watch(eventReminderCountProvider(eventId)).value;
+    if (count == null || count == 0) return const SizedBox.shrink();
+    final reminders = ref.watch(eventReminderPreviewProvider(eventId));
+    return reminders.when(
+      loading: () => const AppLoadingState(label: 'Loading reminder preview'),
+      error: (error, stackTrace) => const SizedBox.shrink(),
+      data: (items) => Padding(
+        padding: const EdgeInsets.only(top: AppSpacing.xxxl),
+        child: AppCollectionPreview(
+          title: count == 1 ? 'Reminder' : 'Reminders',
+          count: count,
+          viewAllLabel: count > items.length ? 'View all reminders' : null,
+          onViewAll: count > items.length
+              ? () => context.pushNamed(
+                  AppRoute.reminders.name,
+                  queryParameters: {'memoryId': eventId},
+                )
+              : null,
+          child: Column(
             children: [
               for (final reminder in items)
                 _CompactReminderRow(reminder: reminder),
             ],
           ),
         ),
-      ],
+      ),
     );
   }
 }
