@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "captured_on": "2026-08-23",
+  "classification": "high-end Windows host proxy; not a mobile test device",
+  "operating_system": {
+    "name": "Microsoft Windows 11 Pro",
+    "version": "10.0.26200",
+    "architecture": "64-bit"
+  },
+  "hardware": {
+    "manufacturer": "XITRIX COMPUTER CORP.",
+    "model": "TravelPro GL16",
+    "processor": "Intel(R) Core(TM) Ultra 9 275HX",
+    "physical_cores": 24,
+    "logical_processors": 24,
+    "physical_memory_bytes": 33752997888
+  },
+  "runtime": {
+    "python": "3.12.13",
+    "flutter": "3.44.9"
+  },
+  "missing_required_environments": [
+    "current midrange arm64 Android device",
+    "older supported Android device",
+    "minimum-supported iPhone/iOS",
+    "current iPhone/iOS"
+  ]
+}

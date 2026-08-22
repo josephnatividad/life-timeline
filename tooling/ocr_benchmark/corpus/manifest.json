@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "notice": "Every record is fictional, generated, and invalid. No personal or production data is present.",
+  "fixtures": [
+    {
+      "id": "receipt_clean",
+      "kind": "receipt",
+      "style": "receipt",
+      "lines": ["SYNTHETIC TEST FIXTURE - NOT A RECEIPT", "NORTHSTAR TEST MARKET", "2026-05-14 18:42", "NOTEBOOK  8.40", "TEA  3.20", "SUBTOTAL USD 11.60", "TAX USD 0.93", "TOTAL USD 12.53"],
+      "important_fields": {"purchaseDate": "2026-05-14", "total": "12.53", "currency": "USD"}
+    },
+    {
+      "id": "receipt_dense_small",
+      "kind": "receipt",
+      "style": "dense",
+      "lines": ["SYNTHETIC TEST FIXTURE - NOT A RECEIPT", "BLUE ORCHARD DEMO SHOP", "2026/06/03", "PAPER 2 x 2.15", "SOAP 3 x 1.20", "BAG 0.25", "SUBTOTAL EUR 8.15", "TAX EUR 1.55", "TOTAL EUR 9.70", "CHANGE EUR 0.30"],
+      "important_fields": {"purchaseDate": "2026/06/03", "total": "9.70", "currency": "EUR"}
+    },
+    {
+      "id": "warranty_card",
+      "kind": "warranty",
+      "style": "card",
+      "lines": ["SYNTHETIC TEST FIXTURE - INVALID WARRANTY", "WARRANTY CERTIFICATE", "PRODUCT: DEMO KETTLE", "MODEL: TEST-K20", "SERIAL NUMBER: FIXTURE-ONLY-0042", "PURCHASE DATE: 2026-01-12", "VALID UNTIL: 2028-01-12"],
+      "important_fields": {"model": "TEST-K20", "serialNumber": "FIXTURE-ONLY-0042", "expiryDate": "2028-01-12"}
+    },
+    {
+      "id": "invoice",
+      "kind": "genericDocument",
+      "style": "document",
+      "lines": ["SYNTHETIC TEST FIXTURE - NOT AN INVOICE", "DEMO SUPPLY CO", "INVOICE: FIXTURE-INV-018", "DATE: 2026-02-08", "ITEM: ARCHIVE BOX", "QUANTITY: 4", "AMOUNT USD 48.00", "BALANCE USD 48.00"],
+      "important_fields": {"invoiceNumber": "FIXTURE-INV-018", "date": "2026-02-08", "amount": "48.00"}
+    },
+    {
+      "id": "product_label",
+      "kind": "product",
+      "style": "label",
+      "lines": ["SYNTHETIC TEST FIXTURE", "PRODUCT: DEMO ROUTER", "BRAND: NORTHSTAR LABS", "MODEL: NX-TEST-700", "SERIAL: FIXTURE-SN-700-008", "INPUT: 12V 1.5A"],
+      "important_fields": {"brand": "NORTHSTAR LABS", "model": "NX-TEST-700", "serialNumber": "FIXTURE-SN-700-008"}
+    },
+    {
+      "id": "serial_plate_small",
+      "kind": "product",
+      "style": "small_label",
+      "lines": ["SYNTHETIC TEST FIXTURE", "PRODUCT TEST SENSOR", "MODEL QX-17B", "S/N FIXTURE-QX17-00991", "RATING 5V 400mA", "ASSEMBLED FOR BENCHMARK ONLY"],
+      "important_fields": {"model": "QX-17B", "serialNumber": "FIXTURE-QX17-00991"}
+    },
+    {
+      "id": "travel_ticket",
+      "kind": "travel",
+      "style": "ticket",
+      "lines": ["SYNTHETIC TEST FIXTURE - NOT VALID FOR TRAVEL", "DEMO RAIL TICKET", "BOOKING: FIXTURE-TRIP-71", "DEPARTURE: TESTVILLE 08:10", "ARRIVAL: SAMPLE BAY 10:45", "DATE: 2026-07-19", "COACH: T"],
+      "important_fields": {"bookingReference": "FIXTURE-TRIP-71", "departure": "TESTVILLE 08:10", "arrival": "SAMPLE BAY 10:45"}
+    },
+    {
+      "id": "boarding_pass",
+      "kind": "travel",
+      "style": "ticket",
+      "lines": ["SYNTHETIC TEST FIXTURE - NOT A BOARDING PASS", "BOARDING PASS", "AIRLINE: EXAMPLE AIR", "BOOKING: FIXTURE-PNR-Z9X8", "DEPARTURE: TST 14:25", "ARRIVAL: SMP 16:05", "FLIGHT: EX 404", "DATE: 2026-04-20"],
+      "important_fields": {"carrier": "EXAMPLE AIR", "bookingReference": "FIXTURE-PNR-Z9X8", "departure": "TST 14:25", "arrival": "SMP 16:05"}
+    },
+    {
+      "id": "certificate_official",
+      "kind": "genericDocument",
+      "style": "certificate",
+      "lines": ["SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE", "CERTIFICATE OF DEMONSTRATION", "THIS CERTIFIES THAT", "SAMPLE PERSON", "COMPLETED THE DOCUMENT RECOGNITION EXERCISE", "REFERENCE: FIXTURE-CERT-2026-11", "ISSUED: 2026-03-15"],
+      "important_fields": {"reference": "FIXTURE-CERT-2026-11", "issued": "2026-03-15"}
+    },
+    {
+      "id": "official_notice",
+      "kind": "identity",
+      "style": "document",
+      "lines": ["SYNTHETIC TEST FIXTURE - NOT AN IDENTITY DOCUMENT", "IDENTITY CARD DEMONSTRATION", "NAME: SAMPLE PERSON", "DOCUMENT NUMBER: FIXTURE-ID-000000", "DATE OF BIRTH: 2000-01-01", "NATIONALITY: EXAMPLE"],
+      "important_fields": {"documentNumber": "FIXTURE-ID-000000"}
+    },
+    {
+      "id": "app_screenshot",
+      "kind": "genericDocument",
+      "style": "screenshot",
+      "lines": ["SYNTHETIC TEST FIXTURE", "Archive reminder", "Nothing needs your attention", "Your timeline stays on this device", "Last reviewed 10 minutes ago"],
+      "important_fields": {"heading": "Archive reminder"}
+    },
+    {
+      "id": "mixed_font_sizes",
+      "kind": "genericDocument",
+      "style": "mixed",
+      "lines": ["SYNTHETIC TEST FIXTURE", "DOCUMENT HEADING", "Section one", "This line uses normal body text for recognition.", "SMALL REFERENCE FIXTURE-MIX-123", "Footer text for the benchmark"],
+      "important_fields": {"reference": "FIXTURE-MIX-123"}
+    },
+    {
+      "id": "receipt_low_contrast",
+      "source": "receipt_clean",
+      "kind": "receipt",
+      "transform": "low_contrast",
+      "important_fields": {"purchaseDate": "2026-05-14", "total": "12.53", "currency": "USD"}
+    },
+    {
+      "id": "product_low_light",
+      "source": "product_label",
+      "kind": "product",
+      "transform": "low_light",
+      "important_fields": {"brand": "NORTHSTAR LABS", "model": "NX-TEST-700", "serialNumber": "FIXTURE-SN-700-008"}
+    },
+    {
+      "id": "ticket_rotated_90",
+      "source": "travel_ticket",
+      "kind": "travel",
+      "transform": "rotate_90",
+      "important_fields": {"bookingReference": "FIXTURE-TRIP-71", "departure": "TESTVILLE 08:10", "arrival": "SAMPLE BAY 10:45"}
+    },
+    {
+      "id": "invoice_skew",
+      "source": "invoice",
+      "kind": "genericDocument",
+      "transform": "skew",
+      "important_fields": {"invoiceNumber": "FIXTURE-INV-018", "date": "2026-02-08", "amount": "48.00"}
+    },
+    {
+      "id": "warranty_perspective",
+      "source": "warranty_card",
+      "kind": "warranty",
+      "transform": "perspective",
+      "important_fields": {"model": "TEST-K20", "serialNumber": "FIXTURE-ONLY-0042", "expiryDate": "2028-01-12"}
+    },
+    {
+      "id": "certificate_blur",
+      "source": "certificate_official",
+      "kind": "genericDocument",
+      "transform": "blur",
+      "important_fields": {"reference": "FIXTURE-CERT-2026-11", "issued": "2026-03-15"}
+    },
+    {
+      "id": "small_text_blur",
+      "source": "serial_plate_small",
+      "kind": "product",
+      "transform": "small_blur",
+      "important_fields": {"model": "QX-17B", "serialNumber": "FIXTURE-QX17-00991"}
+    }
+  ]
+}

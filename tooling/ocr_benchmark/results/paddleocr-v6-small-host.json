@@ -1,0 +1,7552 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-22T16:50:01.764648+00:00",
+  "engine": "paddleocr",
+  "engine_version": "3.7.0",
+  "runtime": "onnxruntime 1.21.1 host research proxy",
+  "engine_configuration": {
+    "detector": "PP-OCRv6_small_det_onnx",
+    "recognizer": "PP-OCRv6_small_rec_onnx",
+    "orientation_classifier": false,
+    "document_unwarping": false,
+    "runtime_models_bundled": true,
+    "python_network_calls_denied": true,
+    "ort_telemetry_disabled_by_environment_and_api": true
+  },
+  "model_assets_bytes": 31191354,
+  "cold_start": {
+    "model_initialization_ms": 514.2518000211567,
+    "first_inference_ms": 515.6606999225914,
+    "end_to_end_ms": 1029.9124999437481,
+    "peak_rss_mb": 219.80078125,
+    "cpu_ms": 1734.375
+  },
+  "measurement_limitations": [
+    "Windows host metrics are not midrange Android metrics.",
+    "Python process RSS includes research-only PaddleOCR/PaddleX dependencies.",
+    "The stock host ONNX Runtime wheel is not an approved production runtime.",
+    "No Android APK/ABI size delta or packet capture was possible without an attached device build."
+  ],
+  "summary": {
+    "raw": {
+      "mean_cer": 0.04105867345223938,
+      "mean_wer": 0.07535677137507801,
+      "important_fields_correct": 45,
+      "important_fields_total": 48,
+      "important_field_accuracy": 0.9375,
+      "warm_inference_p50_ms": 616.9357000035234,
+      "warm_inference_p95_ms": 760.1954249548726,
+      "warm_end_to_end_p50_ms": 616.9357000035234,
+      "warm_end_to_end_p95_ms": 760.1954249548726,
+      "host_process_peak_rss_p50_mb": 1104.84765625,
+      "host_process_peak_rss_p95_mb": 1636.91171875,
+      "host_process_cpu_p50_ms": 10453.125,
+      "host_process_cpu_p95_ms": 12943.75
+    },
+    "preprocessed": {
+      "mean_cer": 0.04044154899471832,
+      "mean_wer": 0.08630434782608695,
+      "important_fields_correct": 45,
+      "important_fields_total": 48,
+      "important_field_accuracy": 0.9375,
+      "warm_inference_p50_ms": 727.791499986779,
+      "warm_inference_p95_ms": 1034.4767499773297,
+      "warm_end_to_end_p50_ms": 784.5247500226833,
+      "warm_end_to_end_p95_ms": 1117.8973749629222,
+      "host_process_peak_rss_p50_mb": 1124.8984375,
+      "host_process_peak_rss_p95_mb": 1642.03828125,
+      "host_process_cpu_p50_ms": 12093.75,
+      "host_process_cpu_p95_ms": 15621.874999999987
+    }
+  },
+  "records": [
+    {
+      "fixture_id": "receipt_clean",
+      "kind": "receipt",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        515.6606999225914,
+        552.1835000254214,
+        506.1510999221355
+      ],
+      "peak_rss_mb": [
+        398.4765625,
+        496.953125,
+        494.78125
+      ],
+      "cpu_ms": [
+        8750.0,
+        9984.375,
+        9093.75
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "confidence": 0.9943607449531555,
+          "polygon": [
+            [
+              67,
+              70
+            ],
+            [
+              811,
+              70
+            ],
+            [
+              811,
+              104
+            ],
+            [
+              67,
+              104
+            ]
+          ]
+        },
+        {
+          "text": "NORTHSTAR TEST MARKET",
+          "confidence": 0.9931209087371826,
+          "polygon": [
+            [
+              68,
+              122
+            ],
+            [
+              537,
+              122
+            ],
+            [
+              537,
+              154
+            ],
+            [
+              68,
+              154
+            ]
+          ]
+        },
+        {
+          "text": "2026-05-14 18:42",
+          "confidence": 0.9683738946914673,
+          "polygon": [
+            [
+              68,
+              174
+            ],
+            [
+              338,
+              174
+            ],
+            [
+              338,
+              206
+            ],
+            [
+              68,
+              206
+            ]
+          ]
+        },
+        {
+          "text": "NOTEBOOK 8.40",
+          "confidence": 0.9685629606246948,
+          "polygon": [
+            [
+              67,
+              226
+            ],
+            [
+              348,
+              226
+            ],
+            [
+              348,
+              261
+            ],
+            [
+              67,
+              261
+            ]
+          ]
+        },
+        {
+          "text": "TEA 3.20",
+          "confidence": 0.9882129430770874,
+          "polygon": [
+            [
+              66,
+              277
+            ],
+            [
+              222,
+              277
+            ],
+            [
+              222,
+              313
+            ],
+            [
+              66,
+              313
+            ]
+          ]
+        },
+        {
+          "text": "SUBTOTAL USD 11.60",
+          "confidence": 0.9947092533111572,
+          "polygon": [
+            [
+              66,
+              328
+            ],
+            [
+              427,
+              330
+            ],
+            [
+              427,
+              365
+            ],
+            [
+              66,
+              363
+            ]
+          ]
+        },
+        {
+          "text": "TAX USD 0.93",
+          "confidence": 0.9709629416465759,
+          "polygon": [
+            [
+              67,
+              382
+            ],
+            [
+              295,
+              382
+            ],
+            [
+              295,
+              417
+            ],
+            [
+              67,
+              417
+            ]
+          ]
+        },
+        {
+          "text": "TOTAL USD 12.53",
+          "confidence": 0.982479989528656,
+          "polygon": [
+            [
+              67,
+              434
+            ],
+            [
+              357,
+              434
+            ],
+            [
+              357,
+              469
+            ],
+            [
+              67,
+              469
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT\nNORTHSTAR TEST MARKET\n2026-05-14 18:42\nNOTEBOOK 8.40\nTEA 3.20\nSUBTOTAL USD 11.60\nTAX USD 0.93\nTOTAL USD 12.53",
+      "project_pipeline": {
+        "classification": "receipt",
+        "classification_expected": "receipt",
+        "classification_correct": true,
+        "title": "Purchase at SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+        "fields": {
+          "merchant": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "total": "12.53",
+          "currency": "USD",
+          "purchaseDate": "2026-05-14"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "receipt_clean",
+      "kind": "receipt",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 66.73000007867813,
+      "inference_ms": [
+        688.3521999698132,
+        797.2221999661997,
+        720.1483000535518
+      ],
+      "peak_rss_mb": [
+        569.015625,
+        763.32421875,
+        767.64453125
+      ],
+      "cpu_ms": [
+        11000.0,
+        13828.125,
+        12765.625
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "confidence": 0.9821140766143799,
+          "polygon": [
+            [
+              105,
+              111
+            ],
+            [
+              1261,
+              110
+            ],
+            [
+              1261,
+              161
+            ],
+            [
+              105,
+              162
+            ]
+          ]
+        },
+        {
+          "text": "NORTHSTAR TEST MARKET",
+          "confidence": 0.9922358393669128,
+          "polygon": [
+            [
+              106,
+              193
+            ],
+            [
+              837,
+              191
+            ],
+            [
+              837,
+              241
+            ],
+            [
+              106,
+              243
+            ]
+          ]
+        },
+        {
+          "text": "2026-05-14 18:42",
+          "confidence": 0.9931744933128357,
+          "polygon": [
+            [
+              106,
+              273
+            ],
+            [
+              527,
+              273
+            ],
+            [
+              527,
+              324
+            ],
+            [
+              106,
+              324
+            ]
+          ]
+        },
+        {
+          "text": "NOTEBOOK 8.40",
+          "confidence": 0.9985541701316833,
+          "polygon": [
+            [
+              106,
+              355
+            ],
+            [
+              539,
+              352
+            ],
+            [
+              539,
+              404
+            ],
+            [
+              107,
+              406
+            ]
+          ]
+        },
+        {
+          "text": "TEA 3.20",
+          "confidence": 0.9936401844024658,
+          "polygon": [
+            [
+              108,
+              435
+            ],
+            [
+              344,
+              435
+            ],
+            [
+              344,
+              487
+            ],
+            [
+              108,
+              487
+            ]
+          ]
+        },
+        {
+          "text": "SUBTOTAL USD 11.60",
+          "confidence": 0.9709050059318542,
+          "polygon": [
+            [
+              108,
+              517
+            ],
+            [
+              661,
+              517
+            ],
+            [
+              661,
+              565
+            ],
+            [
+              108,
+              565
+            ]
+          ]
+        },
+        {
+          "text": "TAX USD 0.93",
+          "confidence": 0.9980270862579346,
+          "polygon": [
+            [
+              107,
+              596
+            ],
+            [
+              458,
+              596
+            ],
+            [
+              458,
+              648
+            ],
+            [
+              107,
+              648
+            ]
+          ]
+        },
+        {
+          "text": "TOTAL USD 12.53",
+          "confidence": 0.9983916878700256,
+          "polygon": [
+            [
+              108,
+              679
+            ],
+            [
+              552,
+              679
+            ],
+            [
+              552,
+              727
+            ],
+            [
+              108,
+              727
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT\nNORTHSTAR TEST MARKET\n2026-05-14 18:42\nNOTEBOOK 8.40\nTEA 3.20\nSUBTOTAL USD 11.60\nTAX USD 0.93\nTOTAL USD 12.53",
+      "project_pipeline": {
+        "classification": "receipt",
+        "classification_expected": "receipt",
+        "classification_correct": true,
+        "title": "Purchase at SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+        "fields": {
+          "merchant": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "total": "12.53",
+          "currency": "USD",
+          "purchaseDate": "2026-05-14"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "receipt_dense_small",
+      "kind": "receipt",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        621.1426999652758,
+        607.7176999533549,
+        549.6707001002505
+      ],
+      "peak_rss_mb": [
+        799.3828125,
+        838.6328125,
+        835.48828125
+      ],
+      "cpu_ms": [
+        10890.625,
+        10484.375,
+        9546.875
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "confidence": 0.9987102150917053,
+          "polygon": [
+            [
+              69,
+              70
+            ],
+            [
+              612,
+              70
+            ],
+            [
+              612,
+              95
+            ],
+            [
+              69,
+              95
+            ]
+          ]
+        },
+        {
+          "text": "BLUE ORCHARD DEMO SHOP",
+          "confidence": 0.9987207055091858,
+          "polygon": [
+            [
+              69,
+              107
+            ],
+            [
+              432,
+              107
+            ],
+            [
+              432,
+              131
+            ],
+            [
+              69,
+              131
+            ]
+          ]
+        },
+        {
+          "text": "2026/06/03",
+          "confidence": 0.9999621510505676,
+          "polygon": [
+            [
+              68,
+              142
+            ],
+            [
+              196,
+              142
+            ],
+            [
+              196,
+              166
+            ],
+            [
+              68,
+              166
+            ]
+          ]
+        },
+        {
+          "text": "PAPER 2 x 2.15",
+          "confidence": 0.9829884171485901,
+          "polygon": [
+            [
+              68,
+              176
+            ],
+            [
+              254,
+              176
+            ],
+            [
+              254,
+              201
+            ],
+            [
+              68,
+              201
+            ]
+          ]
+        },
+        {
+          "text": "SOAP 3 x 1.20",
+          "confidence": 0.95146644115448,
+          "polygon": [
+            [
+              68,
+              211
+            ],
+            [
+              238,
+              211
+            ],
+            [
+              238,
+              236
+            ],
+            [
+              68,
+              236
+            ]
+          ]
+        },
+        {
+          "text": "BAG 0.25",
+          "confidence": 0.9996215105056763,
+          "polygon": [
+            [
+              67,
+              246
+            ],
+            [
+              178,
+              246
+            ],
+            [
+              178,
+              271
+            ],
+            [
+              67,
+              271
+            ]
+          ]
+        },
+        {
+          "text": "SUBTOTAL EUR 8.15",
+          "confidence": 0.9950672388076782,
+          "polygon": [
+            [
+              68,
+              281
+            ],
+            [
+              318,
+              281
+            ],
+            [
+              318,
+              305
+            ],
+            [
+              68,
+              305
+            ]
+          ]
+        },
+        {
+          "text": "TAX EUR 1.55",
+          "confidence": 0.9993827939033508,
+          "polygon": [
+            [
+              68,
+              316
+            ],
+            [
+              236,
+              316
+            ],
+            [
+              236,
+              341
+            ],
+            [
+              68,
+              341
+            ]
+          ]
+        },
+        {
+          "text": "TOTAL EUR 9.70",
+          "confidence": 0.9759637117385864,
+          "polygon": [
+            [
+              69,
+              353
+            ],
+            [
+              266,
+              353
+            ],
+            [
+              266,
+              374
+            ],
+            [
+              69,
+              374
+            ]
+          ]
+        },
+        {
+          "text": "CHANGE EUR 0.30",
+          "confidence": 0.9968246221542358,
+          "polygon": [
+            [
+              69,
+              386
+            ],
+            [
+              293,
+              386
+            ],
+            [
+              293,
+              411
+            ],
+            [
+              69,
+              411
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT\nBLUE ORCHARD DEMO SHOP\n2026/06/03\nPAPER 2 x 2.15\nSOAP 3 x 1.20\nBAG 0.25\nSUBTOTAL EUR 8.15\nTAX EUR 1.55\nTOTAL EUR 9.70\nCHANGE EUR 0.30",
+      "project_pipeline": {
+        "classification": "receipt",
+        "classification_expected": "receipt",
+        "classification_correct": true,
+        "title": "Purchase at SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+        "fields": {
+          "merchant": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "total": "9.70",
+          "currency": "EUR",
+          "purchaseDate": "2026/06/03"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "receipt_dense_small",
+      "kind": "receipt",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 57.77559999842197,
+      "inference_ms": [
+        791.4613999892026,
+        778.1080000568181,
+        811.9968000100926
+      ],
+      "peak_rss_mb": [
+        883.1875,
+        892.75390625,
+        898.7734375
+      ],
+      "cpu_ms": [
+        13296.875,
+        12984.375,
+        12875.0
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "confidence": 0.9948753714561462,
+          "polygon": [
+            [
+              112,
+              116
+            ],
+            [
+              1007,
+              116
+            ],
+            [
+              1007,
+              156
+            ],
+            [
+              112,
+              156
+            ]
+          ]
+        },
+        {
+          "text": "BLUE ORCHARD DEMO SHOP",
+          "confidence": 0.9990186095237732,
+          "polygon": [
+            [
+              113,
+              174
+            ],
+            [
+              713,
+              174
+            ],
+            [
+              713,
+              214
+            ],
+            [
+              113,
+              214
+            ]
+          ]
+        },
+        {
+          "text": "2026/06/03",
+          "confidence": 0.9999599456787109,
+          "polygon": [
+            [
+              113,
+              232
+            ],
+            [
+              325,
+              232
+            ],
+            [
+              325,
+              273
+            ],
+            [
+              113,
+              273
+            ]
+          ]
+        },
+        {
+          "text": "PAPER 2 x 2.15",
+          "confidence": 0.9830588698387146,
+          "polygon": [
+            [
+              113,
+              291
+            ],
+            [
+              417,
+              291
+            ],
+            [
+              417,
+              329
+            ],
+            [
+              113,
+              329
+            ]
+          ]
+        },
+        {
+          "text": "SOAP 3 x 1.20",
+          "confidence": 0.9469003677368164,
+          "polygon": [
+            [
+              112,
+              348
+            ],
+            [
+              391,
+              348
+            ],
+            [
+              391,
+              389
+            ],
+            [
+              112,
+              389
+            ]
+          ]
+        },
+        {
+          "text": "BAG 0.25",
+          "confidence": 0.9717757105827332,
+          "polygon": [
+            [
+              112,
+              405
+            ],
+            [
+              297,
+              405
+            ],
+            [
+              297,
+              447
+            ],
+            [
+              112,
+              447
+            ]
+          ]
+        },
+        {
+          "text": "SUBTOTAL EUR 8.15",
+          "confidence": 0.9884302616119385,
+          "polygon": [
+            [
+              112,
+              463
+            ],
+            [
+              525,
+              463
+            ],
+            [
+              525,
+              503
+            ],
+            [
+              112,
+              503
+            ]
+          ]
+        },
+        {
+          "text": "TAX EUR 1.55",
+          "confidence": 0.9861647486686707,
+          "polygon": [
+            [
+              113,
+              520
+            ],
+            [
+              389,
+              520
+            ],
+            [
+              389,
+              561
+            ],
+            [
+              113,
+              561
+            ]
+          ]
+        },
+        {
+          "text": "TOTAL EUR 9.70",
+          "confidence": 0.9981393814086914,
+          "polygon": [
+            [
+              114,
+              579
+            ],
+            [
+              437,
+              579
+            ],
+            [
+              437,
+              617
+            ],
+            [
+              114,
+              617
+            ]
+          ]
+        },
+        {
+          "text": "CHANGE EUR 0.30",
+          "confidence": 0.987841010093689,
+          "polygon": [
+            [
+              115,
+              637
+            ],
+            [
+              481,
+              637
+            ],
+            [
+              481,
+              675
+            ],
+            [
+              115,
+              675
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT\nBLUE ORCHARD DEMO SHOP\n2026/06/03\nPAPER 2 x 2.15\nSOAP 3 x 1.20\nBAG 0.25\nSUBTOTAL EUR 8.15\nTAX EUR 1.55\nTOTAL EUR 9.70\nCHANGE EUR 0.30",
+      "project_pipeline": {
+        "classification": "receipt",
+        "classification_expected": "receipt",
+        "classification_correct": true,
+        "title": "Purchase at SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+        "fields": {
+          "merchant": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "total": "9.70",
+          "currency": "EUR",
+          "purchaseDate": "2026/06/03"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "warranty_card",
+      "kind": "warranty",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        635.790100088343,
+        712.5161000294611,
+        718.0544000584632
+      ],
+      "peak_rss_mb": [
+        901.8203125,
+        921.3046875,
+        919.9296875
+      ],
+      "cpu_ms": [
+        10750.0,
+        12187.5,
+        11625.0
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY",
+          "confidence": 0.9894196391105652,
+          "polygon": [
+            [
+              68,
+              70
+            ],
+            [
+              893,
+              70
+            ],
+            [
+              893,
+              104
+            ],
+            [
+              68,
+              104
+            ]
+          ]
+        },
+        {
+          "text": "WARRANTY CERTIFICATE",
+          "confidence": 0.9899368286132812,
+          "polygon": [
+            [
+              69,
+              124
+            ],
+            [
+              506,
+              124
+            ],
+            [
+              506,
+              155
+            ],
+            [
+              69,
+              155
+            ]
+          ]
+        },
+        {
+          "text": "PRODUCT: DEMO KETTLE",
+          "confidence": 0.9872543215751648,
+          "polygon": [
+            [
+              69,
+              175
+            ],
+            [
+              497,
+              175
+            ],
+            [
+              497,
+              207
+            ],
+            [
+              69,
+              207
+            ]
+          ]
+        },
+        {
+          "text": "MODEL: TEST-K20",
+          "confidence": 0.9765903353691101,
+          "polygon": [
+            [
+              69,
+              228
+            ],
+            [
+              367,
+              228
+            ],
+            [
+              367,
+              260
+            ],
+            [
+              69,
+              260
+            ]
+          ]
+        },
+        {
+          "text": "SERIAL NUMBER: FIXTURE-ONLY-0042",
+          "confidence": 0.9993806481361389,
+          "polygon": [
+            [
+              68,
+              279
+            ],
+            [
+              707,
+              279
+            ],
+            [
+              707,
+              313
+            ],
+            [
+              68,
+              313
+            ]
+          ]
+        },
+        {
+          "text": "PURCHASE DATE: 2026-01-12",
+          "confidence": 0.9915260076522827,
+          "polygon": [
+            [
+              69,
+              332
+            ],
+            [
+              556,
+              332
+            ],
+            [
+              556,
+              364
+            ],
+            [
+              69,
+              364
+            ]
+          ]
+        },
+        {
+          "text": "VALID UNTIL: 2028-01-12",
+          "confidence": 0.9928327798843384,
+          "polygon": [
+            [
+              68,
+              385
+            ],
+            [
+              470,
+              385
+            ],
+            [
+              470,
+              416
+            ],
+            [
+              68,
+              416
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY\nWARRANTY CERTIFICATE\nPRODUCT: DEMO KETTLE\nMODEL: TEST-K20\nSERIAL NUMBER: FIXTURE-ONLY-0042\nPURCHASE DATE: 2026-01-12\nVALID UNTIL: 2028-01-12",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "warranty",
+        "classification_correct": false,
+        "title": "TEST-K20",
+        "fields": {
+          "model": "TEST-K20",
+          "serialNumber": "FIXTURE-ONLY-0042"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "expiryDate"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "warranty_card",
+      "kind": "warranty",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 60.16429990995675,
+      "inference_ms": [
+        762.2817000374198,
+        836.1864000326023,
+        789.1120999120176
+      ],
+      "peak_rss_mb": [
+        925.4921875,
+        933.92578125,
+        933.92578125
+      ],
+      "cpu_ms": [
+        12875.0,
+        14000.0,
+        13718.75
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY",
+          "confidence": 0.9789377450942993,
+          "polygon": [
+            [
+              81,
+              86
+            ],
+            [
+              1041,
+              86
+            ],
+            [
+              1041,
+              126
+            ],
+            [
+              81,
+              126
+            ]
+          ]
+        },
+        {
+          "text": "WARRANTY CERTIFICATE",
+          "confidence": 0.9884988069534302,
+          "polygon": [
+            [
+              82,
+              148
+            ],
+            [
+              591,
+              148
+            ],
+            [
+              591,
+              185
+            ],
+            [
+              82,
+              185
+            ]
+          ]
+        },
+        {
+          "text": "PRODUCT: DEMO KETTLE",
+          "confidence": 0.9835955500602722,
+          "polygon": [
+            [
+              83,
+              209
+            ],
+            [
+              581,
+              209
+            ],
+            [
+              581,
+              246
+            ],
+            [
+              83,
+              246
+            ]
+          ]
+        },
+        {
+          "text": "MODEL: TEST-K20",
+          "confidence": 0.967023491859436,
+          "polygon": [
+            [
+              83,
+              269
+            ],
+            [
+              430,
+              269
+            ],
+            [
+              430,
+              306
+            ],
+            [
+              83,
+              306
+            ]
+          ]
+        },
+        {
+          "text": "SERIAL NUMBER: FIXTURE-ONLY-0042",
+          "confidence": 0.9949861764907837,
+          "polygon": [
+            [
+              83,
+              331
+            ],
+            [
+              823,
+              331
+            ],
+            [
+              823,
+              367
+            ],
+            [
+              83,
+              367
+            ]
+          ]
+        },
+        {
+          "text": "PURCHASE DATE: 2026-01-12",
+          "confidence": 0.9930490255355835,
+          "polygon": [
+            [
+              81,
+              390
+            ],
+            [
+              648,
+              390
+            ],
+            [
+              648,
+              429
+            ],
+            [
+              81,
+              429
+            ]
+          ]
+        },
+        {
+          "text": "VALID UNTIL: 2028-01-12",
+          "confidence": 0.9725621342658997,
+          "polygon": [
+            [
+              80,
+              451
+            ],
+            [
+              547,
+              451
+            ],
+            [
+              547,
+              490
+            ],
+            [
+              80,
+              490
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY\nWARRANTY CERTIFICATE\nPRODUCT: DEMO KETTLE\nMODEL: TEST-K20\nSERIAL NUMBER: FIXTURE-ONLY-0042\nPURCHASE DATE: 2026-01-12\nVALID UNTIL: 2028-01-12",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "warranty",
+        "classification_correct": false,
+        "title": "TEST-K20",
+        "fields": {
+          "model": "TEST-K20",
+          "serialNumber": "FIXTURE-ONLY-0042"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "expiryDate"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "invoice",
+      "kind": "genericDocument",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        700.2715999260545,
+        705.8636000147089,
+        620.0839000521228
+      ],
+      "peak_rss_mb": [
+        902.52734375,
+        905.8671875,
+        902.61328125
+      ],
+      "cpu_ms": [
+        11562.5,
+        11593.75,
+        10796.875
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+          "confidence": 0.9944515824317932,
+          "polygon": [
+            [
+              67,
+              69
+            ],
+            [
+              826,
+              70
+            ],
+            [
+              826,
+              105
+            ],
+            [
+              67,
+              104
+            ]
+          ]
+        },
+        {
+          "text": "DEMO SUPPLY CO",
+          "confidence": 0.9948390126228333,
+          "polygon": [
+            [
+              69,
+              124
+            ],
+            [
+              379,
+              124
+            ],
+            [
+              379,
+              155
+            ],
+            [
+              69,
+              155
+            ]
+          ]
+        },
+        {
+          "text": "INVOICE: FIXTURE-INV-018",
+          "confidence": 0.9806442260742188,
+          "polygon": [
+            [
+              70,
+              175
+            ],
+            [
+              509,
+              175
+            ],
+            [
+              509,
+              206
+            ],
+            [
+              70,
+              206
+            ]
+          ]
+        },
+        {
+          "text": "DATE: 2026-02-08",
+          "confidence": 0.9812256693840027,
+          "polygon": [
+            [
+              70,
+              228
+            ],
+            [
+              353,
+              228
+            ],
+            [
+              353,
+              260
+            ],
+            [
+              70,
+              260
+            ]
+          ]
+        },
+        {
+          "text": "ITEM: ARCHIVE BOX",
+          "confidence": 0.9845741391181946,
+          "polygon": [
+            [
+              69,
+              280
+            ],
+            [
+              404,
+              280
+            ],
+            [
+              404,
+              312
+            ],
+            [
+              69,
+              312
+            ]
+          ]
+        },
+        {
+          "text": "QUANTITY: 4",
+          "confidence": 0.9728405475616455,
+          "polygon": [
+            [
+              69,
+              331
+            ],
+            [
+              282,
+              331
+            ],
+            [
+              282,
+              363
+            ],
+            [
+              69,
+              363
+            ]
+          ]
+        },
+        {
+          "text": "AMOUNT USD 48.00",
+          "confidence": 0.9737346768379211,
+          "polygon": [
+            [
+              68,
+              384
+            ],
+            [
+              394,
+              384
+            ],
+            [
+              394,
+              416
+            ],
+            [
+              68,
+              416
+            ]
+          ]
+        },
+        {
+          "text": "BALANCE USD 48.00",
+          "confidence": 0.9995682835578918,
+          "polygon": [
+            [
+              69,
+              436
+            ],
+            [
+              406,
+              436
+            ],
+            [
+              406,
+              468
+            ],
+            [
+              69,
+              468
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE\nDEMO SUPPLY CO\nINVOICE: FIXTURE-INV-018\nDATE: 2026-02-08\nITEM: ARCHIVE BOX\nQUANTITY: 4\nAMOUNT USD 48.00\nBALANCE USD 48.00",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "invoiceNumber",
+          "date",
+          "amount"
+        ]
+      }
+    },
+    {
+      "fixture_id": "invoice",
+      "kind": "genericDocument",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 58.38259996380657,
+      "inference_ms": [
+        610.9087000368163,
+        678.2625999767333,
+        717.7998999832198
+      ],
+      "peak_rss_mb": [
+        914.3046875,
+        914.12890625,
+        914.13671875
+      ],
+      "cpu_ms": [
+        10093.75,
+        11656.25,
+        12265.625
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+          "confidence": 0.989391028881073,
+          "polygon": [
+            [
+              81,
+              87
+            ],
+            [
+              962,
+              87
+            ],
+            [
+              962,
+              124
+            ],
+            [
+              81,
+              124
+            ]
+          ]
+        },
+        {
+          "text": "DEMO SUPPLY CO",
+          "confidence": 0.997166097164154,
+          "polygon": [
+            [
+              83,
+              148
+            ],
+            [
+              441,
+              148
+            ],
+            [
+              441,
+              186
+            ],
+            [
+              83,
+              186
+            ]
+          ]
+        },
+        {
+          "text": "INVOICE: FIXTURE-INV-018",
+          "confidence": 0.9837693572044373,
+          "polygon": [
+            [
+              83,
+              209
+            ],
+            [
+              595,
+              209
+            ],
+            [
+              595,
+              246
+            ],
+            [
+              83,
+              246
+            ]
+          ]
+        },
+        {
+          "text": "DATE: 2026-02-08",
+          "confidence": 0.9834811687469482,
+          "polygon": [
+            [
+              83,
+              269
+            ],
+            [
+              413,
+              269
+            ],
+            [
+              413,
+              306
+            ],
+            [
+              83,
+              306
+            ]
+          ]
+        },
+        {
+          "text": "ITEM: ARCHIVE BOX",
+          "confidence": 0.9988236427307129,
+          "polygon": [
+            [
+              81,
+              329
+            ],
+            [
+              471,
+              329
+            ],
+            [
+              471,
+              368
+            ],
+            [
+              81,
+              368
+            ]
+          ]
+        },
+        {
+          "text": "QUANTITY: 4",
+          "confidence": 0.9559265375137329,
+          "polygon": [
+            [
+              83,
+              391
+            ],
+            [
+              329,
+              391
+            ],
+            [
+              329,
+              428
+            ],
+            [
+              83,
+              428
+            ]
+          ]
+        },
+        {
+          "text": "AMOUNT USD 48.00",
+          "confidence": 0.97318434715271,
+          "polygon": [
+            [
+              81,
+              452
+            ],
+            [
+              458,
+              452
+            ],
+            [
+              458,
+              489
+            ],
+            [
+              81,
+              489
+            ]
+          ]
+        },
+        {
+          "text": "BALANCE USD 48.00",
+          "confidence": 0.9729504585266113,
+          "polygon": [
+            [
+              82,
+              513
+            ],
+            [
+              472,
+              513
+            ],
+            [
+              472,
+              549
+            ],
+            [
+              82,
+              549
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE\nDEMO SUPPLY CO\nINVOICE: FIXTURE-INV-018\nDATE: 2026-02-08\nITEM: ARCHIVE BOX\nQUANTITY: 4\nAMOUNT USD 48.00\nBALANCE USD 48.00",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "invoiceNumber",
+          "date",
+          "amount"
+        ]
+      }
+    },
+    {
+      "fixture_id": "product_label",
+      "kind": "product",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        544.449899927713,
+        494.627199950628,
+        523.2460000552237
+      ],
+      "peak_rss_mb": [
+        917.2734375,
+        907.19140625,
+        914.6875
+      ],
+      "cpu_ms": [
+        9546.875,
+        8406.25,
+        9578.125
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9994178414344788,
+          "polygon": [
+            [
+              70,
+              71
+            ],
+            [
+              517,
+              71
+            ],
+            [
+              517,
+              103
+            ],
+            [
+              70,
+              103
+            ]
+          ]
+        },
+        {
+          "text": "PRODUCT: DEMO ROUTER",
+          "confidence": 0.995695948600769,
+          "polygon": [
+            [
+              69,
+              124
+            ],
+            [
+              516,
+              124
+            ],
+            [
+              516,
+              155
+            ],
+            [
+              69,
+              155
+            ]
+          ]
+        },
+        {
+          "text": "BRAND: NORTHSTAR LABS",
+          "confidence": 0.9974654316902161,
+          "polygon": [
+            [
+              69,
+              175
+            ],
+            [
+              519,
+              176
+            ],
+            [
+              519,
+              208
+            ],
+            [
+              69,
+              207
+            ]
+          ]
+        },
+        {
+          "text": "MODEL: NX-TEST-700",
+          "confidence": 0.9826476573944092,
+          "polygon": [
+            [
+              69,
+              228
+            ],
+            [
+              422,
+              228
+            ],
+            [
+              422,
+              260
+            ],
+            [
+              69,
+              260
+            ]
+          ]
+        },
+        {
+          "text": "SERIAL: FIXTURE-SN-700-008",
+          "confidence": 0.9918696284294128,
+          "polygon": [
+            [
+              69,
+              280
+            ],
+            [
+              550,
+              280
+            ],
+            [
+              550,
+              312
+            ],
+            [
+              69,
+              312
+            ]
+          ]
+        },
+        {
+          "text": "INPUT: 12V 1.5A",
+          "confidence": 0.9839639067649841,
+          "polygon": [
+            [
+              70,
+              332
+            ],
+            [
+              332,
+              332
+            ],
+            [
+              332,
+              364
+            ],
+            [
+              70,
+              364
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nPRODUCT: DEMO ROUTER\nBRAND: NORTHSTAR LABS\nMODEL: NX-TEST-700\nSERIAL: FIXTURE-SN-700-008\nINPUT: 12V 1.5A",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "product",
+        "classification_correct": true,
+        "title": "NX-TEST-700",
+        "fields": {
+          "brand": "NORTHSTAR LABS",
+          "model": "NX-TEST-700",
+          "serialNumber": "FIXTURE-SN-700-008"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "product_label",
+      "kind": "product",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 48.71819994878024,
+      "inference_ms": [
+        611.2522999756038,
+        674.9829000327736,
+        679.9140999792144
+      ],
+      "peak_rss_mb": [
+        915.08203125,
+        920.171875,
+        922.67578125
+      ],
+      "cpu_ms": [
+        10125.0,
+        11406.25,
+        10718.75
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9993104338645935,
+          "polygon": [
+            [
+              88,
+              95
+            ],
+            [
+              657,
+              95
+            ],
+            [
+              657,
+              134
+            ],
+            [
+              88,
+              134
+            ]
+          ]
+        },
+        {
+          "text": "PRODUCT: DEMO ROUTER",
+          "confidence": 0.9946320652961731,
+          "polygon": [
+            [
+              88,
+              162
+            ],
+            [
+              655,
+              162
+            ],
+            [
+              655,
+              201
+            ],
+            [
+              88,
+              201
+            ]
+          ]
+        },
+        {
+          "text": "BRAND: NORTHSTAR LABS",
+          "confidence": 0.9959536790847778,
+          "polygon": [
+            [
+              89,
+              228
+            ],
+            [
+              660,
+              228
+            ],
+            [
+              660,
+              267
+            ],
+            [
+              89,
+              267
+            ]
+          ]
+        },
+        {
+          "text": "MODEL: NX-TEST-700",
+          "confidence": 0.9763919115066528,
+          "polygon": [
+            [
+              88,
+              294
+            ],
+            [
+              538,
+              294
+            ],
+            [
+              538,
+              333
+            ],
+            [
+              88,
+              333
+            ]
+          ]
+        },
+        {
+          "text": "SERIAL: FIXTURE-SN-700-008",
+          "confidence": 0.9854435324668884,
+          "polygon": [
+            [
+              88,
+              360
+            ],
+            [
+              701,
+              360
+            ],
+            [
+              701,
+              399
+            ],
+            [
+              88,
+              399
+            ]
+          ]
+        },
+        {
+          "text": "INPUT: 12V 1.5A",
+          "confidence": 0.9695103764533997,
+          "polygon": [
+            [
+              89,
+              426
+            ],
+            [
+              421,
+              426
+            ],
+            [
+              421,
+              466
+            ],
+            [
+              89,
+              466
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nPRODUCT: DEMO ROUTER\nBRAND: NORTHSTAR LABS\nMODEL: NX-TEST-700\nSERIAL: FIXTURE-SN-700-008\nINPUT: 12V 1.5A",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "product",
+        "classification_correct": true,
+        "title": "NX-TEST-700",
+        "fields": {
+          "brand": "NORTHSTAR LABS",
+          "model": "NX-TEST-700",
+          "serialNumber": "FIXTURE-SN-700-008"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "serial_plate_small",
+      "kind": "product",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 2,
+      "important_fields_total": 2,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        426.4682999346405,
+        479.1546000633389,
+        427.0243999781087
+      ],
+      "peak_rss_mb": [
+        931.9921875,
+        931.1484375,
+        932.37109375
+      ],
+      "cpu_ms": [
+        7390.625,
+        7656.25,
+        7562.5
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9995129108428955,
+          "polygon": [
+            [
+              69,
+              71
+            ],
+            [
+              396,
+              71
+            ],
+            [
+              396,
+              96
+            ],
+            [
+              69,
+              96
+            ]
+          ]
+        },
+        {
+          "text": "PRODUCT TEST SENSOR",
+          "confidence": 0.9953614473342896,
+          "polygon": [
+            [
+              70,
+              115
+            ],
+            [
+              378,
+              115
+            ],
+            [
+              378,
+              139
+            ],
+            [
+              70,
+              139
+            ]
+          ]
+        },
+        {
+          "text": "MODEL QX-17B",
+          "confidence": 0.9817342758178711,
+          "polygon": [
+            [
+              67,
+              158
+            ],
+            [
+              254,
+              156
+            ],
+            [
+              254,
+              181
+            ],
+            [
+              67,
+              184
+            ]
+          ]
+        },
+        {
+          "text": "S/N FIXTURE-QX17-00991",
+          "confidence": 0.9982909560203552,
+          "polygon": [
+            [
+              69,
+              201
+            ],
+            [
+              374,
+              201
+            ],
+            [
+              374,
+              224
+            ],
+            [
+              69,
+              224
+            ]
+          ]
+        },
+        {
+          "text": "RATING 5V 400mA",
+          "confidence": 0.9725746512413025,
+          "polygon": [
+            [
+              69,
+              244
+            ],
+            [
+              288,
+              244
+            ],
+            [
+              288,
+              268
+            ],
+            [
+              69,
+              268
+            ]
+          ]
+        },
+        {
+          "text": "ASSEMBLED FOR BENCHMARK ONLY",
+          "confidence": 0.9863721132278442,
+          "polygon": [
+            [
+              68,
+              287
+            ],
+            [
+              527,
+              287
+            ],
+            [
+              527,
+              311
+            ],
+            [
+              68,
+              311
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nPRODUCT TEST SENSOR\nMODEL QX-17B\nS/N FIXTURE-QX17-00991\nRATING 5V 400mA\nASSEMBLED FOR BENCHMARK ONLY",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "product",
+        "classification_correct": true,
+        "title": "QX-17B",
+        "fields": {
+          "model": "QX-17B",
+          "serialNumber": "FIXTURE-QX17-00991"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 2,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "serial_plate_small",
+      "kind": "product",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 2,
+      "important_fields_total": 2,
+      "preprocessing_ms": 66.71060004737228,
+      "inference_ms": [
+        752.6582999853417,
+        740.4544999590144,
+        850.5405000178143
+      ],
+      "peak_rss_mb": [
+        938.37890625,
+        934.6953125,
+        938.3671875
+      ],
+      "cpu_ms": [
+        11890.625,
+        12859.375,
+        14218.75
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9975149035453796,
+          "polygon": [
+            [
+              123,
+              128
+            ],
+            [
+              710,
+              128
+            ],
+            [
+              710,
+              169
+            ],
+            [
+              123,
+              169
+            ]
+          ]
+        },
+        {
+          "text": "PRODUCT TEST SENSOR",
+          "confidence": 0.9899948239326477,
+          "polygon": [
+            [
+              124,
+              205
+            ],
+            [
+              677,
+              205
+            ],
+            [
+              677,
+              248
+            ],
+            [
+              124,
+              248
+            ]
+          ]
+        },
+        {
+          "text": "MODEL QX-17B",
+          "confidence": 0.9954953193664551,
+          "polygon": [
+            [
+              124,
+              282
+            ],
+            [
+              457,
+              282
+            ],
+            [
+              457,
+              327
+            ],
+            [
+              124,
+              327
+            ]
+          ]
+        },
+        {
+          "text": "S/N FIXTURE-QX17-00991",
+          "confidence": 0.9775912761688232,
+          "polygon": [
+            [
+              123,
+              360
+            ],
+            [
+              669,
+              360
+            ],
+            [
+              669,
+              403
+            ],
+            [
+              123,
+              403
+            ]
+          ]
+        },
+        {
+          "text": "RATING 5V 400mA",
+          "confidence": 0.9970396757125854,
+          "polygon": [
+            [
+              123,
+              435
+            ],
+            [
+              520,
+              435
+            ],
+            [
+              520,
+              482
+            ],
+            [
+              123,
+              482
+            ]
+          ]
+        },
+        {
+          "text": "ASSEMBLED FOR BENCHMARK ONLY",
+          "confidence": 0.998955249786377,
+          "polygon": [
+            [
+              123,
+              516
+            ],
+            [
+              944,
+              516
+            ],
+            [
+              944,
+              556
+            ],
+            [
+              123,
+              556
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nPRODUCT TEST SENSOR\nMODEL QX-17B\nS/N FIXTURE-QX17-00991\nRATING 5V 400mA\nASSEMBLED FOR BENCHMARK ONLY",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "product",
+        "classification_correct": true,
+        "title": "QX-17B",
+        "fields": {
+          "model": "QX-17B",
+          "serialNumber": "FIXTURE-QX17-00991"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 2,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "travel_ticket",
+      "kind": "travel",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        680.0323999486864,
+        662.5615000957623,
+        740.3599000535905
+      ],
+      "peak_rss_mb": [
+        924.87109375,
+        925.6484375,
+        925.4453125
+      ],
+      "cpu_ms": [
+        10250.0,
+        11453.125,
+        13078.125
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT VALID FOR TRAVEL",
+          "confidence": 0.990965723991394,
+          "polygon": [
+            [
+              67,
+              70
+            ],
+            [
+              959,
+              71
+            ],
+            [
+              959,
+              105
+            ],
+            [
+              67,
+              104
+            ]
+          ]
+        },
+        {
+          "text": "DEMO RAIL TICKET",
+          "confidence": 0.9734083414077759,
+          "polygon": [
+            [
+              69,
+              124
+            ],
+            [
+              393,
+              124
+            ],
+            [
+              393,
+              155
+            ],
+            [
+              69,
+              155
+            ]
+          ]
+        },
+        {
+          "text": "BOOKING: FIXTURE-TRIP-71",
+          "confidence": 0.9934544563293457,
+          "polygon": [
+            [
+              68,
+              176
+            ],
+            [
+              528,
+              175
+            ],
+            [
+              528,
+              207
+            ],
+            [
+              68,
+              208
+            ]
+          ]
+        },
+        {
+          "text": "DEPARTURE: TESTVILLE 08:10",
+          "confidence": 0.9962186217308044,
+          "polygon": [
+            [
+              69,
+              228
+            ],
+            [
+              574,
+              228
+            ],
+            [
+              574,
+              260
+            ],
+            [
+              69,
+              260
+            ]
+          ]
+        },
+        {
+          "text": "ARRIVAL: SAMPLE BAY 10:45",
+          "confidence": 0.9934307336807251,
+          "polygon": [
+            [
+              68,
+              280
+            ],
+            [
+              546,
+              280
+            ],
+            [
+              546,
+              312
+            ],
+            [
+              68,
+              312
+            ]
+          ]
+        },
+        {
+          "text": "DATE: 2026-07-19",
+          "confidence": 0.9807483553886414,
+          "polygon": [
+            [
+              69,
+              332
+            ],
+            [
+              354,
+              332
+            ],
+            [
+              354,
+              364
+            ],
+            [
+              69,
+              364
+            ]
+          ]
+        },
+        {
+          "text": "COACH: T",
+          "confidence": 0.9554064273834229,
+          "polygon": [
+            [
+              69,
+              384
+            ],
+            [
+              234,
+              384
+            ],
+            [
+              234,
+              416
+            ],
+            [
+              69,
+              416
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT VALID FOR TRAVEL\nDEMO RAIL TICKET\nBOOKING: FIXTURE-TRIP-71\nDEPARTURE: TESTVILLE 08:10\nARRIVAL: SAMPLE BAY 10:45\nDATE: 2026-07-19\nCOACH: T",
+      "project_pipeline": {
+        "classification": "travel",
+        "classification_expected": "travel",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT VALID FOR TRAVEL",
+        "fields": {
+          "bookingReference": "FIXTURE-TRIP-71",
+          "departure": "TESTVILLE 08:10",
+          "arrival": "SAMPLE BAY 10:45"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "travel_ticket",
+      "kind": "travel",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 51.66919995099306,
+      "inference_ms": [
+        670.7874999847263,
+        639.156199991703,
+        685.309199965559
+      ],
+      "peak_rss_mb": [
+        927.76171875,
+        940.9921875,
+        945.890625
+      ],
+      "cpu_ms": [
+        11546.875,
+        11109.375,
+        11609.375
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT VALID FOR TRAVEL",
+          "confidence": 0.9889440536499023,
+          "polygon": [
+            [
+              76,
+              82
+            ],
+            [
+              1031,
+              82
+            ],
+            [
+              1031,
+              115
+            ],
+            [
+              76,
+              115
+            ]
+          ]
+        },
+        {
+          "text": "DEMO RAIL TICKET",
+          "confidence": 0.9935029745101929,
+          "polygon": [
+            [
+              76,
+              137
+            ],
+            [
+              424,
+              137
+            ],
+            [
+              424,
+              171
+            ],
+            [
+              76,
+              171
+            ]
+          ]
+        },
+        {
+          "text": "BOOKING: FIXTURE-TRIP-71",
+          "confidence": 0.9832056164741516,
+          "polygon": [
+            [
+              75,
+              193
+            ],
+            [
+              569,
+              192
+            ],
+            [
+              569,
+              227
+            ],
+            [
+              75,
+              228
+            ]
+          ]
+        },
+        {
+          "text": "DEPARTURE: TESTVILLE 08:10",
+          "confidence": 0.9968507289886475,
+          "polygon": [
+            [
+              76,
+              250
+            ],
+            [
+              618,
+              250
+            ],
+            [
+              618,
+              283
+            ],
+            [
+              76,
+              283
+            ]
+          ]
+        },
+        {
+          "text": "ARRIVAL: SAMPLE BAY 10:45",
+          "confidence": 0.9932221174240112,
+          "polygon": [
+            [
+              75,
+              305
+            ],
+            [
+              588,
+              305
+            ],
+            [
+              588,
+              339
+            ],
+            [
+              75,
+              339
+            ]
+          ]
+        },
+        {
+          "text": "DATE: 2026-07-19",
+          "confidence": 0.9827877283096313,
+          "polygon": [
+            [
+              75,
+              361
+            ],
+            [
+              381,
+              360
+            ],
+            [
+              381,
+              395
+            ],
+            [
+              75,
+              396
+            ]
+          ]
+        },
+        {
+          "text": "COACH: T",
+          "confidence": 0.9652100205421448,
+          "polygon": [
+            [
+              75,
+              416
+            ],
+            [
+              255,
+              416
+            ],
+            [
+              255,
+              453
+            ],
+            [
+              75,
+              453
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT VALID FOR TRAVEL\nDEMO RAIL TICKET\nBOOKING: FIXTURE-TRIP-71\nDEPARTURE: TESTVILLE 08:10\nARRIVAL: SAMPLE BAY 10:45\nDATE: 2026-07-19\nCOACH: T",
+      "project_pipeline": {
+        "classification": "travel",
+        "classification_expected": "travel",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT VALID FOR TRAVEL",
+        "fields": {
+          "bookingReference": "FIXTURE-TRIP-71",
+          "departure": "TESTVILLE 08:10",
+          "arrival": "SAMPLE BAY 10:45"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "boarding_pass",
+      "kind": "travel",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 4,
+      "important_fields_total": 4,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        692.4151999410242,
+        643.6456999508664,
+        606.8752000574023
+      ],
+      "peak_rss_mb": [
+        935.3125,
+        935.609375,
+        933.23046875
+      ],
+      "cpu_ms": [
+        12359.375,
+        11234.375,
+        10406.25
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A BOARDING PASS",
+          "confidence": 0.9963401556015015,
+          "polygon": [
+            [
+              67,
+              69
+            ],
+            [
+              950,
+              70
+            ],
+            [
+              950,
+              105
+            ],
+            [
+              67,
+              104
+            ]
+          ]
+        },
+        {
+          "text": "BOARDING PASS",
+          "confidence": 0.9985779523849487,
+          "polygon": [
+            [
+              69,
+              124
+            ],
+            [
+              358,
+              124
+            ],
+            [
+              358,
+              155
+            ],
+            [
+              69,
+              155
+            ]
+          ]
+        },
+        {
+          "text": "AIRLINE: EXAMPLE AIR",
+          "confidence": 0.9919558763504028,
+          "polygon": [
+            [
+              68,
+              176
+            ],
+            [
+              448,
+              176
+            ],
+            [
+              448,
+              207
+            ],
+            [
+              68,
+              207
+            ]
+          ]
+        },
+        {
+          "text": "BOOKING: FIXTURE-PNR-Z9X8",
+          "confidence": 0.9874318838119507,
+          "polygon": [
+            [
+              68,
+              228
+            ],
+            [
+              569,
+              228
+            ],
+            [
+              569,
+              260
+            ],
+            [
+              68,
+              260
+            ]
+          ]
+        },
+        {
+          "text": "DEPARTURE: TST 14:25",
+          "confidence": 0.9955547451972961,
+          "polygon": [
+            [
+              69,
+              280
+            ],
+            [
+              460,
+              280
+            ],
+            [
+              460,
+              312
+            ],
+            [
+              69,
+              312
+            ]
+          ]
+        },
+        {
+          "text": "ARRIVAL: SMP 16:05",
+          "confidence": 0.993001401424408,
+          "polygon": [
+            [
+              67,
+              332
+            ],
+            [
+              403,
+              332
+            ],
+            [
+              403,
+              364
+            ],
+            [
+              67,
+              364
+            ]
+          ]
+        },
+        {
+          "text": "FLIGHT: EX 404",
+          "confidence": 0.9459825158119202,
+          "polygon": [
+            [
+              68,
+              384
+            ],
+            [
+              320,
+              384
+            ],
+            [
+              320,
+              416
+            ],
+            [
+              68,
+              416
+            ]
+          ]
+        },
+        {
+          "text": "DATE: 2026-04-20",
+          "confidence": 0.9920468330383301,
+          "polygon": [
+            [
+              69,
+              436
+            ],
+            [
+              353,
+              436
+            ],
+            [
+              353,
+              468
+            ],
+            [
+              69,
+              468
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A BOARDING PASS\nBOARDING PASS\nAIRLINE: EXAMPLE AIR\nBOOKING: FIXTURE-PNR-Z9X8\nDEPARTURE: TST 14:25\nARRIVAL: SMP 16:05\nFLIGHT: EX 404\nDATE: 2026-04-20",
+      "project_pipeline": {
+        "classification": "travel",
+        "classification_expected": "travel",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT A BOARDING PASS",
+        "fields": {
+          "carrier": "EXAMPLE AIR",
+          "bookingReference": "FIXTURE-PNR-Z9X8",
+          "departure": "TST 14:25",
+          "arrival": "SMP 16:05"
+        },
+        "supported_expected_fields_correct": 4,
+        "supported_expected_fields_total": 4,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "boarding_pass",
+      "kind": "travel",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 4,
+      "important_fields_total": 4,
+      "preprocessing_ms": 45.24200002197176,
+      "inference_ms": [
+        654.6797999180853,
+        585.2544999215752,
+        769.6818999247625
+      ],
+      "peak_rss_mb": [
+        937.296875,
+        936.890625,
+        941.359375
+      ],
+      "cpu_ms": [
+        10812.5,
+        10328.125,
+        13468.75
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A BOARDING PASS",
+          "confidence": 0.9788492321968079,
+          "polygon": [
+            [
+              74,
+              79
+            ],
+            [
+              1023,
+              80
+            ],
+            [
+              1023,
+              116
+            ],
+            [
+              74,
+              115
+            ]
+          ]
+        },
+        {
+          "text": "BOARDING PASS",
+          "confidence": 0.9979903101921082,
+          "polygon": [
+            [
+              76,
+              136
+            ],
+            [
+              385,
+              136
+            ],
+            [
+              385,
+              170
+            ],
+            [
+              76,
+              170
+            ]
+          ]
+        },
+        {
+          "text": "AIRLINE: EXAMPLE AIR",
+          "confidence": 0.9841368794441223,
+          "polygon": [
+            [
+              77,
+              195
+            ],
+            [
+              482,
+              195
+            ],
+            [
+              482,
+              226
+            ],
+            [
+              77,
+              226
+            ]
+          ]
+        },
+        {
+          "text": "BOOKING: FIXTURE-PNR-Z9X8",
+          "confidence": 0.9852535128593445,
+          "polygon": [
+            [
+              76,
+              250
+            ],
+            [
+              612,
+              250
+            ],
+            [
+              612,
+              283
+            ],
+            [
+              76,
+              283
+            ]
+          ]
+        },
+        {
+          "text": "DEPARTURE: TST 14:25",
+          "confidence": 0.9844609498977661,
+          "polygon": [
+            [
+              76,
+              305
+            ],
+            [
+              495,
+              305
+            ],
+            [
+              495,
+              339
+            ],
+            [
+              76,
+              339
+            ]
+          ]
+        },
+        {
+          "text": "ARRIVAL: SMP 16:05",
+          "confidence": 0.992325484752655,
+          "polygon": [
+            [
+              75,
+              361
+            ],
+            [
+              434,
+              361
+            ],
+            [
+              434,
+              395
+            ],
+            [
+              75,
+              395
+            ]
+          ]
+        },
+        {
+          "text": "FLIGHT: EX 404",
+          "confidence": 0.9734994769096375,
+          "polygon": [
+            [
+              75,
+              418
+            ],
+            [
+              343,
+              418
+            ],
+            [
+              343,
+              451
+            ],
+            [
+              75,
+              451
+            ]
+          ]
+        },
+        {
+          "text": "DATE: 2026-04-20",
+          "confidence": 0.9904787540435791,
+          "polygon": [
+            [
+              75,
+              473
+            ],
+            [
+              379,
+              473
+            ],
+            [
+              379,
+              507
+            ],
+            [
+              75,
+              507
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A BOARDING PASS\nBOARDING PASS\nAIRLINE: EXAMPLE AIR\nBOOKING: FIXTURE-PNR-Z9X8\nDEPARTURE: TST 14:25\nARRIVAL: SMP 16:05\nFLIGHT: EX 404\nDATE: 2026-04-20",
+      "project_pipeline": {
+        "classification": "travel",
+        "classification_expected": "travel",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT A BOARDING PASS",
+        "fields": {
+          "carrier": "EXAMPLE AIR",
+          "bookingReference": "FIXTURE-PNR-Z9X8",
+          "departure": "TST 14:25",
+          "arrival": "SMP 16:05"
+        },
+        "supported_expected_fields_correct": 4,
+        "supported_expected_fields_total": 4,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "certificate_official",
+      "kind": "genericDocument",
+      "variant": "raw",
+      "cer": 0.0049504950495049506,
+      "wer": 0.08695652173913043,
+      "important_fields_correct": 2,
+      "important_fields_total": 2,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        770.8478999556974,
+        782.9212999204174,
+        735.1401000050828
+      ],
+      "peak_rss_mb": [
+        972.765625,
+        993.17578125,
+        991.15234375
+      ],
+      "cpu_ms": [
+        13031.25,
+        13250.0,
+        12312.5
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+          "confidence": 0.9909753799438477,
+          "polygon": [
+            [
+              69,
+              70
+            ],
+            [
+              920,
+              70
+            ],
+            [
+              920,
+              105
+            ],
+            [
+              69,
+              105
+            ]
+          ]
+        },
+        {
+          "text": "CERTIFICATE OF DEMONSTRATION",
+          "confidence": 0.995288074016571,
+          "polygon": [
+            [
+              70,
+              127
+            ],
+            [
+              902,
+              127
+            ],
+            [
+              902,
+              168
+            ],
+            [
+              70,
+              168
+            ]
+          ]
+        },
+        {
+          "text": "THIS CERTIFIES THAT",
+          "confidence": 0.9980505704879761,
+          "polygon": [
+            [
+              71,
+              193
+            ],
+            [
+              539,
+              193
+            ],
+            [
+              539,
+              230
+            ],
+            [
+              71,
+              230
+            ]
+          ]
+        },
+        {
+          "text": "SAMPLE PERSON",
+          "confidence": 0.9809007048606873,
+          "polygon": [
+            [
+              70,
+              253
+            ],
+            [
+              363,
+              253
+            ],
+            [
+              363,
+              285
+            ],
+            [
+              70,
+              285
+            ]
+          ]
+        },
+        {
+          "text": "COMPLETED THE DOCUMENT RECOGNITION EXERCISE",
+          "confidence": 0.9986269474029541,
+          "polygon": [
+            [
+              69,
+              304
+            ],
+            [
+              999,
+              304
+            ],
+            [
+              999,
+              338
+            ],
+            [
+              69,
+              338
+            ]
+          ]
+        },
+        {
+          "text": "REFERENCE: FIXTURE-CERT-2026-11",
+          "confidence": 0.9947008490562439,
+          "polygon": [
+            [
+              69,
+              356
+            ],
+            [
+              687,
+              356
+            ],
+            [
+              687,
+              390
+            ],
+            [
+              69,
+              390
+            ]
+          ]
+        },
+        {
+          "text": "ISSUED:2026-03-15",
+          "confidence": 0.9997220635414124,
+          "polygon": [
+            [
+              69,
+              408
+            ],
+            [
+              391,
+              406
+            ],
+            [
+              391,
+              440
+            ],
+            [
+              69,
+              443
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE\nCERTIFICATE OF DEMONSTRATION\nTHIS CERTIFIES THAT\nSAMPLE PERSON\nCOMPLETED THE DOCUMENT RECOGNITION EXERCISE\nREFERENCE: FIXTURE-CERT-2026-11\nISSUED:2026-03-15",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "reference",
+          "issued"
+        ]
+      }
+    },
+    {
+      "fixture_id": "certificate_official",
+      "kind": "genericDocument",
+      "variant": "preprocessed",
+      "cer": 0.0049504950495049506,
+      "wer": 0.08695652173913043,
+      "important_fields_correct": 2,
+      "important_fields_total": 2,
+      "preprocessing_ms": 45.016099931672215,
+      "inference_ms": [
+        734.2384000075981,
+        765.3905999613926,
+        827.4039999814704
+      ],
+      "peak_rss_mb": [
+        993.56640625,
+        993.74609375,
+        993.38671875
+      ],
+      "cpu_ms": [
+        11750.0,
+        13687.5,
+        14078.125
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+          "confidence": 0.9855485558509827,
+          "polygon": [
+            [
+              70,
+              73
+            ],
+            [
+              920,
+              73
+            ],
+            [
+              920,
+              108
+            ],
+            [
+              70,
+              108
+            ]
+          ]
+        },
+        {
+          "text": "CERTIFICATE OF DEMONSTRATION",
+          "confidence": 0.9908119440078735,
+          "polygon": [
+            [
+              70,
+              128
+            ],
+            [
+              901,
+              130
+            ],
+            [
+              901,
+              171
+            ],
+            [
+              70,
+              170
+            ]
+          ]
+        },
+        {
+          "text": "THIS CERTIFIES THAT",
+          "confidence": 0.9971373677253723,
+          "polygon": [
+            [
+              70,
+              194
+            ],
+            [
+              539,
+              194
+            ],
+            [
+              539,
+              235
+            ],
+            [
+              70,
+              235
+            ]
+          ]
+        },
+        {
+          "text": "SAMPLE PERSON",
+          "confidence": 0.9920620322227478,
+          "polygon": [
+            [
+              71,
+              255
+            ],
+            [
+              363,
+              255
+            ],
+            [
+              363,
+              290
+            ],
+            [
+              71,
+              290
+            ]
+          ]
+        },
+        {
+          "text": "COMPLETED THE DOCUMENT RECOGNITION EXERCISE",
+          "confidence": 0.9993736147880554,
+          "polygon": [
+            [
+              70,
+              306
+            ],
+            [
+              999,
+              305
+            ],
+            [
+              999,
+              340
+            ],
+            [
+              70,
+              341
+            ]
+          ]
+        },
+        {
+          "text": "REFERENCE: FIXTURE-CERT-2026-11",
+          "confidence": 0.9933605194091797,
+          "polygon": [
+            [
+              70,
+              359
+            ],
+            [
+              687,
+              359
+            ],
+            [
+              687,
+              393
+            ],
+            [
+              70,
+              393
+            ]
+          ]
+        },
+        {
+          "text": "ISSUED:2026-03-15",
+          "confidence": 0.9877496361732483,
+          "polygon": [
+            [
+              70,
+              410
+            ],
+            [
+              391,
+              409
+            ],
+            [
+              391,
+              445
+            ],
+            [
+              70,
+              446
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE\nCERTIFICATE OF DEMONSTRATION\nTHIS CERTIFIES THAT\nSAMPLE PERSON\nCOMPLETED THE DOCUMENT RECOGNITION EXERCISE\nREFERENCE: FIXTURE-CERT-2026-11\nISSUED:2026-03-15",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "reference",
+          "issued"
+        ]
+      }
+    },
+    {
+      "fixture_id": "official_notice",
+      "kind": "identity",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 1,
+      "important_fields_total": 1,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        696.6669999528676,
+        697.4183999700472,
+        649.234899901785
+      ],
+      "peak_rss_mb": [
+        1084.8828125,
+        1164.453125,
+        1160.05078125
+      ],
+      "cpu_ms": [
+        11062.5,
+        11640.625,
+        10765.625
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT AN IDENTITY DOCUMENT",
+          "confidence": 0.9882808327674866,
+          "polygon": [
+            [
+              68,
+              70
+            ],
+            [
+              1049,
+              70
+            ],
+            [
+              1049,
+              104
+            ],
+            [
+              68,
+              104
+            ]
+          ]
+        },
+        {
+          "text": "IDENTITY CARD DEMONSTRATION",
+          "confidence": 0.9985697865486145,
+          "polygon": [
+            [
+              69,
+              123
+            ],
+            [
+              646,
+              123
+            ],
+            [
+              646,
+              157
+            ],
+            [
+              69,
+              157
+            ]
+          ]
+        },
+        {
+          "text": "NAME: SAMPLE PERSON",
+          "confidence": 0.9843178987503052,
+          "polygon": [
+            [
+              70,
+              176
+            ],
+            [
+              480,
+              176
+            ],
+            [
+              480,
+              207
+            ],
+            [
+              70,
+              207
+            ]
+          ]
+        },
+        {
+          "text": "DOCUMENT NUMBER: FIXTURE-ID-000000",
+          "confidence": 0.9838237762451172,
+          "polygon": [
+            [
+              69,
+              227
+            ],
+            [
+              760,
+              227
+            ],
+            [
+              760,
+              261
+            ],
+            [
+              69,
+              261
+            ]
+          ]
+        },
+        {
+          "text": "DATE OF BIRTH: 2000-01-01",
+          "confidence": 0.9880932569503784,
+          "polygon": [
+            [
+              70,
+              280
+            ],
+            [
+              519,
+              280
+            ],
+            [
+              519,
+              312
+            ],
+            [
+              70,
+              312
+            ]
+          ]
+        },
+        {
+          "text": "NATIONALITY: EXAMPLE",
+          "confidence": 0.9823293685913086,
+          "polygon": [
+            [
+              69,
+              332
+            ],
+            [
+              474,
+              332
+            ],
+            [
+              474,
+              364
+            ],
+            [
+              69,
+              364
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT AN IDENTITY DOCUMENT\nIDENTITY CARD DEMONSTRATION\nNAME: SAMPLE PERSON\nDOCUMENT NUMBER: FIXTURE-ID-000000\nDATE OF BIRTH: 2000-01-01\nNATIONALITY: EXAMPLE",
+      "project_pipeline": {
+        "classification": "identity",
+        "classification_expected": "identity",
+        "classification_correct": true,
+        "title": "Identity document",
+        "fields": {
+          "documentNumber": "FIXTURE-ID-000000"
+        },
+        "supported_expected_fields_correct": 1,
+        "supported_expected_fields_total": 1,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "official_notice",
+      "kind": "identity",
+      "variant": "preprocessed",
+      "cer": 0.00558659217877095,
+      "wer": 0.08695652173913043,
+      "important_fields_correct": 1,
+      "important_fields_total": 1,
+      "preprocessing_ms": 49.45189994759858,
+      "inference_ms": [
+        694.6738000260666,
+        684.5525000244379,
+        847.7373999776319
+      ],
+      "peak_rss_mb": [
+        1161.7734375,
+        1161.78515625,
+        1161.7734375
+      ],
+      "cpu_ms": [
+        11375.0,
+        11093.75,
+        14171.875
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT AN IDENTITY DOCUMENT",
+          "confidence": 0.9748305678367615,
+          "polygon": [
+            [
+              81,
+              86
+            ],
+            [
+              1223,
+              86
+            ],
+            [
+              1223,
+              126
+            ],
+            [
+              81,
+              126
+            ]
+          ]
+        },
+        {
+          "text": "IDENTITY CARD DEMONSTRATION",
+          "confidence": 0.9989265203475952,
+          "polygon": [
+            [
+              80,
+              146
+            ],
+            [
+              752,
+              147
+            ],
+            [
+              752,
+              188
+            ],
+            [
+              80,
+              187
+            ]
+          ]
+        },
+        {
+          "text": "NAME: SAMPLE PERSON",
+          "confidence": 0.9700506329536438,
+          "polygon": [
+            [
+              81,
+              208
+            ],
+            [
+              560,
+              208
+            ],
+            [
+              560,
+              248
+            ],
+            [
+              81,
+              248
+            ]
+          ]
+        },
+        {
+          "text": "DOCUMENT NUMBER: FIXTURE-ID-000000",
+          "confidence": 0.9922299981117249,
+          "polygon": [
+            [
+              83,
+              269
+            ],
+            [
+              886,
+              269
+            ],
+            [
+              886,
+              308
+            ],
+            [
+              83,
+              308
+            ]
+          ]
+        },
+        {
+          "text": "DATE OF BIRTH: 2000-01-01",
+          "confidence": 0.985576331615448,
+          "polygon": [
+            [
+              83,
+              331
+            ],
+            [
+              606,
+              331
+            ],
+            [
+              606,
+              367
+            ],
+            [
+              83,
+              367
+            ]
+          ]
+        },
+        {
+          "text": "NATIONALITY:EXAMPLE",
+          "confidence": 0.999739408493042,
+          "polygon": [
+            [
+              81,
+              391
+            ],
+            [
+              553,
+              391
+            ],
+            [
+              553,
+              430
+            ],
+            [
+              81,
+              430
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT AN IDENTITY DOCUMENT\nIDENTITY CARD DEMONSTRATION\nNAME: SAMPLE PERSON\nDOCUMENT NUMBER: FIXTURE-ID-000000\nDATE OF BIRTH: 2000-01-01\nNATIONALITY:EXAMPLE",
+      "project_pipeline": {
+        "classification": "identity",
+        "classification_expected": "identity",
+        "classification_correct": true,
+        "title": "Identity document",
+        "fields": {
+          "documentNumber": "FIXTURE-ID-000000"
+        },
+        "supported_expected_fields_correct": 1,
+        "supported_expected_fields_total": 1,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "app_screenshot",
+      "kind": "genericDocument",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 1,
+      "important_fields_total": 1,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        460.88150003924966,
+        480.14519992284477,
+        536.8814999237657
+      ],
+      "peak_rss_mb": [
+        1117.62109375,
+        1117.62109375,
+        1110.265625
+      ],
+      "cpu_ms": [
+        7765.625,
+        8156.25,
+        9546.875
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9997188448905945,
+          "polygon": [
+            [
+              68,
+              69
+            ],
+            [
+              518,
+              69
+            ],
+            [
+              518,
+              104
+            ],
+            [
+              68,
+              104
+            ]
+          ]
+        },
+        {
+          "text": "Archive reminder",
+          "confidence": 0.9902670383453369,
+          "polygon": [
+            [
+              68,
+              126
+            ],
+            [
+              430,
+              126
+            ],
+            [
+              430,
+              165
+            ],
+            [
+              68,
+              165
+            ]
+          ]
+        },
+        {
+          "text": "Nothing needs your attention",
+          "confidence": 0.9971055388450623,
+          "polygon": [
+            [
+              66,
+              183
+            ],
+            [
+              505,
+              186
+            ],
+            [
+              505,
+              223
+            ],
+            [
+              66,
+              221
+            ]
+          ]
+        },
+        {
+          "text": "Your timeline stays on this device",
+          "confidence": 0.996707558631897,
+          "polygon": [
+            [
+              67,
+              238
+            ],
+            [
+              574,
+              238
+            ],
+            [
+              574,
+              272
+            ],
+            [
+              67,
+              272
+            ]
+          ]
+        },
+        {
+          "text": "Last reviewed 10 minutes ago",
+          "confidence": 0.9981869459152222,
+          "polygon": [
+            [
+              67,
+              286
+            ],
+            [
+              520,
+              291
+            ],
+            [
+              520,
+              328
+            ],
+            [
+              66,
+              324
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nArchive reminder\nNothing needs your attention\nYour timeline stays on this device\nLast reviewed 10 minutes ago",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "heading"
+        ]
+      }
+    },
+    {
+      "fixture_id": "app_screenshot",
+      "kind": "genericDocument",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 1,
+      "important_fields_total": 1,
+      "preprocessing_ms": 59.1174999717623,
+      "inference_ms": [
+        783.9576000114903,
+        839.1544999321923,
+        723.0536999413744
+      ],
+      "peak_rss_mb": [
+        1132.62890625,
+        1132.85546875,
+        1132.85546875
+      ],
+      "cpu_ms": [
+        12515.625,
+        13390.625,
+        11828.125
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9908981323242188,
+          "polygon": [
+            [
+              105,
+              107
+            ],
+            [
+              804,
+              106
+            ],
+            [
+              804,
+              162
+            ],
+            [
+              105,
+              163
+            ]
+          ]
+        },
+        {
+          "text": "Archive reminder",
+          "confidence": 0.995790958404541,
+          "polygon": [
+            [
+              104,
+              194
+            ],
+            [
+              671,
+              196
+            ],
+            [
+              671,
+              260
+            ],
+            [
+              103,
+              258
+            ]
+          ]
+        },
+        {
+          "text": "Nothing needs your attention",
+          "confidence": 0.9844251871109009,
+          "polygon": [
+            [
+              105,
+              285
+            ],
+            [
+              787,
+              287
+            ],
+            [
+              786,
+              349
+            ],
+            [
+              104,
+              346
+            ]
+          ]
+        },
+        {
+          "text": "Your timeline stays on this device",
+          "confidence": 0.9988544583320618,
+          "polygon": [
+            [
+              104,
+              369
+            ],
+            [
+              893,
+              369
+            ],
+            [
+              893,
+              426
+            ],
+            [
+              104,
+              426
+            ]
+          ]
+        },
+        {
+          "text": "Last reviewed 10 minutes ago",
+          "confidence": 0.9998785257339478,
+          "polygon": [
+            [
+              106,
+              446
+            ],
+            [
+              811,
+              451
+            ],
+            [
+              811,
+              509
+            ],
+            [
+              105,
+              504
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nArchive reminder\nNothing needs your attention\nYour timeline stays on this device\nLast reviewed 10 minutes ago",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "heading"
+        ]
+      }
+    },
+    {
+      "fixture_id": "mixed_font_sizes",
+      "kind": "genericDocument",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 1,
+      "important_fields_total": 1,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        626.2037999695167,
+        539.2679999349639,
+        604.1925000026822
+      ],
+      "peak_rss_mb": [
+        1137.0859375,
+        1136.84765625,
+        1127.65234375
+      ],
+      "cpu_ms": [
+        10578.125,
+        8859.375,
+        10453.125
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9988474249839783,
+          "polygon": [
+            [
+              70,
+              71
+            ],
+            [
+              517,
+              71
+            ],
+            [
+              517,
+              103
+            ],
+            [
+              70,
+              103
+            ]
+          ]
+        },
+        {
+          "text": "DOCUMENT HEADING",
+          "confidence": 0.9948556423187256,
+          "polygon": [
+            [
+              70,
+              126
+            ],
+            [
+              580,
+              126
+            ],
+            [
+              580,
+              167
+            ],
+            [
+              70,
+              167
+            ]
+          ]
+        },
+        {
+          "text": "Section one",
+          "confidence": 0.9985800385475159,
+          "polygon": [
+            [
+              68,
+              192
+            ],
+            [
+              301,
+              192
+            ],
+            [
+              301,
+              234
+            ],
+            [
+              68,
+              234
+            ]
+          ]
+        },
+        {
+          "text": "This line uses normal body text for recognition.",
+          "confidence": 0.9843316674232483,
+          "polygon": [
+            [
+              68,
+              250
+            ],
+            [
+              771,
+              251
+            ],
+            [
+              771,
+              289
+            ],
+            [
+              68,
+              288
+            ]
+          ]
+        },
+        {
+          "text": "SMALL REFERENCE FIXTURE-MIX-123",
+          "confidence": 0.9968575835227966,
+          "polygon": [
+            [
+              68,
+              304
+            ],
+            [
+              699,
+              304
+            ],
+            [
+              699,
+              338
+            ],
+            [
+              68,
+              338
+            ]
+          ]
+        },
+        {
+          "text": "Footer text for the benchmark",
+          "confidence": 0.9999454617500305,
+          "polygon": [
+            [
+              69,
+              358
+            ],
+            [
+              512,
+              358
+            ],
+            [
+              512,
+              389
+            ],
+            [
+              69,
+              389
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nDOCUMENT HEADING\nSection one\nThis line uses normal body text for recognition.\nSMALL REFERENCE FIXTURE-MIX-123\nFooter text for the benchmark",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "reference"
+        ]
+      }
+    },
+    {
+      "fixture_id": "mixed_font_sizes",
+      "kind": "genericDocument",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 1,
+      "important_fields_total": 1,
+      "preprocessing_ms": 51.87890003435314,
+      "inference_ms": [
+        637.1263000182807,
+        670.1724999584258,
+        701.8030999461189
+      ],
+      "peak_rss_mb": [
+        1138.1015625,
+        1141.8671875,
+        1141.8671875
+      ],
+      "cpu_ms": [
+        10343.75,
+        10968.75,
+        12140.625
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9812303781509399,
+          "polygon": [
+            [
+              81,
+              85
+            ],
+            [
+              605,
+              85
+            ],
+            [
+              605,
+              125
+            ],
+            [
+              81,
+              125
+            ]
+          ]
+        },
+        {
+          "text": "DOCUMENT HEADING",
+          "confidence": 0.9861047267913818,
+          "polygon": [
+            [
+              84,
+              150
+            ],
+            [
+              677,
+              150
+            ],
+            [
+              677,
+              196
+            ],
+            [
+              84,
+              196
+            ]
+          ]
+        },
+        {
+          "text": "Section one",
+          "confidence": 0.9982962012290955,
+          "polygon": [
+            [
+              80,
+              226
+            ],
+            [
+              349,
+              226
+            ],
+            [
+              349,
+              273
+            ],
+            [
+              80,
+              273
+            ]
+          ]
+        },
+        {
+          "text": "This line uses normal body text for recognition.",
+          "confidence": 0.9856584668159485,
+          "polygon": [
+            [
+              79,
+              293
+            ],
+            [
+              901,
+              295
+            ],
+            [
+              901,
+              341
+            ],
+            [
+              79,
+              339
+            ]
+          ]
+        },
+        {
+          "text": "SMALL REFERENCE FIXTURE-MIX-123",
+          "confidence": 0.997291088104248,
+          "polygon": [
+            [
+              83,
+              358
+            ],
+            [
+              814,
+              358
+            ],
+            [
+              814,
+              394
+            ],
+            [
+              83,
+              394
+            ]
+          ]
+        },
+        {
+          "text": "Footer text for the benchmark",
+          "confidence": 0.9999673962593079,
+          "polygon": [
+            [
+              82,
+              417
+            ],
+            [
+              600,
+              417
+            ],
+            [
+              600,
+              457
+            ],
+            [
+              82,
+              457
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nDOCUMENT HEADING\nSection one\nThis line uses normal body text for recognition.\nSMALL REFERENCE FIXTURE-MIX-123\nFooter text for the benchmark",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "reference"
+        ]
+      }
+    },
+    {
+      "fixture_id": "receipt_low_contrast",
+      "kind": "receipt",
+      "variant": "raw",
+      "cer": 0.006756756756756757,
+      "wer": 0.08,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        518.5070999432355,
+        562.6459999475628,
+        536.6811999119818
+      ],
+      "peak_rss_mb": [
+        1109.734375,
+        1106.88671875,
+        1104.84765625
+      ],
+      "cpu_ms": [
+        8750.0,
+        10187.5,
+        9187.5
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "confidence": 0.9696372151374817,
+          "polygon": [
+            [
+              68,
+              71
+            ],
+            [
+              810,
+              71
+            ],
+            [
+              810,
+              102
+            ],
+            [
+              68,
+              102
+            ]
+          ]
+        },
+        {
+          "text": "NORTHSTAR TEST MARKET",
+          "confidence": 0.9909428358078003,
+          "polygon": [
+            [
+              68,
+              123
+            ],
+            [
+              539,
+              123
+            ],
+            [
+              539,
+              154
+            ],
+            [
+              68,
+              154
+            ]
+          ]
+        },
+        {
+          "text": "2026-05-1418:42",
+          "confidence": 0.9999915957450867,
+          "polygon": [
+            [
+              68,
+              173
+            ],
+            [
+              339,
+              175
+            ],
+            [
+              338,
+              207
+            ],
+            [
+              68,
+              205
+            ]
+          ]
+        },
+        {
+          "text": "NOTEBOOK 8.40",
+          "confidence": 0.9971842169761658,
+          "polygon": [
+            [
+              67,
+              227
+            ],
+            [
+              347,
+              227
+            ],
+            [
+              347,
+              259
+            ],
+            [
+              67,
+              259
+            ]
+          ]
+        },
+        {
+          "text": "TEA 3.20",
+          "confidence": 0.9916529655456543,
+          "polygon": [
+            [
+              66,
+              277
+            ],
+            [
+              222,
+              277
+            ],
+            [
+              222,
+              312
+            ],
+            [
+              66,
+              312
+            ]
+          ]
+        },
+        {
+          "text": "SUBTOTAL USD 11.60",
+          "confidence": 0.9984537959098816,
+          "polygon": [
+            [
+              67,
+              329
+            ],
+            [
+              426,
+              331
+            ],
+            [
+              426,
+              363
+            ],
+            [
+              67,
+              361
+            ]
+          ]
+        },
+        {
+          "text": "TAX USD 0.93",
+          "confidence": 0.9782671928405762,
+          "polygon": [
+            [
+              68,
+              383
+            ],
+            [
+              294,
+              383
+            ],
+            [
+              294,
+              415
+            ],
+            [
+              68,
+              415
+            ]
+          ]
+        },
+        {
+          "text": "TOTAL USD 12.53",
+          "confidence": 0.9985939860343933,
+          "polygon": [
+            [
+              68,
+              435
+            ],
+            [
+              356,
+              435
+            ],
+            [
+              356,
+              466
+            ],
+            [
+              68,
+              466
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT\nNORTHSTAR TEST MARKET\n2026-05-1418:42\nNOTEBOOK 8.40\nTEA 3.20\nSUBTOTAL USD 11.60\nTAX USD 0.93\nTOTAL USD 12.53",
+      "project_pipeline": {
+        "classification": "receipt",
+        "classification_expected": "receipt",
+        "classification_correct": true,
+        "title": "Purchase at SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+        "fields": {
+          "merchant": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "total": "12.53",
+          "currency": "USD"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "purchaseDate"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "receipt_low_contrast",
+      "kind": "receipt",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 61.179300071671605,
+      "inference_ms": [
+        714.9683000752702,
+        831.5062000183389,
+        906.8689000559971
+      ],
+      "peak_rss_mb": [
+        1132.1015625,
+        1132.44140625,
+        1132.48828125
+      ],
+      "cpu_ms": [
+        11578.125,
+        14078.125,
+        14250.0
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "confidence": 0.9844782948493958,
+          "polygon": [
+            [
+              106,
+              110
+            ],
+            [
+              1261,
+              110
+            ],
+            [
+              1261,
+              161
+            ],
+            [
+              106,
+              161
+            ]
+          ]
+        },
+        {
+          "text": "NORTHSTAR TEST MARKET",
+          "confidence": 0.9989703893661499,
+          "polygon": [
+            [
+              108,
+              192
+            ],
+            [
+              838,
+              192
+            ],
+            [
+              838,
+              242
+            ],
+            [
+              108,
+              242
+            ]
+          ]
+        },
+        {
+          "text": "2026-05-14 18:42",
+          "confidence": 0.9959827065467834,
+          "polygon": [
+            [
+              106,
+              271
+            ],
+            [
+              529,
+              271
+            ],
+            [
+              529,
+              325
+            ],
+            [
+              106,
+              325
+            ]
+          ]
+        },
+        {
+          "text": "NOTEBOOK 8.40",
+          "confidence": 0.9985873699188232,
+          "polygon": [
+            [
+              108,
+              353
+            ],
+            [
+              539,
+              353
+            ],
+            [
+              539,
+              405
+            ],
+            [
+              108,
+              405
+            ]
+          ]
+        },
+        {
+          "text": "TEA 3.20",
+          "confidence": 0.9976488351821899,
+          "polygon": [
+            [
+              108,
+              432
+            ],
+            [
+              344,
+              434
+            ],
+            [
+              344,
+              487
+            ],
+            [
+              107,
+              485
+            ]
+          ]
+        },
+        {
+          "text": "SUBTOTAL USD 11.60",
+          "confidence": 0.9991509318351746,
+          "polygon": [
+            [
+              106,
+              515
+            ],
+            [
+              662,
+              515
+            ],
+            [
+              662,
+              566
+            ],
+            [
+              106,
+              566
+            ]
+          ]
+        },
+        {
+          "text": "TAX USD 0.93",
+          "confidence": 0.9983509182929993,
+          "polygon": [
+            [
+              105,
+              595
+            ],
+            [
+              459,
+              592
+            ],
+            [
+              459,
+              648
+            ],
+            [
+              106,
+              650
+            ]
+          ]
+        },
+        {
+          "text": "TOTAL USD 12.53",
+          "confidence": 0.9698209166526794,
+          "polygon": [
+            [
+              107,
+              676
+            ],
+            [
+              554,
+              678
+            ],
+            [
+              554,
+              729
+            ],
+            [
+              106,
+              727
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT\nNORTHSTAR TEST MARKET\n2026-05-14 18:42\nNOTEBOOK 8.40\nTEA 3.20\nSUBTOTAL USD 11.60\nTAX USD 0.93\nTOTAL USD 12.53",
+      "project_pipeline": {
+        "classification": "receipt",
+        "classification_expected": "receipt",
+        "classification_correct": true,
+        "title": "Purchase at SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+        "fields": {
+          "merchant": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "total": "12.53",
+          "currency": "USD",
+          "purchaseDate": "2026-05-14"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "product_low_light",
+      "kind": "product",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        684.6900000236928,
+        596.3778999866918,
+        516.2764999549836
+      ],
+      "peak_rss_mb": [
+        1126.609375,
+        1123.203125,
+        1126.015625
+      ],
+      "cpu_ms": [
+        10859.375,
+        9796.875,
+        8656.25
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9827121496200562,
+          "polygon": [
+            [
+              67,
+              68
+            ],
+            [
+              519,
+              69
+            ],
+            [
+              519,
+              104
+            ],
+            [
+              67,
+              103
+            ]
+          ]
+        },
+        {
+          "text": "PRODUCT: DEMO ROUTER",
+          "confidence": 0.9732235670089722,
+          "polygon": [
+            [
+              69,
+              123
+            ],
+            [
+              517,
+              123
+            ],
+            [
+              517,
+              155
+            ],
+            [
+              69,
+              155
+            ]
+          ]
+        },
+        {
+          "text": "BRAND: NORTHSTAR LABS",
+          "confidence": 0.9959549903869629,
+          "polygon": [
+            [
+              69,
+              175
+            ],
+            [
+              520,
+              175
+            ],
+            [
+              520,
+              207
+            ],
+            [
+              69,
+              207
+            ]
+          ]
+        },
+        {
+          "text": "MODEL: NX-TEST-700",
+          "confidence": 0.9953268766403198,
+          "polygon": [
+            [
+              70,
+              227
+            ],
+            [
+              425,
+              227
+            ],
+            [
+              425,
+              259
+            ],
+            [
+              70,
+              259
+            ]
+          ]
+        },
+        {
+          "text": "SERIAL: FIXTURE-SN-700-008",
+          "confidence": 0.986968994140625,
+          "polygon": [
+            [
+              69,
+              279
+            ],
+            [
+              551,
+              279
+            ],
+            [
+              551,
+              311
+            ],
+            [
+              69,
+              311
+            ]
+          ]
+        },
+        {
+          "text": "INPUT: 12V 1.5A",
+          "confidence": 0.9956341981887817,
+          "polygon": [
+            [
+              69,
+              330
+            ],
+            [
+              333,
+              330
+            ],
+            [
+              333,
+              365
+            ],
+            [
+              69,
+              365
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nPRODUCT: DEMO ROUTER\nBRAND: NORTHSTAR LABS\nMODEL: NX-TEST-700\nSERIAL: FIXTURE-SN-700-008\nINPUT: 12V 1.5A",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "product",
+        "classification_correct": true,
+        "title": "NX-TEST-700",
+        "fields": {
+          "brand": "NORTHSTAR LABS",
+          "model": "NX-TEST-700",
+          "serialNumber": "FIXTURE-SN-700-008"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "product_low_light",
+      "kind": "product",
+      "variant": "preprocessed",
+      "cer": 0.007874015748031496,
+      "wer": 0.125,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 118.51079994812608,
+      "inference_ms": [
+        654.7543000197038,
+        657.9828000394627,
+        585.4533000383526
+      ],
+      "peak_rss_mb": [
+        1125.26171875,
+        1121.0703125,
+        1124.8984375
+      ],
+      "cpu_ms": [
+        10265.625,
+        11531.25,
+        9796.875
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9996176362037659,
+          "polygon": [
+            [
+              86,
+              87
+            ],
+            [
+              661,
+              89
+            ],
+            [
+              661,
+              133
+            ],
+            [
+              85,
+              131
+            ]
+          ]
+        },
+        {
+          "text": "PRODUCT: DEMO ROUTER",
+          "confidence": 0.978371798992157,
+          "polygon": [
+            [
+              86,
+              154
+            ],
+            [
+              658,
+              156
+            ],
+            [
+              658,
+              200
+            ],
+            [
+              85,
+              198
+            ]
+          ]
+        },
+        {
+          "text": "BRAND: NORTHSTAR LABS",
+          "confidence": 0.9887974262237549,
+          "polygon": [
+            [
+              87,
+              222
+            ],
+            [
+              662,
+              222
+            ],
+            [
+              662,
+              265
+            ],
+            [
+              87,
+              265
+            ]
+          ]
+        },
+        {
+          "text": "MODEL: NX-TEST-700",
+          "confidence": 0.9776287078857422,
+          "polygon": [
+            [
+              86,
+              285
+            ],
+            [
+              541,
+              285
+            ],
+            [
+              541,
+              331
+            ],
+            [
+              86,
+              331
+            ]
+          ]
+        },
+        {
+          "text": "SERIAL: FIXTURE-SN-700-008",
+          "confidence": 0.9881296157836914,
+          "polygon": [
+            [
+              87,
+              354
+            ],
+            [
+              704,
+              354
+            ],
+            [
+              704,
+              397
+            ],
+            [
+              87,
+              397
+            ]
+          ]
+        },
+        {
+          "text": "INPUT:12V 1.5A",
+          "confidence": 0.9856036305427551,
+          "polygon": [
+            [
+              88,
+              420
+            ],
+            [
+              424,
+              420
+            ],
+            [
+              424,
+              464
+            ],
+            [
+              88,
+              464
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nPRODUCT: DEMO ROUTER\nBRAND: NORTHSTAR LABS\nMODEL: NX-TEST-700\nSERIAL: FIXTURE-SN-700-008\nINPUT:12V 1.5A",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "product",
+        "classification_correct": true,
+        "title": "NX-TEST-700",
+        "fields": {
+          "brand": "NORTHSTAR LABS",
+          "model": "NX-TEST-700",
+          "serialNumber": "FIXTURE-SN-700-008"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "ticket_rotated_90",
+      "kind": "travel",
+      "variant": "raw",
+      "cer": 0.7530120481927711,
+      "wer": 1.0,
+      "important_fields_correct": 0,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        679.0761000011116,
+        561.2553999526426,
+        645.1171999797225
+      ],
+      "peak_rss_mb": [
+        1125.37109375,
+        1124.26953125,
+        1126.0703125
+      ],
+      "cpu_ms": [
+        11562.5,
+        9953.125,
+        10921.875
+      ],
+      "lines": [
+        {
+          "text": "SY   T  G T EL",
+          "confidence": 0.689555823802948,
+          "polygon": [
+            [
+              70,
+              341
+            ],
+            [
+              105,
+              341
+            ],
+            [
+              105,
+              1231
+            ],
+            [
+              70,
+              1231
+            ]
+          ]
+        },
+        {
+          "text": "DEP 10",
+          "confidence": 0.8221414685249329,
+          "polygon": [
+            [
+              226,
+              722
+            ],
+            [
+              261,
+              722
+            ],
+            [
+              261,
+              1229
+            ],
+            [
+              226,
+              1229
+            ]
+          ]
+        },
+        {
+          "text": "AR  45",
+          "confidence": 0.8052656650543213,
+          "polygon": [
+            [
+              277,
+              752
+            ],
+            [
+              312,
+              752
+            ],
+            [
+              312,
+              1231
+            ],
+            [
+              277,
+              1231
+            ]
+          ]
+        },
+        {
+          "text": "BOII--71",
+          "confidence": 0.6312249898910522,
+          "polygon": [
+            [
+              174,
+              769
+            ],
+            [
+              209,
+              769
+            ],
+            [
+              209,
+              1231
+            ],
+            [
+              174,
+              1231
+            ]
+          ]
+        },
+        {
+          "text": "DEL ET",
+          "confidence": 0.7979631423950195,
+          "polygon": [
+            [
+              122,
+              903
+            ],
+            [
+              157,
+              903
+            ],
+            [
+              157,
+              1230
+            ],
+            [
+              122,
+              1230
+            ]
+          ]
+        },
+        {
+          "text": "D6--19",
+          "confidence": 0.6296611428260803,
+          "polygon": [
+            [
+              331,
+              942
+            ],
+            [
+              367,
+              942
+            ],
+            [
+              365,
+              1230
+            ],
+            [
+              329,
+              1229
+            ]
+          ]
+        },
+        {
+          "text": "C:T",
+          "confidence": 0.7764668464660645,
+          "polygon": [
+            [
+              382,
+              1064
+            ],
+            [
+              418,
+              1064
+            ],
+            [
+              418,
+              1230
+            ],
+            [
+              382,
+              1230
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SY   T  G T EL\nDEP 10\nAR  45\nBOII--71\nDEL ET\nD6--19\nC:T",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "travel",
+        "classification_correct": false,
+        "title": "SY   T  G T EL",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "bookingReference",
+          "departure",
+          "arrival"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "ticket_rotated_90",
+      "kind": "travel",
+      "variant": "preprocessed",
+      "cer": 0.7289156626506024,
+      "wer": 1.0,
+      "important_fields_correct": 0,
+      "important_fields_total": 3,
+      "preprocessing_ms": 140.65170008689165,
+      "inference_ms": [
+        1194.4741000188515,
+        1458.2101000705734,
+        1409.7174999769777
+      ],
+      "peak_rss_mb": [
+        1251.46484375,
+        1697.2890625,
+        1697.734375
+      ],
+      "cpu_ms": [
+        17796.875,
+        21484.375,
+        20218.75
+      ],
+      "lines": [
+        {
+          "text": "SYN G F T   FT EL",
+          "confidence": 0.6071354150772095,
+          "polygon": [
+            [
+              138,
+              676
+            ],
+            [
+              216,
+              676
+            ],
+            [
+              214,
+              2465
+            ],
+            [
+              136,
+              2465
+            ]
+          ]
+        },
+        {
+          "text": "DEP :10",
+          "confidence": 0.8041598200798035,
+          "polygon": [
+            [
+              450,
+              1442
+            ],
+            [
+              527,
+              1442
+            ],
+            [
+              527,
+              2462
+            ],
+            [
+              450,
+              2462
+            ]
+          ]
+        },
+        {
+          "text": "AR S L 45",
+          "confidence": 0.7531498670578003,
+          "polygon": [
+            [
+              554,
+              1504
+            ],
+            [
+              629,
+              1504
+            ],
+            [
+              629,
+              2461
+            ],
+            [
+              554,
+              2461
+            ]
+          ]
+        },
+        {
+          "text": "BOI-I:III--71",
+          "confidence": 0.547610342502594,
+          "polygon": [
+            [
+              344,
+              1531
+            ],
+            [
+              424,
+              1531
+            ],
+            [
+              422,
+              2465
+            ],
+            [
+              342,
+              2464
+            ]
+          ]
+        },
+        {
+          "text": "DEL L ET",
+          "confidence": 0.8138401508331299,
+          "polygon": [
+            [
+              242,
+              1803
+            ],
+            [
+              319,
+              1804
+            ],
+            [
+              317,
+              2464
+            ],
+            [
+              239,
+              2463
+            ]
+          ]
+        },
+        {
+          "text": "DA619",
+          "confidence": 0.688025712966919,
+          "polygon": [
+            [
+              659,
+              1887
+            ],
+            [
+              733,
+              1887
+            ],
+            [
+              733,
+              2462
+            ],
+            [
+              659,
+              2462
+            ]
+          ]
+        },
+        {
+          "text": "C:T",
+          "confidence": 0.7343752980232239,
+          "polygon": [
+            [
+              763,
+              2125
+            ],
+            [
+              837,
+              2126
+            ],
+            [
+              834,
+              2463
+            ],
+            [
+              761,
+              2462
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYN G F T   FT EL\nDEP :10\nAR S L 45\nBOI-I:III--71\nDEL L ET\nDA619\nC:T",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "travel",
+        "classification_correct": false,
+        "title": "SYN G F T   FT EL",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "bookingReference",
+          "departure",
+          "arrival"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "invoice_skew",
+      "kind": "genericDocument",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        613.787499954924,
+        594.5078999502584,
+        531.9729000329971
+      ],
+      "peak_rss_mb": [
+        1612.9453125,
+        1611.89453125,
+        1611.8984375
+      ],
+      "cpu_ms": [
+        10312.5,
+        10062.5,
+        9296.875
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+          "confidence": 0.9832391738891602,
+          "polygon": [
+            [
+              4,
+              70
+            ],
+            [
+              763,
+              70
+            ],
+            [
+              763,
+              104
+            ],
+            [
+              4,
+              104
+            ]
+          ]
+        },
+        {
+          "text": "DEMO SUPPLY CO",
+          "confidence": 0.9925742149353027,
+          "polygon": [
+            [
+              10,
+              123
+            ],
+            [
+              321,
+              123
+            ],
+            [
+              321,
+              155
+            ],
+            [
+              10,
+              155
+            ]
+          ]
+        },
+        {
+          "text": "INVOICE: FIXTURE-INV-018",
+          "confidence": 0.9894922375679016,
+          "polygon": [
+            [
+              18,
+              175
+            ],
+            [
+              460,
+              175
+            ],
+            [
+              460,
+              207
+            ],
+            [
+              18,
+              207
+            ]
+          ]
+        },
+        {
+          "text": "DATE: 2026-02-08",
+          "confidence": 0.9951509237289429,
+          "polygon": [
+            [
+              23,
+              227
+            ],
+            [
+              309,
+              227
+            ],
+            [
+              309,
+              259
+            ],
+            [
+              23,
+              259
+            ]
+          ]
+        },
+        {
+          "text": "ITEM: ARCHIVE BOX",
+          "confidence": 0.9988250732421875,
+          "polygon": [
+            [
+              30,
+              279
+            ],
+            [
+              365,
+              279
+            ],
+            [
+              365,
+              311
+            ],
+            [
+              30,
+              311
+            ]
+          ]
+        },
+        {
+          "text": "QUANTITY: 4",
+          "confidence": 0.9576539993286133,
+          "polygon": [
+            [
+              36,
+              330
+            ],
+            [
+              251,
+              330
+            ],
+            [
+              251,
+              365
+            ],
+            [
+              36,
+              365
+            ]
+          ]
+        },
+        {
+          "text": "AMOUNT USD 48.00",
+          "confidence": 0.9979850649833679,
+          "polygon": [
+            [
+              43,
+              383
+            ],
+            [
+              367,
+              383
+            ],
+            [
+              367,
+              415
+            ],
+            [
+              43,
+              415
+            ]
+          ]
+        },
+        {
+          "text": "BALANCE USD 48.00",
+          "confidence": 0.9990943670272827,
+          "polygon": [
+            [
+              48,
+              435
+            ],
+            [
+              385,
+              435
+            ],
+            [
+              385,
+              467
+            ],
+            [
+              48,
+              467
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE\nDEMO SUPPLY CO\nINVOICE: FIXTURE-INV-018\nDATE: 2026-02-08\nITEM: ARCHIVE BOX\nQUANTITY: 4\nAMOUNT USD 48.00\nBALANCE USD 48.00",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "invoiceNumber",
+          "date",
+          "amount"
+        ]
+      }
+    },
+    {
+      "fixture_id": "invoice_skew",
+      "kind": "genericDocument",
+      "variant": "preprocessed",
+      "cer": 0.006211180124223602,
+      "wer": 0.08,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 54.93069998919964,
+      "inference_ms": [
+        576.7095000483096,
+        710.8530999394134,
+        668.778800056316
+      ],
+      "peak_rss_mb": [
+        1617.81640625,
+        1618.5234375,
+        1618.5234375
+      ],
+      "cpu_ms": [
+        9750.0,
+        12093.75,
+        11296.875
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+          "confidence": 0.9811424016952515,
+          "polygon": [
+            [
+              4,
+              77
+            ],
+            [
+              838,
+              77
+            ],
+            [
+              838,
+              115
+            ],
+            [
+              4,
+              115
+            ]
+          ]
+        },
+        {
+          "text": "DEMO SUPPLY CO",
+          "confidence": 0.9991399645805359,
+          "polygon": [
+            [
+              11,
+              134
+            ],
+            [
+              354,
+              134
+            ],
+            [
+              354,
+              171
+            ],
+            [
+              11,
+              171
+            ]
+          ]
+        },
+        {
+          "text": "INVOICE: FIXTURE-INV-018",
+          "confidence": 0.9865307807922363,
+          "polygon": [
+            [
+              18,
+              189
+            ],
+            [
+              506,
+              192
+            ],
+            [
+              506,
+              229
+            ],
+            [
+              18,
+              227
+            ]
+          ]
+        },
+        {
+          "text": "DATE: 2026-02-08",
+          "confidence": 0.9820942878723145,
+          "polygon": [
+            [
+              25,
+              248
+            ],
+            [
+              340,
+              248
+            ],
+            [
+              340,
+              286
+            ],
+            [
+              25,
+              286
+            ]
+          ]
+        },
+        {
+          "text": "ITEM: ARCHIVE BOX",
+          "confidence": 0.982323169708252,
+          "polygon": [
+            [
+              33,
+              306
+            ],
+            [
+              402,
+              306
+            ],
+            [
+              402,
+              344
+            ],
+            [
+              33,
+              344
+            ]
+          ]
+        },
+        {
+          "text": "QUANTITY:4",
+          "confidence": 0.9998902082443237,
+          "polygon": [
+            [
+              40,
+              364
+            ],
+            [
+              275,
+              364
+            ],
+            [
+              275,
+              401
+            ],
+            [
+              40,
+              401
+            ]
+          ]
+        },
+        {
+          "text": "AMOUNT USD 48.00",
+          "confidence": 0.9691135883331299,
+          "polygon": [
+            [
+              46,
+              421
+            ],
+            [
+              404,
+              421
+            ],
+            [
+              404,
+              458
+            ],
+            [
+              46,
+              458
+            ]
+          ]
+        },
+        {
+          "text": "BALANCE USD 48.00",
+          "confidence": 0.9995994567871094,
+          "polygon": [
+            [
+              52,
+              477
+            ],
+            [
+              425,
+              477
+            ],
+            [
+              425,
+              515
+            ],
+            [
+              52,
+              515
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE\nDEMO SUPPLY CO\nINVOICE: FIXTURE-INV-018\nDATE: 2026-02-08\nITEM: ARCHIVE BOX\nQUANTITY:4\nAMOUNT USD 48.00\nBALANCE USD 48.00",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "invoiceNumber",
+          "date",
+          "amount"
+        ]
+      }
+    },
+    {
+      "fixture_id": "warranty_perspective",
+      "kind": "warranty",
+      "variant": "raw",
+      "cer": 0.005494505494505495,
+      "wer": 0.09090909090909091,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        661.3579000113532,
+        735.4530999436975,
+        756.6445999545977
+      ],
+      "peak_rss_mb": [
+        1631.15234375,
+        1636.05859375,
+        1636.04296875
+      ],
+      "cpu_ms": [
+        11578.125,
+        12609.375,
+        12484.375
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY",
+          "confidence": 0.9857736229896545,
+          "polygon": [
+            [
+              18,
+              60
+            ],
+            [
+              903,
+              72
+            ],
+            [
+              903,
+              109
+            ],
+            [
+              18,
+              98
+            ]
+          ]
+        },
+        {
+          "text": "WARRANTY CERTIFICATE",
+          "confidence": 0.998787522315979,
+          "polygon": [
+            [
+              22,
+              117
+            ],
+            [
+              494,
+              121
+            ],
+            [
+              493,
+              159
+            ],
+            [
+              22,
+              155
+            ]
+          ]
+        },
+        {
+          "text": "PRODUCT: DEMO KETTLE",
+          "confidence": 0.986821174621582,
+          "polygon": [
+            [
+              26,
+              174
+            ],
+            [
+              490,
+              178
+            ],
+            [
+              489,
+              215
+            ],
+            [
+              26,
+              212
+            ]
+          ]
+        },
+        {
+          "text": "MODEL:TEST-K20",
+          "confidence": 0.9995993971824646,
+          "polygon": [
+            [
+              30,
+              229
+            ],
+            [
+              352,
+              233
+            ],
+            [
+              352,
+              271
+            ],
+            [
+              29,
+              268
+            ]
+          ]
+        },
+        {
+          "text": "SERIAL NUMBER: FIXTURE-ONLY-0042",
+          "confidence": 0.9846499562263489,
+          "polygon": [
+            [
+              34,
+              290
+            ],
+            [
+              718,
+              290
+            ],
+            [
+              718,
+              327
+            ],
+            [
+              34,
+              327
+            ]
+          ]
+        },
+        {
+          "text": "PURCHASE DATE: 2026-01-12",
+          "confidence": 0.9949122071266174,
+          "polygon": [
+            [
+              38,
+              346
+            ],
+            [
+              561,
+              346
+            ],
+            [
+              561,
+              383
+            ],
+            [
+              38,
+              383
+            ]
+          ]
+        },
+        {
+          "text": "VALID UNTIL: 2028-01-12",
+          "confidence": 0.9910943508148193,
+          "polygon": [
+            [
+              36,
+              402
+            ],
+            [
+              473,
+              400
+            ],
+            [
+              473,
+              437
+            ],
+            [
+              37,
+              440
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY\nWARRANTY CERTIFICATE\nPRODUCT: DEMO KETTLE\nMODEL:TEST-K20\nSERIAL NUMBER: FIXTURE-ONLY-0042\nPURCHASE DATE: 2026-01-12\nVALID UNTIL: 2028-01-12",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "warranty",
+        "classification_correct": false,
+        "title": "TEST-K20",
+        "fields": {
+          "model": "TEST-K20",
+          "serialNumber": "FIXTURE-ONLY-0042"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "expiryDate"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "warranty_perspective",
+      "kind": "warranty",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 64.34359995182604,
+      "inference_ms": [
+        981.1442999634892,
+        761.403699987568,
+        732.5293000321835
+      ],
+      "peak_rss_mb": [
+        1637.57421875,
+        1637.5234375,
+        1630.88671875
+      ],
+      "cpu_ms": [
+        15078.125,
+        13218.75,
+        12953.125
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY",
+          "confidence": 0.9736135601997375,
+          "polygon": [
+            [
+              21,
+              70
+            ],
+            [
+              1054,
+              84
+            ],
+            [
+              1054,
+              127
+            ],
+            [
+              21,
+              113
+            ]
+          ]
+        },
+        {
+          "text": "WARRANTY CERTIFICATE",
+          "confidence": 0.9985612034797668,
+          "polygon": [
+            [
+              25,
+              136
+            ],
+            [
+              576,
+              142
+            ],
+            [
+              575,
+              185
+            ],
+            [
+              25,
+              180
+            ]
+          ]
+        },
+        {
+          "text": "PRODUCT: DEMO KETTLE",
+          "confidence": 0.9887720942497253,
+          "polygon": [
+            [
+              31,
+              202
+            ],
+            [
+              570,
+              207
+            ],
+            [
+              569,
+              252
+            ],
+            [
+              31,
+              246
+            ]
+          ]
+        },
+        {
+          "text": "MODEL: TEST-K20",
+          "confidence": 0.9714688658714294,
+          "polygon": [
+            [
+              35,
+              269
+            ],
+            [
+              411,
+              271
+            ],
+            [
+              410,
+              315
+            ],
+            [
+              35,
+              313
+            ]
+          ]
+        },
+        {
+          "text": "SERIAL NUMBER: FIXTURE-ONLY-0042",
+          "confidence": 0.9892966151237488,
+          "polygon": [
+            [
+              38,
+              336
+            ],
+            [
+              838,
+              338
+            ],
+            [
+              838,
+              381
+            ],
+            [
+              38,
+              379
+            ]
+          ]
+        },
+        {
+          "text": "PURCHASE DATE: 2026-01-12",
+          "confidence": 0.9888516068458557,
+          "polygon": [
+            [
+              43,
+              403
+            ],
+            [
+              653,
+              403
+            ],
+            [
+              653,
+              446
+            ],
+            [
+              43,
+              446
+            ]
+          ]
+        },
+        {
+          "text": "VALID UNTIL: 2028-01-12",
+          "confidence": 0.9650300741195679,
+          "polygon": [
+            [
+              46,
+              470
+            ],
+            [
+              549,
+              470
+            ],
+            [
+              549,
+              510
+            ],
+            [
+              46,
+              510
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY\nWARRANTY CERTIFICATE\nPRODUCT: DEMO KETTLE\nMODEL: TEST-K20\nSERIAL NUMBER: FIXTURE-ONLY-0042\nPURCHASE DATE: 2026-01-12\nVALID UNTIL: 2028-01-12",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "warranty",
+        "classification_correct": false,
+        "title": "TEST-K20",
+        "fields": {
+          "model": "TEST-K20",
+          "serialNumber": "FIXTURE-ONLY-0042"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "expiryDate"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "certificate_blur",
+      "kind": "genericDocument",
+      "variant": "raw",
+      "cer": 0.009900990099009901,
+      "wer": 0.17391304347826086,
+      "important_fields_correct": 2,
+      "important_fields_total": 2,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        715.9066000021994,
+        772.0714000752196,
+        730.2854999434203
+      ],
+      "peak_rss_mb": [
+        1642.04296875,
+        1640.32421875,
+        1643.54296875
+      ],
+      "cpu_ms": [
+        12234.375,
+        12921.875,
+        12656.25
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+          "confidence": 0.9915015697479248,
+          "polygon": [
+            [
+              66,
+              66
+            ],
+            [
+              922,
+              66
+            ],
+            [
+              922,
+              107
+            ],
+            [
+              66,
+              107
+            ]
+          ]
+        },
+        {
+          "text": "CERTIFICATE OF DEMONSTRATION",
+          "confidence": 0.9846336245536804,
+          "polygon": [
+            [
+              68,
+              123
+            ],
+            [
+              906,
+              123
+            ],
+            [
+              906,
+              171
+            ],
+            [
+              68,
+              171
+            ]
+          ]
+        },
+        {
+          "text": "THIS CERTIFIES THAT",
+          "confidence": 0.9854373931884766,
+          "polygon": [
+            [
+              67,
+              187
+            ],
+            [
+              541,
+              189
+            ],
+            [
+              540,
+              235
+            ],
+            [
+              67,
+              232
+            ]
+          ]
+        },
+        {
+          "text": "SAMPLE PERSON",
+          "confidence": 0.9842479228973389,
+          "polygon": [
+            [
+              67,
+              249
+            ],
+            [
+              364,
+              249
+            ],
+            [
+              364,
+              287
+            ],
+            [
+              67,
+              287
+            ]
+          ]
+        },
+        {
+          "text": "COMPLETED THE DOCUMENT RECOGNITION EXERCISE",
+          "confidence": 0.9908294081687927,
+          "polygon": [
+            [
+              69,
+              302
+            ],
+            [
+              999,
+              302
+            ],
+            [
+              999,
+              337
+            ],
+            [
+              69,
+              337
+            ]
+          ]
+        },
+        {
+          "text": "REFERENCE:FIXTURE-CERT-2026-11",
+          "confidence": 0.9999692440032959,
+          "polygon": [
+            [
+              66,
+              352
+            ],
+            [
+              689,
+              353
+            ],
+            [
+              689,
+              391
+            ],
+            [
+              66,
+              390
+            ]
+          ]
+        },
+        {
+          "text": "ISSUED:2026-03-15",
+          "confidence": 0.9999597072601318,
+          "polygon": [
+            [
+              67,
+              405
+            ],
+            [
+              393,
+              405
+            ],
+            [
+              393,
+              443
+            ],
+            [
+              67,
+              443
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE\nCERTIFICATE OF DEMONSTRATION\nTHIS CERTIFIES THAT\nSAMPLE PERSON\nCOMPLETED THE DOCUMENT RECOGNITION EXERCISE\nREFERENCE:FIXTURE-CERT-2026-11\nISSUED:2026-03-15",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "reference",
+          "issued"
+        ]
+      }
+    },
+    {
+      "fixture_id": "certificate_blur",
+      "kind": "genericDocument",
+      "variant": "preprocessed",
+      "cer": 0.01485148514851485,
+      "wer": 0.2608695652173913,
+      "important_fields_correct": 2,
+      "important_fields_total": 2,
+      "preprocessing_ms": 56.568400003015995,
+      "inference_ms": [
+        778.5162000218406,
+        865.4789999127388,
+        795.3428999753669
+      ],
+      "peak_rss_mb": [
+        1643.14453125,
+        1635.5234375,
+        1641.76171875
+      ],
+      "cpu_ms": [
+        11953.125,
+        14328.125,
+        13828.125
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+          "confidence": 0.9945862293243408,
+          "polygon": [
+            [
+              67,
+              66
+            ],
+            [
+              922,
+              66
+            ],
+            [
+              922,
+              107
+            ],
+            [
+              67,
+              107
+            ]
+          ]
+        },
+        {
+          "text": "CERTIFICATE OF DEMONSTRATION",
+          "confidence": 0.9775875806808472,
+          "polygon": [
+            [
+              68,
+              123
+            ],
+            [
+              906,
+              123
+            ],
+            [
+              906,
+              171
+            ],
+            [
+              68,
+              171
+            ]
+          ]
+        },
+        {
+          "text": "THIS CERTIFIES THAT",
+          "confidence": 0.9954078197479248,
+          "polygon": [
+            [
+              69,
+              189
+            ],
+            [
+              541,
+              189
+            ],
+            [
+              541,
+              234
+            ],
+            [
+              69,
+              234
+            ]
+          ]
+        },
+        {
+          "text": "SAMPLEPERSON",
+          "confidence": 0.9999699592590332,
+          "polygon": [
+            [
+              67,
+              249
+            ],
+            [
+              365,
+              249
+            ],
+            [
+              365,
+              287
+            ],
+            [
+              67,
+              287
+            ]
+          ]
+        },
+        {
+          "text": "COMPLETED THE DOCUMENT RECOGNITION EXERCISE",
+          "confidence": 0.995600163936615,
+          "polygon": [
+            [
+              69,
+              302
+            ],
+            [
+              999,
+              302
+            ],
+            [
+              999,
+              337
+            ],
+            [
+              69,
+              337
+            ]
+          ]
+        },
+        {
+          "text": "REFERENCE:FIXTURE-CERT-2026-11",
+          "confidence": 0.9999659061431885,
+          "polygon": [
+            [
+              66,
+              352
+            ],
+            [
+              688,
+              353
+            ],
+            [
+              688,
+              391
+            ],
+            [
+              66,
+              390
+            ]
+          ]
+        },
+        {
+          "text": "ISSUED:2026-03-15",
+          "confidence": 0.9999386072158813,
+          "polygon": [
+            [
+              68,
+              405
+            ],
+            [
+              393,
+              405
+            ],
+            [
+              393,
+              443
+            ],
+            [
+              68,
+              443
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE\nCERTIFICATE OF DEMONSTRATION\nTHIS CERTIFIES THAT\nSAMPLEPERSON\nCOMPLETED THE DOCUMENT RECOGNITION EXERCISE\nREFERENCE:FIXTURE-CERT-2026-11\nISSUED:2026-03-15",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "reference",
+          "issued"
+        ]
+      }
+    },
+    {
+      "fixture_id": "small_text_blur",
+      "kind": "product",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 2,
+      "important_fields_total": 2,
+      "preprocessing_ms": 0.0,
+      "inference_ms": [
+        408.88800006359816,
+        335.6833999278024,
+        350.9100000374019
+      ],
+      "peak_rss_mb": [
+        1627.5703125,
+        1625.65625,
+        1627.078125
+      ],
+      "cpu_ms": [
+        7453.125,
+        6156.25,
+        6640.625
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9874560832977295,
+          "polygon": [
+            [
+              35,
+              36
+            ],
+            [
+              198,
+              36
+            ],
+            [
+              198,
+              49
+            ],
+            [
+              35,
+              49
+            ]
+          ]
+        },
+        {
+          "text": "PRODUCT TEST SENSOR",
+          "confidence": 0.9964268207550049,
+          "polygon": [
+            [
+              34,
+              58
+            ],
+            [
+              189,
+              58
+            ],
+            [
+              189,
+              72
+            ],
+            [
+              34,
+              72
+            ]
+          ]
+        },
+        {
+          "text": "MODEL QX-17B",
+          "confidence": 0.9988078474998474,
+          "polygon": [
+            [
+              32,
+              78
+            ],
+            [
+              128,
+              78
+            ],
+            [
+              128,
+              95
+            ],
+            [
+              32,
+              95
+            ]
+          ]
+        },
+        {
+          "text": "S/N FIXTURE-QX17-00991",
+          "confidence": 0.9981699585914612,
+          "polygon": [
+            [
+              34,
+              100
+            ],
+            [
+              188,
+              100
+            ],
+            [
+              188,
+              116
+            ],
+            [
+              34,
+              116
+            ]
+          ]
+        },
+        {
+          "text": "RATING 5V 400mA",
+          "confidence": 0.9969555735588074,
+          "polygon": [
+            [
+              31,
+              120
+            ],
+            [
+              144,
+              120
+            ],
+            [
+              144,
+              137
+            ],
+            [
+              31,
+              137
+            ]
+          ]
+        },
+        {
+          "text": "ASSEMBLED FOR BENCHMARK ONLY",
+          "confidence": 0.9995498061180115,
+          "polygon": [
+            [
+              34,
+              144
+            ],
+            [
+              263,
+              144
+            ],
+            [
+              263,
+              158
+            ],
+            [
+              34,
+              158
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nPRODUCT TEST SENSOR\nMODEL QX-17B\nS/N FIXTURE-QX17-00991\nRATING 5V 400mA\nASSEMBLED FOR BENCHMARK ONLY",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "product",
+        "classification_correct": true,
+        "title": "QX-17B",
+        "fields": {
+          "model": "QX-17B",
+          "serialNumber": "FIXTURE-QX17-00991"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 2,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "small_text_blur",
+      "kind": "product",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 2,
+      "important_fields_total": 2,
+      "preprocessing_ms": 23.3439999865368,
+      "inference_ms": [
+        454.2414000025019,
+        490.67219998687506,
+        405.9859999688342
+      ],
+      "peak_rss_mb": [
+        1624.46875,
+        1624.56640625,
+        1612.00390625
+      ],
+      "cpu_ms": [
+        7828.125,
+        8593.75,
+        7578.125
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9983016848564148,
+          "polygon": [
+            [
+              66,
+              66
+            ],
+            [
+              398,
+              66
+            ],
+            [
+              398,
+              98
+            ],
+            [
+              66,
+              98
+            ]
+          ]
+        },
+        {
+          "text": "PRODUCT TEST SENSOR",
+          "confidence": 0.9910485148429871,
+          "polygon": [
+            [
+              66,
+              110
+            ],
+            [
+              380,
+              110
+            ],
+            [
+              380,
+              141
+            ],
+            [
+              66,
+              141
+            ]
+          ]
+        },
+        {
+          "text": "MODEL QX-17B",
+          "confidence": 0.9846135973930359,
+          "polygon": [
+            [
+              65,
+              152
+            ],
+            [
+              257,
+              152
+            ],
+            [
+              257,
+              184
+            ],
+            [
+              65,
+              184
+            ]
+          ]
+        },
+        {
+          "text": "S/N FIXTURE-QX17-00991",
+          "confidence": 0.9860461950302124,
+          "polygon": [
+            [
+              66,
+              196
+            ],
+            [
+              377,
+              196
+            ],
+            [
+              377,
+              226
+            ],
+            [
+              66,
+              226
+            ]
+          ]
+        },
+        {
+          "text": "RATING 5V 400mA",
+          "confidence": 0.9838547110557556,
+          "polygon": [
+            [
+              65,
+              239
+            ],
+            [
+              291,
+              239
+            ],
+            [
+              291,
+              269
+            ],
+            [
+              65,
+              269
+            ]
+          ]
+        },
+        {
+          "text": "ASSEMBLED FOR BENCHMARK ONLY",
+          "confidence": 0.9984082579612732,
+          "polygon": [
+            [
+              65,
+              282
+            ],
+            [
+              528,
+              282
+            ],
+            [
+              528,
+              313
+            ],
+            [
+              65,
+              313
+            ]
+          ]
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nPRODUCT TEST SENSOR\nMODEL QX-17B\nS/N FIXTURE-QX17-00991\nRATING 5V 400mA\nASSEMBLED FOR BENCHMARK ONLY",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "product",
+        "classification_correct": true,
+        "title": "QX-17B",
+        "fields": {
+          "model": "QX-17B",
+          "serialNumber": "FIXTURE-QX17-00991"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 2,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    }
+  ],
+  "project_pipeline_summary": {
+    "records": 38,
+    "classifications_correct": 32,
+    "classification_accuracy": 0.8421052631578947,
+    "supported_extraction_fields_correct": 61,
+    "supported_extraction_fields_total": 72,
+    "supported_extraction_field_accuracy": 0.8472222222222222,
+    "note": "Unsupported fixture fields are reported per record and are not counted as OCR errors or silently treated as extraction successes."
+  }
+}

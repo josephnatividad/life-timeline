@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "files": [
+    {
+      "fixture_id": "receipt_clean",
+      "file": "receipt_clean.png",
+      "bytes": 41928,
+      "sha256": "737eda5b2428affe6a5d2abb4e3a2428438012dec4d410118691c9c457b0edf5"
+    },
+    {
+      "fixture_id": "receipt_dense_small",
+      "file": "receipt_dense_small.png",
+      "bytes": 35964,
+      "sha256": "ef3e2d901e6862f7b037178eafae48ada4c9a73db926b4d3d4f2c0c07e6c8057"
+    },
+    {
+      "fixture_id": "warranty_card",
+      "file": "warranty_card.png",
+      "bytes": 45074,
+      "sha256": "b8eb1ca1c282177adbf431755004a31f0302fa58aaed65fd9e0142521427ba55"
+    },
+    {
+      "fixture_id": "invoice",
+      "file": "invoice.png",
+      "bytes": 47253,
+      "sha256": "46b87134fb75f28072195e845b7d828deffad05387c55b990768b67e8dfd7422"
+    },
+    {
+      "fixture_id": "product_label",
+      "file": "product_label.png",
+      "bytes": 33124,
+      "sha256": "afea7ebcaa633c9c5a4553d0ec170669d52ed76a3f4c611d8d50faba0d755b7e"
+    },
+    {
+      "fixture_id": "serial_plate_small",
+      "file": "serial_plate_small.png",
+      "bytes": 26140,
+      "sha256": "15ce54e6c86fea1d95257c5cea78912c721584870d3be56e633ac92cfdccc9c3"
+    },
+    {
+      "fixture_id": "travel_ticket",
+      "file": "travel_ticket.png",
+      "bytes": 42111,
+      "sha256": "d1173858985a51202a27ff1be8dd551c8365ef2443c79d4f5b5ecae479e0d512"
+    },
+    {
+      "fixture_id": "boarding_pass",
+      "file": "boarding_pass.png",
+      "bytes": 47802,
+      "sha256": "086b349db4110b095c65ec9212609d102559fe8dee8f31634d7b9219742f646b"
+    },
+    {
+      "fixture_id": "certificate_official",
+      "file": "certificate_official.png",
+      "bytes": 47238,
+      "sha256": "9c1e4cdd3648d46840c56a8a09279fb4b65fbb134ee3ef79e570bb2bb682af38"
+    },
+    {
+      "fixture_id": "official_notice",
+      "file": "official_notice.png",
+      "bytes": 37960,
+      "sha256": "e6c04d620ce5317c4ffbe202f7602e35562810906b78b6d06a707f4c027ce7fa"
+    },
+    {
+      "fixture_id": "app_screenshot",
+      "file": "app_screenshot.png",
+      "bytes": 31861,
+      "sha256": "09e1d9da01e20e2b98dd2b00dd89f73d4458bede46f46e8522a9fad8a61a6121"
+    },
+    {
+      "fixture_id": "mixed_font_sizes",
+      "file": "mixed_font_sizes.png",
+      "bytes": 39328,
+      "sha256": "64e058d5d71529d9d20a548ce8b6412b18858e51cb3f1143361df5d129222f3c"
+    },
+    {
+      "fixture_id": "receipt_low_contrast",
+      "file": "receipt_low_contrast.png",
+      "bytes": 30461,
+      "sha256": "cae738485dd2179ccbabc4970d6bb9745e1b8a0e5ba91ab85a1abb2f5fe17075"
+    },
+    {
+      "fixture_id": "product_low_light",
+      "file": "product_low_light.png",
+      "bytes": 1360347,
+      "sha256": "4a445b74d572ad92d5b67cf69a173b0cfa9bfed56d809249c115262925640caa"
+    },
+    {
+      "fixture_id": "ticket_rotated_90",
+      "file": "ticket_rotated_90.png",
+      "bytes": 54596,
+      "sha256": "7909ef343969ce5ce24571dc71a3117a4e59def28df3bdfaf5fb2bcd5968557d"
+    },
+    {
+      "fixture_id": "invoice_skew",
+      "file": "invoice_skew.png",
+      "bytes": 97727,
+      "sha256": "eb50b7c4402be95d90459f18b411c46a4f6a7f2d299a4cc779a9a203a2c7974d"
+    },
+    {
+      "fixture_id": "warranty_perspective",
+      "file": "warranty_perspective.png",
+      "bytes": 163207,
+      "sha256": "92c59c6dc6505c141cb2fe5d3ab6a746182db1a48db6d6ea06f951c29cc50e99"
+    },
+    {
+      "fixture_id": "certificate_blur",
+      "file": "certificate_blur.png",
+      "bytes": 133677,
+      "sha256": "be64c6216cc3e26a505e46f240fbc26ee819e88d4343ad8ab6be8ca123ede891"
+    },
+    {
+      "fixture_id": "small_text_blur",
+      "file": "small_text_blur.png",
+      "bytes": 26092,
+      "sha256": "f16ab39afb6d91ebc19c3155bd5c74cc099609ace03f79b3d7b0337a9de4d192"
+    }
+  ]
+}

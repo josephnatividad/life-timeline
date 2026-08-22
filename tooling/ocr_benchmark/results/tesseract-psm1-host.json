@@ -1,0 +1,2794 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-22T17:04:03.078049+00:00",
+  "engine": "tesseract",
+  "engine_version": "tesseract v5.5.3.20260724",
+  "engine_configuration": {
+    "page_segmentation_mode": 1
+  },
+  "host": {
+    "platform": "nt",
+    "cpu_count": 24
+  },
+  "measurement_limitations": [
+    "Host CLI latency, RSS, and CPU are not Android device measurements.",
+    "Application package delta requires a native release-build spike."
+  ],
+  "summary": {
+    "raw": {
+      "mean_cer": 0.10128740830215031,
+      "mean_wer": 0.12405056759545924,
+      "important_fields_correct": 40,
+      "important_fields_total": 48,
+      "important_field_accuracy": 0.8333333333333334,
+      "cold_latency_p50_ms": 383.38260003365576,
+      "cold_latency_p95_ms": 428.51943004643545,
+      "warm_latency_p50_ms": 377.91809998452663,
+      "warm_latency_p95_ms": 431.44314002711326,
+      "warm_end_to_end_p50_ms": 377.91809998452663,
+      "warm_end_to_end_p95_ms": 431.44314002711326,
+      "warm_peak_rss_p50_mb": 72.41796875,
+      "warm_peak_rss_p95_mb": 75.2953125,
+      "warm_cpu_p50_ms": 390.625,
+      "warm_cpu_p95_ms": 424.99999999999994
+    },
+    "preprocessed": {
+      "mean_cer": 0.19894850027492125,
+      "mean_wer": 0.21930587337909993,
+      "important_fields_correct": 39,
+      "important_fields_total": 48,
+      "important_field_accuracy": 0.8125,
+      "cold_latency_p50_ms": 402.1506999852136,
+      "cold_latency_p95_ms": 449.95102995308105,
+      "warm_latency_p50_ms": 383.38439993094653,
+      "warm_latency_p95_ms": 435.7079199980943,
+      "warm_end_to_end_p50_ms": 421.61670001223683,
+      "warm_end_to_end_p95_ms": 484.31163998320665,
+      "warm_peak_rss_p50_mb": 68.99609375,
+      "warm_peak_rss_p95_mb": 72.99453125,
+      "warm_cpu_p50_ms": 375.0,
+      "warm_cpu_p95_ms": 453.125
+    }
+  },
+  "records": [
+    {
+      "fixture_id": "receipt_clean",
+      "kind": "receipt",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 384.751999983564,
+      "warm_latency_ms": [
+        373.61600005533546,
+        377.9064998961985,
+        383.88159999158233
+      ],
+      "cold_peak_rss_mb": 71.6015625,
+      "warm_peak_rss_mb": [
+        71.0234375,
+        70.8359375,
+        71.69921875
+      ],
+      "cold_cpu_ms": 406.25,
+      "warm_cpu_ms": [
+        406.25,
+        421.875,
+        390.625
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "confidence": 0.9513204971428572
+        },
+        {
+          "text": "NORTHSTAR TEST MARKET",
+          "confidence": 0.9649759433333334
+        },
+        {
+          "text": "2026-05-14 18:42",
+          "confidence": 0.95832733
+        },
+        {
+          "text": "NOTEBOOK 8.40",
+          "confidence": 0.9680489349999999
+        },
+        {
+          "text": "TEA 3.20",
+          "confidence": 0.96401466
+        },
+        {
+          "text": "SUBTOTAL USD 11.60",
+          "confidence": 0.95839849
+        },
+        {
+          "text": "TAX USD 0.93",
+          "confidence": 0.9668372866666668
+        },
+        {
+          "text": "TOTAL USD 12.53",
+          "confidence": 0.95916217
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT\nNORTHSTAR TEST MARKET\n2026-05-14 18:42\nNOTEBOOK 8.40\nTEA 3.20\nSUBTOTAL USD 11.60\nTAX USD 0.93\nTOTAL USD 12.53",
+      "project_pipeline": {
+        "classification": "receipt",
+        "classification_expected": "receipt",
+        "classification_correct": true,
+        "title": "Purchase at SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+        "fields": {
+          "merchant": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "total": "12.53",
+          "currency": "USD",
+          "purchaseDate": "2026-05-14"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "receipt_clean",
+      "kind": "receipt",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 49.32250001002103,
+      "cold_latency_ms": 415.94900004565716,
+      "warm_latency_ms": [
+        391.3585999980569,
+        396.1604000069201,
+        388.8982000062242
+      ],
+      "cold_peak_rss_mb": 71.55078125,
+      "warm_peak_rss_mb": [
+        68.90234375,
+        71.2734375,
+        69.0546875
+      ],
+      "cold_cpu_ms": 390.625,
+      "warm_cpu_ms": [
+        375.0,
+        375.0,
+        390.625
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "confidence": 0.9519043314285714
+        },
+        {
+          "text": "NORTHSTAR TEST MARKET",
+          "confidence": 0.9632716366666666
+        },
+        {
+          "text": "2026-05-14 18:42",
+          "confidence": 0.9603207399999999
+        },
+        {
+          "text": "NOTEBOOK 8.40",
+          "confidence": 0.9632094549999999
+        },
+        {
+          "text": "TEA 3.20",
+          "confidence": 0.9628696800000001
+        },
+        {
+          "text": "SUBTOTAL USD 11.60",
+          "confidence": 0.9662900033333334
+        },
+        {
+          "text": "TAX USD 0.93",
+          "confidence": 0.9609994766666666
+        },
+        {
+          "text": "TOTAL USD 12.53",
+          "confidence": 0.9655493666666666
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT\nNORTHSTAR TEST MARKET\n2026-05-14 18:42\nNOTEBOOK 8.40\nTEA 3.20\nSUBTOTAL USD 11.60\nTAX USD 0.93\nTOTAL USD 12.53",
+      "project_pipeline": {
+        "classification": "receipt",
+        "classification_expected": "receipt",
+        "classification_correct": true,
+        "title": "Purchase at SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+        "fields": {
+          "merchant": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "total": "12.53",
+          "currency": "USD",
+          "purchaseDate": "2026-05-14"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "receipt_dense_small",
+      "kind": "receipt",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 376.2162000639364,
+      "warm_latency_ms": [
+        369.17890002951026,
+        371.2585000321269,
+        368.3311000932008
+      ],
+      "cold_peak_rss_mb": 71.3203125,
+      "warm_peak_rss_mb": [
+        71.66796875,
+        69.98046875,
+        73.0546875
+      ],
+      "cold_cpu_ms": 343.75,
+      "warm_cpu_ms": [
+        359.375,
+        421.875,
+        343.75
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "confidence": 0.9493313614285713
+        },
+        {
+          "text": "BLUE ORCHARD DEMO SHOP",
+          "confidence": 0.9668926025000001
+        },
+        {
+          "text": "2026/06/03",
+          "confidence": 0.9514686600000001
+        },
+        {
+          "text": "PAPER 2 x 2.15",
+          "confidence": 0.9358184800000001
+        },
+        {
+          "text": "SOAP 3 x 1.20",
+          "confidence": 0.9642529875
+        },
+        {
+          "text": "BAG 0.25",
+          "confidence": 0.96342037
+        },
+        {
+          "text": "SUBTOTAL EUR 8.15",
+          "confidence": 0.9638216399999999
+        },
+        {
+          "text": "TAX EUR 1.55",
+          "confidence": 0.96094554
+        },
+        {
+          "text": "TOTAL EUR 9.70",
+          "confidence": 0.9627987666666666
+        },
+        {
+          "text": "CHANGE EUR 0.30",
+          "confidence": 0.9530764033333332
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT\nBLUE ORCHARD DEMO SHOP\n2026/06/03\nPAPER 2 x 2.15\nSOAP 3 x 1.20\nBAG 0.25\nSUBTOTAL EUR 8.15\nTAX EUR 1.55\nTOTAL EUR 9.70\nCHANGE EUR 0.30",
+      "project_pipeline": {
+        "classification": "receipt",
+        "classification_expected": "receipt",
+        "classification_correct": true,
+        "title": "Purchase at SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+        "fields": {
+          "merchant": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "total": "9.70",
+          "currency": "EUR",
+          "purchaseDate": "2026/06/03"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "receipt_dense_small",
+      "kind": "receipt",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 42.30600001756102,
+      "cold_latency_ms": 426.0770999826491,
+      "warm_latency_ms": [
+        392.8366999607533,
+        394.12589999847114,
+        408.9619000442326
+      ],
+      "cold_peak_rss_mb": 71.06640625,
+      "warm_peak_rss_mb": [
+        71.67578125,
+        70.5703125,
+        71.9140625
+      ],
+      "cold_cpu_ms": 406.25,
+      "warm_cpu_ms": [
+        390.625,
+        390.625,
+        437.5
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "confidence": 0.9519258100000001
+        },
+        {
+          "text": "BLUE ORCHARD DEMO SHOP",
+          "confidence": 0.9618014925
+        },
+        {
+          "text": "2026/06/03",
+          "confidence": 0.96356949
+        },
+        {
+          "text": "PAPER 2 x 2.15",
+          "confidence": 0.9515008374999999
+        },
+        {
+          "text": "SOAP 3 x 1.20",
+          "confidence": 0.951149045
+        },
+        {
+          "text": "BAG 0.25",
+          "confidence": 0.9668111450000001
+        },
+        {
+          "text": "SUBTOTAL EUR 8.15",
+          "confidence": 0.9660817233333334
+        },
+        {
+          "text": "TAX EUR 1.55",
+          "confidence": 0.96274129
+        },
+        {
+          "text": "TOTAL EUR 9.70",
+          "confidence": 0.9609840666666666
+        },
+        {
+          "text": "CHANGE EUR 0.30",
+          "confidence": 0.95037216
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT\nBLUE ORCHARD DEMO SHOP\n2026/06/03\nPAPER 2 x 2.15\nSOAP 3 x 1.20\nBAG 0.25\nSUBTOTAL EUR 8.15\nTAX EUR 1.55\nTOTAL EUR 9.70\nCHANGE EUR 0.30",
+      "project_pipeline": {
+        "classification": "receipt",
+        "classification_expected": "receipt",
+        "classification_correct": true,
+        "title": "Purchase at SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+        "fields": {
+          "merchant": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "total": "9.70",
+          "currency": "EUR",
+          "purchaseDate": "2026/06/03"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "warranty_card",
+      "kind": "warranty",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 430.6158000836149,
+      "warm_latency_ms": [
+        417.72280004806817,
+        424.86569995526224,
+        408.4679000079632
+      ],
+      "cold_peak_rss_mb": 72.34765625,
+      "warm_peak_rss_mb": [
+        74.3671875,
+        72.7109375,
+        74.90625
+      ],
+      "cold_cpu_ms": 421.875,
+      "warm_cpu_ms": [
+        406.25,
+        453.125,
+        390.625
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY",
+          "confidence": 0.9505079016666668
+        },
+        {
+          "text": "WARRANTY CERTIFICATE",
+          "confidence": 0.95347717
+        },
+        {
+          "text": "PRODUCT: DEMO KETTLE",
+          "confidence": 0.9655019633333335
+        },
+        {
+          "text": "MODEL: TEST-K20",
+          "confidence": 0.920363045
+        },
+        {
+          "text": "SERIAL NUMBER: FIXTURE-ONLY-0042",
+          "confidence": 0.9373461666666667
+        },
+        {
+          "text": "PURCHASE DATE: 2026-01-12",
+          "confidence": 0.9577867633333333
+        },
+        {
+          "text": "VALID UNTIL: 2028-01-12",
+          "confidence": 0.9636638933333331
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY\nWARRANTY CERTIFICATE\nPRODUCT: DEMO KETTLE\nMODEL: TEST-K20\nSERIAL NUMBER: FIXTURE-ONLY-0042\nPURCHASE DATE: 2026-01-12\nVALID UNTIL: 2028-01-12",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "warranty",
+        "classification_correct": false,
+        "title": "TEST-K20",
+        "fields": {
+          "model": "TEST-K20",
+          "serialNumber": "FIXTURE-ONLY-0042"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "expiryDate"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "warranty_card",
+      "kind": "warranty",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 37.42419998161495,
+      "cold_latency_ms": 445.19819994457066,
+      "warm_latency_ms": [
+        430.2222999976948,
+        402.8890000190586,
+        414.12500001024455
+      ],
+      "cold_peak_rss_mb": 67.5625,
+      "warm_peak_rss_mb": [
+        67.2734375,
+        69.3359375,
+        68.98828125
+      ],
+      "cold_cpu_ms": 406.25,
+      "warm_cpu_ms": [
+        421.875,
+        406.25,
+        406.25
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY",
+          "confidence": 0.9473705933333334
+        },
+        {
+          "text": "WARRANTY CERTIFICATE",
+          "confidence": 0.95627602
+        },
+        {
+          "text": "PRODUCT: DEMO KETTLE",
+          "confidence": 0.9644757600000001
+        },
+        {
+          "text": "MODEL: TEST-K20",
+          "confidence": 0.926875225
+        },
+        {
+          "text": "SERIAL NUMBER: FIXTURE-ONLY-0042",
+          "confidence": 0.9356977066666667
+        },
+        {
+          "text": "PURCHASE DATE: 2026-01-12",
+          "confidence": 0.95964297
+        },
+        {
+          "text": "VALID UNTIL: 2028-01-12",
+          "confidence": 0.9579317733333333
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY\nWARRANTY CERTIFICATE\nPRODUCT: DEMO KETTLE\nMODEL: TEST-K20\nSERIAL NUMBER: FIXTURE-ONLY-0042\nPURCHASE DATE: 2026-01-12\nVALID UNTIL: 2028-01-12",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "warranty",
+        "classification_correct": false,
+        "title": "TEST-K20",
+        "fields": {
+          "model": "TEST-K20",
+          "serialNumber": "FIXTURE-ONLY-0042"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "expiryDate"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "invoice",
+      "kind": "genericDocument",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 410.2903000311926,
+      "warm_latency_ms": [
+        401.8521999241784,
+        401.51359990704805,
+        398.7900000065565
+      ],
+      "cold_peak_rss_mb": 72.16015625,
+      "warm_peak_rss_mb": [
+        71.83203125,
+        72.15234375,
+        73.83984375
+      ],
+      "cold_cpu_ms": 421.875,
+      "warm_cpu_ms": [
+        437.5,
+        390.625,
+        390.625
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+          "confidence": 0.9519243085714285
+        },
+        {
+          "text": "DEMO SUPPLY CO",
+          "confidence": 0.9648142733333332
+        },
+        {
+          "text": "INVOICE: FIXTURE-INV-018",
+          "confidence": 0.91865662
+        },
+        {
+          "text": "DATE: 2026-02-08",
+          "confidence": 0.966023065
+        },
+        {
+          "text": "ITEM: ARCHIVE BOX",
+          "confidence": 0.9624273699999999
+        },
+        {
+          "text": "QUANTITY: 4",
+          "confidence": 0.9562913500000001
+        },
+        {
+          "text": "AMOUNT USD 48.00",
+          "confidence": 0.9649207833333332
+        },
+        {
+          "text": "BALANCE USD 48.00",
+          "confidence": 0.9613516466666665
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE\nDEMO SUPPLY CO\nINVOICE: FIXTURE-INV-018\nDATE: 2026-02-08\nITEM: ARCHIVE BOX\nQUANTITY: 4\nAMOUNT USD 48.00\nBALANCE USD 48.00",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "invoiceNumber",
+          "date",
+          "amount"
+        ]
+      }
+    },
+    {
+      "fixture_id": "invoice",
+      "kind": "genericDocument",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 35.366399912163615,
+      "cold_latency_ms": 402.5864000432193,
+      "warm_latency_ms": [
+        375.9096999419853,
+        384.9047999829054,
+        376.5438999980688
+      ],
+      "cold_peak_rss_mb": 68.51953125,
+      "warm_peak_rss_mb": [
+        67.203125,
+        69.19140625,
+        70.125
+      ],
+      "cold_cpu_ms": 390.625,
+      "warm_cpu_ms": [
+        359.375,
+        375.0,
+        421.875
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+          "confidence": 0.9465881814285715
+        },
+        {
+          "text": "DEMO SUPPLY CO",
+          "confidence": 0.9593353033333334
+        },
+        {
+          "text": "INVOICE: FIXTURE-INV-018",
+          "confidence": 0.919759715
+        },
+        {
+          "text": "DATE: 2026-02-08",
+          "confidence": 0.9670561200000001
+        },
+        {
+          "text": "ITEM: ARCHIVE BOX",
+          "confidence": 0.9628207166666668
+        },
+        {
+          "text": "QUANTITY: 4",
+          "confidence": 0.95860085
+        },
+        {
+          "text": "AMOUNT USD 48.00",
+          "confidence": 0.9606637066666667
+        },
+        {
+          "text": "BALANCE USD 48.00",
+          "confidence": 0.9626681
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE\nDEMO SUPPLY CO\nINVOICE: FIXTURE-INV-018\nDATE: 2026-02-08\nITEM: ARCHIVE BOX\nQUANTITY: 4\nAMOUNT USD 48.00\nBALANCE USD 48.00",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "invoiceNumber",
+          "date",
+          "amount"
+        ]
+      }
+    },
+    {
+      "fixture_id": "product_label",
+      "kind": "product",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 356.29020002670586,
+      "warm_latency_ms": [
+        356.8275000434369,
+        346.40389995183796,
+        355.7591999415308
+      ],
+      "cold_peak_rss_mb": 72.62109375,
+      "warm_peak_rss_mb": [
+        73.0,
+        72.76171875,
+        70.90234375
+      ],
+      "cold_cpu_ms": 312.5,
+      "warm_cpu_ms": [
+        359.375,
+        375.0,
+        343.75
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9630757166666666
+        },
+        {
+          "text": "PRODUCT: DEMO ROUTER",
+          "confidence": 0.9640808866666667
+        },
+        {
+          "text": "BRAND: NORTHSTAR LABS",
+          "confidence": 0.9637115
+        },
+        {
+          "text": "MODEL: NX-TEST-700",
+          "confidence": 0.91914799
+        },
+        {
+          "text": "SERIAL: FIXTURE-SN-700-008",
+          "confidence": 0.9251672
+        },
+        {
+          "text": "INPUT: 12V 1.5A",
+          "confidence": 0.9150548299999999
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nPRODUCT: DEMO ROUTER\nBRAND: NORTHSTAR LABS\nMODEL: NX-TEST-700\nSERIAL: FIXTURE-SN-700-008\nINPUT: 12V 1.5A",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "product",
+        "classification_correct": true,
+        "title": "NX-TEST-700",
+        "fields": {
+          "brand": "NORTHSTAR LABS",
+          "model": "NX-TEST-700",
+          "serialNumber": "FIXTURE-SN-700-008"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "product_label",
+      "kind": "product",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 35.40990001056343,
+      "cold_latency_ms": 384.7980999853462,
+      "warm_latency_ms": [
+        351.1883000610396,
+        355.2643000148237,
+        352.9793000780046
+      ],
+      "cold_peak_rss_mb": 70.328125,
+      "warm_peak_rss_mb": [
+        67.75390625,
+        68.7890625,
+        69.90625
+      ],
+      "cold_cpu_ms": 328.125,
+      "warm_cpu_ms": [
+        359.375,
+        343.75,
+        359.375
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9595964566666667
+        },
+        {
+          "text": "PRODUCT: DEMO ROUTER",
+          "confidence": 0.9588511899999999
+        },
+        {
+          "text": "BRAND: NORTHSTAR LABS",
+          "confidence": 0.9634050999999999
+        },
+        {
+          "text": "MODEL: NX-TEST-700",
+          "confidence": 0.92785717
+        },
+        {
+          "text": "SERIAL: FIXTURE-SN-700-008",
+          "confidence": 0.918047905
+        },
+        {
+          "text": "INPUT: 12V 1.5A",
+          "confidence": 0.9164746366666666
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nPRODUCT: DEMO ROUTER\nBRAND: NORTHSTAR LABS\nMODEL: NX-TEST-700\nSERIAL: FIXTURE-SN-700-008\nINPUT: 12V 1.5A",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "product",
+        "classification_correct": true,
+        "title": "NX-TEST-700",
+        "fields": {
+          "brand": "NORTHSTAR LABS",
+          "model": "NX-TEST-700",
+          "serialNumber": "FIXTURE-SN-700-008"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "serial_plate_small",
+      "kind": "product",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 2,
+      "important_fields_total": 2,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 338.0995999323204,
+      "warm_latency_ms": [
+        339.67299992218614,
+        338.6897000018507,
+        330.8834000490606
+      ],
+      "cold_peak_rss_mb": 71.9765625,
+      "warm_peak_rss_mb": [
+        72.13671875,
+        70.91015625,
+        70.7890625
+      ],
+      "cold_cpu_ms": 328.125,
+      "warm_cpu_ms": [
+        328.125,
+        328.125,
+        312.5
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9628855666666668
+        },
+        {
+          "text": "PRODUCT TEST SENSOR",
+          "confidence": 0.9605795
+        },
+        {
+          "text": "MODEL QX-17B",
+          "confidence": 0.846945535
+        },
+        {
+          "text": "S/N FIXTURE-QX17-00991",
+          "confidence": 0.92187641
+        },
+        {
+          "text": "RATING 5V 400mA",
+          "confidence": 0.9041126000000002
+        },
+        {
+          "text": "ASSEMBLED FOR BENCHMARK ONLY",
+          "confidence": 0.9620596874999999
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nPRODUCT TEST SENSOR\nMODEL QX-17B\nS/N FIXTURE-QX17-00991\nRATING 5V 400mA\nASSEMBLED FOR BENCHMARK ONLY",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "product",
+        "classification_correct": true,
+        "title": "QX-17B",
+        "fields": {
+          "model": "QX-17B",
+          "serialNumber": "FIXTURE-QX17-00991"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 2,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "serial_plate_small",
+      "kind": "product",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 2,
+      "important_fields_total": 2,
+      "preprocessing_ms": 45.50190002191812,
+      "cold_latency_ms": 385.7787000015378,
+      "warm_latency_ms": [
+        381.1393999494612,
+        368.4366999659687,
+        365.8635999308899
+      ],
+      "cold_peak_rss_mb": 71.47265625,
+      "warm_peak_rss_mb": [
+        71.578125,
+        68.96484375,
+        72.5
+      ],
+      "cold_cpu_ms": 343.75,
+      "warm_cpu_ms": [
+        406.25,
+        359.375,
+        390.625
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9634613833333333
+        },
+        {
+          "text": "PRODUCT TEST SENSOR",
+          "confidence": 0.96267072
+        },
+        {
+          "text": "MODEL QX-17B",
+          "confidence": 0.920358125
+        },
+        {
+          "text": "S/N FIXTURE-QX17-00991",
+          "confidence": 0.89591465
+        },
+        {
+          "text": "RATING 5V 400mA",
+          "confidence": 0.8139730066666666
+        },
+        {
+          "text": "ASSEMBLED FOR BENCHMARK ONLY",
+          "confidence": 0.96299494
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nPRODUCT TEST SENSOR\nMODEL QX-17B\nS/N FIXTURE-QX17-00991\nRATING 5V 400mA\nASSEMBLED FOR BENCHMARK ONLY",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "product",
+        "classification_correct": true,
+        "title": "QX-17B",
+        "fields": {
+          "model": "QX-17B",
+          "serialNumber": "FIXTURE-QX17-00991"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 2,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "travel_ticket",
+      "kind": "travel",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 406.618700013496,
+      "warm_latency_ms": [
+        414.40859995782375,
+        386.1220999388024,
+        371.3733000913635
+      ],
+      "cold_peak_rss_mb": 74.59765625,
+      "warm_peak_rss_mb": [
+        75.78515625,
+        73.9765625,
+        73.10546875
+      ],
+      "cold_cpu_ms": 390.625,
+      "warm_cpu_ms": [
+        406.25,
+        390.625,
+        359.375
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT VALID FOR TRAVEL",
+          "confidence": 0.95501118625
+        },
+        {
+          "text": "DEMO RAIL TICKET",
+          "confidence": 0.9603462733333333
+        },
+        {
+          "text": "BOOKING: FIXTURE-TRIP-71",
+          "confidence": 0.91857826
+        },
+        {
+          "text": "DEPARTURE: TESTVILLE 08:10",
+          "confidence": 0.9362022666666667
+        },
+        {
+          "text": "ARRIVAL: SAMPLE BAY 10:45",
+          "confidence": 0.955528925
+        },
+        {
+          "text": "DATE: 2026-07-19",
+          "confidence": 0.9620387249999999
+        },
+        {
+          "text": "COACH: T",
+          "confidence": 0.93022926
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT VALID FOR TRAVEL\nDEMO RAIL TICKET\nBOOKING: FIXTURE-TRIP-71\nDEPARTURE: TESTVILLE 08:10\nARRIVAL: SAMPLE BAY 10:45\nDATE: 2026-07-19\nCOACH: T",
+      "project_pipeline": {
+        "classification": "travel",
+        "classification_expected": "travel",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT VALID FOR TRAVEL",
+        "fields": {
+          "bookingReference": "FIXTURE-TRIP-71",
+          "departure": "TESTVILLE 08:10",
+          "arrival": "SAMPLE BAY 10:45"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "travel_ticket",
+      "kind": "travel",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 32.46060002129525,
+      "cold_latency_ms": 400.8755999384448,
+      "warm_latency_ms": [
+        376.2845998862758,
+        368.67479991633445,
+        378.4579000202939
+      ],
+      "cold_peak_rss_mb": 70.66015625,
+      "warm_peak_rss_mb": [
+        69.00390625,
+        68.78125,
+        67.1328125
+      ],
+      "cold_cpu_ms": 375.0,
+      "warm_cpu_ms": [
+        359.375,
+        359.375,
+        359.375
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT VALID FOR TRAVEL",
+          "confidence": 0.953568135
+        },
+        {
+          "text": "DEMO RAIL TICKET",
+          "confidence": 0.9596444166666668
+        },
+        {
+          "text": "BOOKING: FIXTURE-TRIP-71",
+          "confidence": 0.900432815
+        },
+        {
+          "text": "DEPARTURE: TESTVILLE 08:10",
+          "confidence": 0.93379944
+        },
+        {
+          "text": "ARRIVAL: SAMPLE BAY 10:45",
+          "confidence": 0.965709135
+        },
+        {
+          "text": "DATE: 2026-07-19",
+          "confidence": 0.961968155
+        },
+        {
+          "text": "COACH: T",
+          "confidence": 0.93100315
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT VALID FOR TRAVEL\nDEMO RAIL TICKET\nBOOKING: FIXTURE-TRIP-71\nDEPARTURE: TESTVILLE 08:10\nARRIVAL: SAMPLE BAY 10:45\nDATE: 2026-07-19\nCOACH: T",
+      "project_pipeline": {
+        "classification": "travel",
+        "classification_expected": "travel",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT VALID FOR TRAVEL",
+        "fields": {
+          "bookingReference": "FIXTURE-TRIP-71",
+          "departure": "TESTVILLE 08:10",
+          "arrival": "SAMPLE BAY 10:45"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "boarding_pass",
+      "kind": "travel",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 4,
+      "important_fields_total": 4,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 394.11190000828356,
+      "warm_latency_ms": [
+        401.2605999596417,
+        388.184699928388,
+        417.90539992507547
+      ],
+      "cold_peak_rss_mb": 72.265625,
+      "warm_peak_rss_mb": [
+        73.53125,
+        72.2734375,
+        74.19921875
+      ],
+      "cold_cpu_ms": 390.625,
+      "warm_cpu_ms": [
+        375.0,
+        390.625,
+        406.25
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A BOARDING PASS",
+          "confidence": 0.9498794062500001
+        },
+        {
+          "text": "BOARDING PASS",
+          "confidence": 0.964177705
+        },
+        {
+          "text": "AIRLINE: EXAMPLE AIR",
+          "confidence": 0.9631177733333334
+        },
+        {
+          "text": "BOOKING: FIXTURE-PNR-Z9X8",
+          "confidence": 0.91981247
+        },
+        {
+          "text": "DEPARTURE: TST 14:25",
+          "confidence": 0.9354724866666667
+        },
+        {
+          "text": "ARRIVAL: SMP 16:05",
+          "confidence": 0.9533626333333332
+        },
+        {
+          "text": "FLIGHT: EX 404",
+          "confidence": 0.9600982133333332
+        },
+        {
+          "text": "DATE: 2026-04-20",
+          "confidence": 0.9664799500000001
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A BOARDING PASS\nBOARDING PASS\nAIRLINE: EXAMPLE AIR\nBOOKING: FIXTURE-PNR-Z9X8\nDEPARTURE: TST 14:25\nARRIVAL: SMP 16:05\nFLIGHT: EX 404\nDATE: 2026-04-20",
+      "project_pipeline": {
+        "classification": "travel",
+        "classification_expected": "travel",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT A BOARDING PASS",
+        "fields": {
+          "carrier": "EXAMPLE AIR",
+          "bookingReference": "FIXTURE-PNR-Z9X8",
+          "departure": "TST 14:25",
+          "arrival": "SMP 16:05"
+        },
+        "supported_expected_fields_correct": 4,
+        "supported_expected_fields_total": 4,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "boarding_pass",
+      "kind": "travel",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 4,
+      "important_fields_total": 4,
+      "preprocessing_ms": 33.54069998022169,
+      "cold_latency_ms": 416.65499994996935,
+      "warm_latency_ms": [
+        388.07600003201514,
+        392.7132999524474,
+        394.76259995717555
+      ],
+      "cold_peak_rss_mb": 69.74609375,
+      "warm_peak_rss_mb": [
+        67.08984375,
+        69.1953125,
+        70.13671875
+      ],
+      "cold_cpu_ms": 390.625,
+      "warm_cpu_ms": [
+        359.375,
+        375.0,
+        421.875
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A BOARDING PASS",
+          "confidence": 0.951836415
+        },
+        {
+          "text": "BOARDING PASS",
+          "confidence": 0.9649081799999999
+        },
+        {
+          "text": "AIRLINE: EXAMPLE AIR",
+          "confidence": 0.9588055166666668
+        },
+        {
+          "text": "BOOKING: FIXTURE-PNR-Z9X8",
+          "confidence": 0.842863885
+        },
+        {
+          "text": "DEPARTURE: TST 14:25",
+          "confidence": 0.9311898266666667
+        },
+        {
+          "text": "ARRIVAL: SMP 16:05",
+          "confidence": 0.9594386000000001
+        },
+        {
+          "text": "FLIGHT: EX 404",
+          "confidence": 0.9633646633333335
+        },
+        {
+          "text": "DATE: 2026-04-20",
+          "confidence": 0.9580430200000001
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A BOARDING PASS\nBOARDING PASS\nAIRLINE: EXAMPLE AIR\nBOOKING: FIXTURE-PNR-Z9X8\nDEPARTURE: TST 14:25\nARRIVAL: SMP 16:05\nFLIGHT: EX 404\nDATE: 2026-04-20",
+      "project_pipeline": {
+        "classification": "travel",
+        "classification_expected": "travel",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT A BOARDING PASS",
+        "fields": {
+          "carrier": "EXAMPLE AIR",
+          "bookingReference": "FIXTURE-PNR-Z9X8",
+          "departure": "TST 14:25",
+          "arrival": "SMP 16:05"
+        },
+        "supported_expected_fields_correct": 4,
+        "supported_expected_fields_total": 4,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "certificate_official",
+      "kind": "genericDocument",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 2,
+      "important_fields_total": 2,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 428.2865000423044,
+      "warm_latency_ms": [
+        433.1244999775663,
+        431.0228000395,
+        430.0440000370145
+      ],
+      "cold_peak_rss_mb": 74.7265625,
+      "warm_peak_rss_mb": [
+        75.20703125,
+        74.39453125,
+        76.359375
+      ],
+      "cold_cpu_ms": 406.25,
+      "warm_cpu_ms": [
+        421.875,
+        421.875,
+        453.125
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+          "confidence": 0.9546011483333332
+        },
+        {
+          "text": "CERTIFICATE OF DEMONSTRATION",
+          "confidence": 0.9609038033333333
+        },
+        {
+          "text": "THIS CERTIFIES THAT",
+          "confidence": 0.9332878366666667
+        },
+        {
+          "text": "SAMPLE PERSON",
+          "confidence": 0.9667725749999999
+        },
+        {
+          "text": "COMPLETED THE DOCUMENT RECOGNITION EXERCISE",
+          "confidence": 0.965345064
+        },
+        {
+          "text": "REFERENCE: FIXTURE-CERT-2026-11",
+          "confidence": 0.9239299
+        },
+        {
+          "text": "ISSUED: 2026-03-15",
+          "confidence": 0.96493843
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE\nCERTIFICATE OF DEMONSTRATION\nTHIS CERTIFIES THAT\nSAMPLE PERSON\nCOMPLETED THE DOCUMENT RECOGNITION EXERCISE\nREFERENCE: FIXTURE-CERT-2026-11\nISSUED: 2026-03-15",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "reference",
+          "issued"
+        ]
+      }
+    },
+    {
+      "fixture_id": "certificate_official",
+      "kind": "genericDocument",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 2,
+      "important_fields_total": 2,
+      "preprocessing_ms": 25.201199925504625,
+      "cold_latency_ms": 439.6929000504315,
+      "warm_latency_ms": [
+        400.89950000401586,
+        409.1344999615103,
+        401.03950002230704
+      ],
+      "cold_peak_rss_mb": 69.30859375,
+      "warm_peak_rss_mb": [
+        68.64453125,
+        66.90234375,
+        69.51953125
+      ],
+      "cold_cpu_ms": 406.25,
+      "warm_cpu_ms": [
+        390.625,
+        406.25,
+        375.0
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+          "confidence": 0.9467379266666667
+        },
+        {
+          "text": "CERTIFICATE OF DEMONSTRATION",
+          "confidence": 0.9636164833333334
+        },
+        {
+          "text": "THIS CERTIFIES THAT",
+          "confidence": 0.9390866333333334
+        },
+        {
+          "text": "SAMPLE PERSON",
+          "confidence": 0.9555644200000001
+        },
+        {
+          "text": "COMPLETED THE DOCUMENT RECOGNITION EXERCISE",
+          "confidence": 0.964668776
+        },
+        {
+          "text": "REFERENCE: FIXTURE-CERT-2026-11",
+          "confidence": 0.919767645
+        },
+        {
+          "text": "ISSUED: 2026-03-15",
+          "confidence": 0.96393547
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE\nCERTIFICATE OF DEMONSTRATION\nTHIS CERTIFIES THAT\nSAMPLE PERSON\nCOMPLETED THE DOCUMENT RECOGNITION EXERCISE\nREFERENCE: FIXTURE-CERT-2026-11\nISSUED: 2026-03-15",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "reference",
+          "issued"
+        ]
+      }
+    },
+    {
+      "fixture_id": "official_notice",
+      "kind": "identity",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 1,
+      "important_fields_total": 1,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 409.69220001716167,
+      "warm_latency_ms": [
+        404.65030004270375,
+        402.593299979344,
+        412.68720000516623
+      ],
+      "cold_peak_rss_mb": 73.3828125,
+      "warm_peak_rss_mb": [
+        74.5234375,
+        72.3515625,
+        71.875
+      ],
+      "cold_cpu_ms": 406.25,
+      "warm_cpu_ms": [
+        406.25,
+        390.625,
+        390.625
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT AN IDENTITY DOCUMENT",
+          "confidence": 0.95311327
+        },
+        {
+          "text": "IDENTITY CARD DEMONSTRATION",
+          "confidence": 0.9640259066666665
+        },
+        {
+          "text": "NAME: SAMPLE PERSON",
+          "confidence": 0.9539718366666666
+        },
+        {
+          "text": "DOCUMENT NUMBER: FIXTURE-ID-000000",
+          "confidence": 0.9010925300000001
+        },
+        {
+          "text": "DATE OF BIRTH: 2000-01-01",
+          "confidence": 0.9601336874999999
+        },
+        {
+          "text": "NATIONALITY: EXAMPLE",
+          "confidence": 0.96553181
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT AN IDENTITY DOCUMENT\nIDENTITY CARD DEMONSTRATION\nNAME: SAMPLE PERSON\nDOCUMENT NUMBER: FIXTURE-ID-000000\nDATE OF BIRTH: 2000-01-01\nNATIONALITY: EXAMPLE",
+      "project_pipeline": {
+        "classification": "identity",
+        "classification_expected": "identity",
+        "classification_correct": true,
+        "title": "Identity document",
+        "fields": {
+          "documentNumber": "FIXTURE-ID-000000"
+        },
+        "supported_expected_fields_correct": 1,
+        "supported_expected_fields_total": 1,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "official_notice",
+      "kind": "identity",
+      "variant": "preprocessed",
+      "cer": 0.888268156424581,
+      "wer": 1.0434782608695652,
+      "important_fields_correct": 0,
+      "important_fields_total": 1,
+      "preprocessing_ms": 34.95740005746484,
+      "cold_latency_ms": 427.4144999217242,
+      "warm_latency_ms": [
+        407.84829994663596,
+        406.59500006586313,
+        403.5270999884233
+      ],
+      "cold_peak_rss_mb": 69.140625,
+      "warm_peak_rss_mb": [
+        70.78125,
+        68.99609375,
+        70.26171875
+      ],
+      "cold_cpu_ms": 375.0,
+      "warm_cpu_ms": [
+        406.25,
+        406.25,
+        453.125
+      ],
+      "lines": [
+        {
+          "text": "AIdNVXa :ALITWNOILVN",
+          "confidence": 0.097063065
+        },
+        {
+          "text": "L0-10-000¢ -HLYIld AO ALVC",
+          "confidence": 0.4183790975
+        },
+        {
+          "text": "000000-dI-SYNLxXls -YAEGWNN LNAWNOOd",
+          "confidence": 0.21373889999999998
+        },
+        {
+          "text": "NOSYAd ATdNVS :-ANVN",
+          "confidence": 0.31754380666666665
+        },
+        {
+          "text": "NOILVYLSNOWAG GYV9 ALILNAI",
+          "confidence": 0.2798505766666667
+        },
+        {
+          "text": "LNAWNSO0”G ALILNAGI NV LON - SYNLXId LSAL SILAHLNAS",
+          "confidence": 0.5734012325
+        }
+      ],
+      "recognized_text": "AIdNVXa :ALITWNOILVN\nL0-10-000¢ -HLYIld AO ALVC\n000000-dI-SYNLxXls -YAEGWNN LNAWNOOd\nNOSYAd ATdNVS :-ANVN\nNOILVYLSNOWAG GYV9 ALILNAI\nLNAWNSO0”G ALILNAGI NV LON - SYNLXId LSAL SILAHLNAS",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "identity",
+        "classification_correct": false,
+        "title": "AIdNVXa :ALITWNOILVN",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 1,
+        "supported_expected_fields_missing": [
+          "documentNumber"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "app_screenshot",
+      "kind": "genericDocument",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 1,
+      "important_fields_total": 1,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 334.7245999611914,
+      "warm_latency_ms": [
+        340.3373999753967,
+        335.8056000433862,
+        340.86050000041723
+      ],
+      "cold_peak_rss_mb": 71.0703125,
+      "warm_peak_rss_mb": [
+        69.8359375,
+        71.73046875,
+        70.32421875
+      ],
+      "cold_cpu_ms": 296.875,
+      "warm_cpu_ms": [
+        328.125,
+        328.125,
+        343.75
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9617083700000001
+        },
+        {
+          "text": "Archive reminder",
+          "confidence": 0.9627646599999999
+        },
+        {
+          "text": "Nothing needs your attention",
+          "confidence": 0.9658768275
+        },
+        {
+          "text": "Your timeline stays on this device",
+          "confidence": 0.9670534149999999
+        },
+        {
+          "text": "Last reviewed 10 minutes ago",
+          "confidence": 0.965517258
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nArchive reminder\nNothing needs your attention\nYour timeline stays on this device\nLast reviewed 10 minutes ago",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "heading"
+        ]
+      }
+    },
+    {
+      "fixture_id": "app_screenshot",
+      "kind": "genericDocument",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 1,
+      "important_fields_total": 1,
+      "preprocessing_ms": 40.65179999452084,
+      "cold_latency_ms": 381.48300000466406,
+      "warm_latency_ms": [
+        353.112299926579,
+        351.26279992982745,
+        355.9156000846997
+      ],
+      "cold_peak_rss_mb": 71.36328125,
+      "warm_peak_rss_mb": [
+        68.80859375,
+        70.94140625,
+        69.75390625
+      ],
+      "cold_cpu_ms": 328.125,
+      "warm_cpu_ms": [
+        343.75,
+        343.75,
+        390.625
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9605055966666667
+        },
+        {
+          "text": "Archive reminder",
+          "confidence": 0.9632040399999999
+        },
+        {
+          "text": "Nothing needs your attention",
+          "confidence": 0.9628614974999999
+        },
+        {
+          "text": "Your timeline stays on this device",
+          "confidence": 0.9612002816666666
+        },
+        {
+          "text": "Last reviewed 10 minutes ago",
+          "confidence": 0.96535237
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nArchive reminder\nNothing needs your attention\nYour timeline stays on this device\nLast reviewed 10 minutes ago",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "heading"
+        ]
+      }
+    },
+    {
+      "fixture_id": "mixed_font_sizes",
+      "kind": "genericDocument",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 1,
+      "important_fields_total": 1,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 378.89120006002486,
+      "warm_latency_ms": [
+        377.91809998452663,
+        370.5740000586957,
+        372.2552000544965
+      ],
+      "cold_peak_rss_mb": 72.1484375,
+      "warm_peak_rss_mb": [
+        71.9140625,
+        72.6015625,
+        74.203125
+      ],
+      "cold_cpu_ms": 375.0,
+      "warm_cpu_ms": [
+        375.0,
+        359.375,
+        375.0
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9664409899999999
+        },
+        {
+          "text": "DOCUMENT HEADING",
+          "confidence": 0.96646782
+        },
+        {
+          "text": "Section one",
+          "confidence": 0.9608153899999999
+        },
+        {
+          "text": "This line uses normal body text for recognition.",
+          "confidence": 0.9672605224999999
+        },
+        {
+          "text": "SMALL REFERENCE FIXTURE-MIX-123",
+          "confidence": 0.93549581
+        },
+        {
+          "text": "Footer text for the benchmark",
+          "confidence": 0.9656408240000001
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nDOCUMENT HEADING\nSection one\nThis line uses normal body text for recognition.\nSMALL REFERENCE FIXTURE-MIX-123\nFooter text for the benchmark",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "reference"
+        ]
+      }
+    },
+    {
+      "fixture_id": "mixed_font_sizes",
+      "kind": "genericDocument",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 1,
+      "important_fields_total": 1,
+      "preprocessing_ms": 36.53060004580766,
+      "cold_latency_ms": 401.2433000607416,
+      "warm_latency_ms": [
+        373.8032999681309,
+        380.82189997658134,
+        371.6629999689758
+      ],
+      "cold_peak_rss_mb": 69.16796875,
+      "warm_peak_rss_mb": [
+        67.28515625,
+        67.7421875,
+        67.265625
+      ],
+      "cold_cpu_ms": 375.0,
+      "warm_cpu_ms": [
+        375.0,
+        375.0,
+        359.375
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.9639914933333334
+        },
+        {
+          "text": "DOCUMENT HEADING",
+          "confidence": 0.964261625
+        },
+        {
+          "text": "Section one",
+          "confidence": 0.96480148
+        },
+        {
+          "text": "This line uses normal body text for recognition.",
+          "confidence": 0.9646954725000001
+        },
+        {
+          "text": "SMALL REFERENCE FIXTURE-MIX-123",
+          "confidence": 0.9401692966666667
+        },
+        {
+          "text": "Footer text for the benchmark",
+          "confidence": 0.9656239600000001
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nDOCUMENT HEADING\nSection one\nThis line uses normal body text for recognition.\nSMALL REFERENCE FIXTURE-MIX-123\nFooter text for the benchmark",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "reference"
+        ]
+      }
+    },
+    {
+      "fixture_id": "receipt_low_contrast",
+      "kind": "receipt",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 362.2010999824852,
+      "warm_latency_ms": [
+        371.04779994115233,
+        350.9087000275031,
+        355.4816999239847
+      ],
+      "cold_peak_rss_mb": 69.83984375,
+      "warm_peak_rss_mb": [
+        71.70703125,
+        72.41796875,
+        71.2578125
+      ],
+      "cold_cpu_ms": 359.375,
+      "warm_cpu_ms": [
+        359.375,
+        343.75,
+        406.25
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "confidence": 0.9512537171428572
+        },
+        {
+          "text": "NORTHSTAR TEST MARKET",
+          "confidence": 0.9579686733333334
+        },
+        {
+          "text": "2026-05-14 18:42",
+          "confidence": 0.96100334
+        },
+        {
+          "text": "NOTEBOOK 8.40",
+          "confidence": 0.966768305
+        },
+        {
+          "text": "TEA 3.20",
+          "confidence": 0.96437294
+        },
+        {
+          "text": "SUBTOTAL USD 11.60",
+          "confidence": 0.9622145833333333
+        },
+        {
+          "text": "TAX USD 0.93",
+          "confidence": 0.9673560066666665
+        },
+        {
+          "text": "TOTAL USD 12.53",
+          "confidence": 0.9612237566666666
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT\nNORTHSTAR TEST MARKET\n2026-05-14 18:42\nNOTEBOOK 8.40\nTEA 3.20\nSUBTOTAL USD 11.60\nTAX USD 0.93\nTOTAL USD 12.53",
+      "project_pipeline": {
+        "classification": "receipt",
+        "classification_expected": "receipt",
+        "classification_correct": true,
+        "title": "Purchase at SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+        "fields": {
+          "merchant": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "total": "12.53",
+          "currency": "USD",
+          "purchaseDate": "2026-05-14"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "receipt_low_contrast",
+      "kind": "receipt",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 39.882700075395405,
+      "cold_latency_ms": 423.1212999438867,
+      "warm_latency_ms": [
+        383.38439993094653,
+        411.57470003236085,
+        389.3568000057712
+      ],
+      "cold_peak_rss_mb": 68.23828125,
+      "warm_peak_rss_mb": [
+        69.828125,
+        69.91015625,
+        71.51953125
+      ],
+      "cold_cpu_ms": 390.625,
+      "warm_cpu_ms": [
+        375.0,
+        406.25,
+        343.75
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "confidence": 0.9368296242857143
+        },
+        {
+          "text": "NORTHSTAR TEST MARKET",
+          "confidence": 0.9542722833333335
+        },
+        {
+          "text": "2026-05-14 18:42",
+          "confidence": 0.966062015
+        },
+        {
+          "text": "NOTEBOOK 8.40",
+          "confidence": 0.964344325
+        },
+        {
+          "text": "TEA 3.20",
+          "confidence": 0.96264248
+        },
+        {
+          "text": "SUBTOTAL USD 11.60",
+          "confidence": 0.9640326700000001
+        },
+        {
+          "text": "TAX USD 0.93",
+          "confidence": 0.9616280833333333
+        },
+        {
+          "text": "TOTAL USD 12.53",
+          "confidence": 0.9608264166666668
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT\nNORTHSTAR TEST MARKET\n2026-05-14 18:42\nNOTEBOOK 8.40\nTEA 3.20\nSUBTOTAL USD 11.60\nTAX USD 0.93\nTOTAL USD 12.53",
+      "project_pipeline": {
+        "classification": "receipt",
+        "classification_expected": "receipt",
+        "classification_correct": true,
+        "title": "Purchase at SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+        "fields": {
+          "merchant": "SYNTHETIC TEST FIXTURE - NOT A RECEIPT",
+          "total": "12.53",
+          "currency": "USD",
+          "purchaseDate": "2026-05-14"
+        },
+        "supported_expected_fields_correct": 3,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "product_low_light",
+      "kind": "product",
+      "variant": "raw",
+      "cer": 1.0,
+      "wer": 1.0,
+      "important_fields_correct": 0,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 264.5827999804169,
+      "warm_latency_ms": [
+        256.032400066033,
+        243.31739998888224,
+        251.440400024876
+      ],
+      "cold_peak_rss_mb": 72.015625,
+      "warm_peak_rss_mb": [
+        74.37109375,
+        70.9140625,
+        71.296875
+      ],
+      "cold_cpu_ms": 250.0,
+      "warm_cpu_ms": [
+        250.0,
+        281.25,
+        250.0
+      ],
+      "lines": [],
+      "recognized_text": "",
+      "project_pipeline": {
+        "classification": "unknown",
+        "classification_expected": "product",
+        "classification_correct": false,
+        "title": "Scanned document",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "brand",
+          "model",
+          "serialNumber"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "product_low_light",
+      "kind": "product",
+      "variant": "preprocessed",
+      "cer": 1.0,
+      "wer": 1.0,
+      "important_fields_correct": 0,
+      "important_fields_total": 3,
+      "preprocessing_ms": 80.50809998530895,
+      "cold_latency_ms": 282.27920003701,
+      "warm_latency_ms": [
+        266.96020003873855,
+        256.62080000620335,
+        280.8279999298975
+      ],
+      "cold_peak_rss_mb": 70.4140625,
+      "warm_peak_rss_mb": [
+        67.25390625,
+        68.8046875,
+        71.01171875
+      ],
+      "cold_cpu_ms": 265.625,
+      "warm_cpu_ms": [
+        312.5,
+        265.625,
+        265.625
+      ],
+      "lines": [],
+      "recognized_text": "",
+      "project_pipeline": {
+        "classification": "unknown",
+        "classification_expected": "product",
+        "classification_correct": false,
+        "title": "Scanned document",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "brand",
+          "model",
+          "serialNumber"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "ticket_rotated_90",
+      "kind": "travel",
+      "variant": "raw",
+      "cer": 0.8795180722891566,
+      "wer": 1.0416666666666667,
+      "important_fields_correct": 0,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 399.22610006760806,
+      "warm_latency_ms": [
+        444.9380000587553,
+        404.90480000153184,
+        406.3676999649033
+      ],
+      "cold_peak_rss_mb": 74.234375,
+      "warm_peak_rss_mb": [
+        74.21875,
+        74.9609375,
+        74.8359375
+      ],
+      "cold_cpu_ms": 390.625,
+      "warm_cpu_ms": [
+        421.875,
+        375.0,
+        390.625
+      ],
+      "lines": [
+        {
+          "text": "1 :HOVOO",
+          "confidence": 0.53379917
+        },
+        {
+          "text": "61-20-9202 :-ALVd",
+          "confidence": 0.22554115500000002
+        },
+        {
+          "text": "Sv-0L AVE FIdNVS -IWAINYV",
+          "confidence": 0.53134983
+        },
+        {
+          "text": "Ob:80 ATIALSAL -AYNLYVdsd",
+          "confidence": 0.09046910333333333
+        },
+        {
+          "text": "L2-dldl-denlxla -ONIMOO\"d",
+          "confidence": 0.11661716500000001
+        },
+        {
+          "text": "LAMSIL va OWAG",
+          "confidence": 0.3005277
+        },
+        {
+          "text": "TAAVYL 4Od GITIVA LON - SYNLXId LSAL OILAHLNAS",
+          "confidence": 0.3985426725
+        }
+      ],
+      "recognized_text": "1 :HOVOO\n61-20-9202 :-ALVd\nSv-0L AVE FIdNVS -IWAINYV\nOb:80 ATIALSAL -AYNLYVdsd\nL2-dldl-denlxla -ONIMOO\"d\nLAMSIL va OWAG\nTAAVYL 4Od GITIVA LON - SYNLXId LSAL OILAHLNAS",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "travel",
+        "classification_correct": false,
+        "title": "1 :HOVOO",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "bookingReference",
+          "departure",
+          "arrival"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "ticket_rotated_90",
+      "kind": "travel",
+      "variant": "preprocessed",
+      "cer": 0.8855421686746988,
+      "wer": 1.0833333333333333,
+      "important_fields_correct": 0,
+      "important_fields_total": 3,
+      "preprocessing_ms": 93.32179999910295,
+      "cold_latency_ms": 492.72650002967566,
+      "warm_latency_ms": [
+        499.8460999922827,
+        487.1537999715656,
+        457.65039999969304
+      ],
+      "cold_peak_rss_mb": 74.5703125,
+      "warm_peak_rss_mb": [
+        74.97265625,
+        76.51171875,
+        77.0859375
+      ],
+      "cold_cpu_ms": 531.25,
+      "warm_cpu_ms": [
+        468.75,
+        453.125,
+        453.125
+      ],
+      "lines": [
+        {
+          "text": "1 -HOVOO",
+          "confidence": 0.58249245
+        },
+        {
+          "text": "61-20-9¢0¢ -ALVd",
+          "confidence": 0.19054824499999998
+        },
+        {
+          "text": "GV:0l AVE AIdNVS - IWAIYEV",
+          "confidence": 0.49518998799999997
+        },
+        {
+          "text": "01:80 ATMALSAL -AYNLYVdsd",
+          "confidence": 0.3780703733333333
+        },
+        {
+          "text": "bL2-dldl-ayYnlXxla -ONIMOO\"",
+          "confidence": 0.157424585
+        },
+        {
+          "text": "LAXMSIL WW OWAG",
+          "confidence": 0.3481753666666666
+        },
+        {
+          "text": "TAAVAL YOsd GIIVA LON - SYNLXIA LSAL OILAHLNAS",
+          "confidence": 0.42924673124999996
+        }
+      ],
+      "recognized_text": "1 -HOVOO\n61-20-9¢0¢ -ALVd\nGV:0l AVE AIdNVS - IWAIYEV\n01:80 ATMALSAL -AYNLYVdsd\nbL2-dldl-ayYnlXxla -ONIMOO\"\nLAXMSIL WW OWAG\nTAAVAL YOsd GIIVA LON - SYNLXIA LSAL OILAHLNAS",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "travel",
+        "classification_correct": false,
+        "title": "1 -HOVOO",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "bookingReference",
+          "departure",
+          "arrival"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "invoice_skew",
+      "kind": "genericDocument",
+      "variant": "raw",
+      "cer": 0.012422360248447204,
+      "wer": 0.08,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 372.0166999846697,
+      "warm_latency_ms": [
+        415.3551999479532,
+        353.1604999443516,
+        351.86389996670187
+      ],
+      "cold_peak_rss_mb": 74.9921875,
+      "warm_peak_rss_mb": [
+        73.0,
+        71.90234375,
+        72.21484375
+      ],
+      "cold_cpu_ms": 359.375,
+      "warm_cpu_ms": [
+        375.0,
+        343.75,
+        390.625
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+          "confidence": 0.9519232185714286
+        },
+        {
+          "text": "DEMO SUPPLY CO",
+          "confidence": 0.96191663
+        },
+        {
+          "text": "\\NVOICE: FIXTURE-INV-018",
+          "confidence": 0.84367542
+        },
+        {
+          "text": "DATE: 2026-02-08",
+          "confidence": 0.951842115
+        },
+        {
+          "text": "\\TEM: ARCHIVE BOX",
+          "confidence": 0.9412094633333333
+        },
+        {
+          "text": "QUANTITY: 4",
+          "confidence": 0.9466296350000001
+        },
+        {
+          "text": "AMOUNT USD 48.00",
+          "confidence": 0.9666449199999999
+        },
+        {
+          "text": "BALANCE USD 48.00",
+          "confidence": 0.9670642333333335
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE\nDEMO SUPPLY CO\n\\NVOICE: FIXTURE-INV-018\nDATE: 2026-02-08\n\\TEM: ARCHIVE BOX\nQUANTITY: 4\nAMOUNT USD 48.00\nBALANCE USD 48.00",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "invoiceNumber",
+          "date",
+          "amount"
+        ]
+      }
+    },
+    {
+      "fixture_id": "invoice_skew",
+      "kind": "genericDocument",
+      "variant": "preprocessed",
+      "cer": 0.006211180124223602,
+      "wer": 0.04,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 32.14220004156232,
+      "cold_latency_ms": 376.7851999728009,
+      "warm_latency_ms": [
+        353.46329992171377,
+        358.7792000034824,
+        371.91069999244064
+      ],
+      "cold_peak_rss_mb": 69.28515625,
+      "warm_peak_rss_mb": [
+        70.64453125,
+        67.45703125,
+        68.0703125
+      ],
+      "cold_cpu_ms": 406.25,
+      "warm_cpu_ms": [
+        359.375,
+        328.125,
+        359.375
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+          "confidence": 0.9498798599999999
+        },
+        {
+          "text": "DEMO SUPPLY CO",
+          "confidence": 0.9596384433333333
+        },
+        {
+          "text": "\\NVOICE: FIXTURE-INV-018",
+          "confidence": 0.8942889049999999
+        },
+        {
+          "text": "DATE: 2026-02-08",
+          "confidence": 0.961101875
+        },
+        {
+          "text": "ITEM: ARCHIVE BOX",
+          "confidence": 0.7544753033333333
+        },
+        {
+          "text": "QUANTITY: 4",
+          "confidence": 0.96269596
+        },
+        {
+          "text": "AMOUNT USD 48.00",
+          "confidence": 0.96330439
+        },
+        {
+          "text": "BALANCE USD 48.00",
+          "confidence": 0.9644205966666668
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE\nDEMO SUPPLY CO\n\\NVOICE: FIXTURE-INV-018\nDATE: 2026-02-08\nITEM: ARCHIVE BOX\nQUANTITY: 4\nAMOUNT USD 48.00\nBALANCE USD 48.00",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - NOT AN INVOICE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "invoiceNumber",
+          "date",
+          "amount"
+        ]
+      }
+    },
+    {
+      "fixture_id": "warranty_perspective",
+      "kind": "warranty",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 383.38260003365576,
+      "warm_latency_ms": [
+        427.19690001104027,
+        425.51540001295507,
+        447.66489998437464
+      ],
+      "cold_peak_rss_mb": 73.484375,
+      "warm_peak_rss_mb": [
+        72.46875,
+        72.578125,
+        71.49609375
+      ],
+      "cold_cpu_ms": 359.375,
+      "warm_cpu_ms": [
+        375.0,
+        421.875,
+        406.25
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY",
+          "confidence": 0.9505586866666665
+        },
+        {
+          "text": "WARRANTY CERTIFICATE",
+          "confidence": 0.9605015950000001
+        },
+        {
+          "text": "PRODUCT: DEMO KETTLE",
+          "confidence": 0.9667484033333333
+        },
+        {
+          "text": "MODEL: TEST-K20",
+          "confidence": 0.90514763
+        },
+        {
+          "text": "SERIAL NUMBER: FIXTURE-ONLY-0042",
+          "confidence": 0.9395697266666667
+        },
+        {
+          "text": "PURCHASE DATE: 2026-01-12",
+          "confidence": 0.9613675466666666
+        },
+        {
+          "text": "VALID UNTIL: 2028-01-12",
+          "confidence": 0.9585495266666668
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY\nWARRANTY CERTIFICATE\nPRODUCT: DEMO KETTLE\nMODEL: TEST-K20\nSERIAL NUMBER: FIXTURE-ONLY-0042\nPURCHASE DATE: 2026-01-12\nVALID UNTIL: 2028-01-12",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "warranty",
+        "classification_correct": false,
+        "title": "TEST-K20",
+        "fields": {
+          "model": "TEST-K20",
+          "serialNumber": "FIXTURE-ONLY-0042"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "expiryDate"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "warranty_perspective",
+      "kind": "warranty",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 3,
+      "important_fields_total": 3,
+      "preprocessing_ms": 34.935300005599856,
+      "cold_latency_ms": 390.72100003249943,
+      "warm_latency_ms": [
+        403.326699975878,
+        401.6291000880301,
+        366.7258999776095
+      ],
+      "cold_peak_rss_mb": 68.1875,
+      "warm_peak_rss_mb": [
+        67.69140625,
+        68.84765625,
+        67.41015625
+      ],
+      "cold_cpu_ms": 375.0,
+      "warm_cpu_ms": [
+        421.875,
+        359.375,
+        359.375
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY",
+          "confidence": 0.9499579133333333
+        },
+        {
+          "text": "WARRANTY CERTIFICATE",
+          "confidence": 0.966574405
+        },
+        {
+          "text": "PRODUCT: DEMO KETTLE",
+          "confidence": 0.9601401233333333
+        },
+        {
+          "text": "MODEL: TEST-K20",
+          "confidence": 0.92083889
+        },
+        {
+          "text": "SERIAL NUMBER: FIXTURE-ONLY-0042",
+          "confidence": 0.9263861866666667
+        },
+        {
+          "text": "PURCHASE DATE: 2026-01-12",
+          "confidence": 0.9599968699999999
+        },
+        {
+          "text": "VALID UNTIL: 2028-01-12",
+          "confidence": 0.9603324400000001
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID WARRANTY\nWARRANTY CERTIFICATE\nPRODUCT: DEMO KETTLE\nMODEL: TEST-K20\nSERIAL NUMBER: FIXTURE-ONLY-0042\nPURCHASE DATE: 2026-01-12\nVALID UNTIL: 2028-01-12",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "warranty",
+        "classification_correct": false,
+        "title": "TEST-K20",
+        "fields": {
+          "model": "TEST-K20",
+          "serialNumber": "FIXTURE-ONLY-0042"
+        },
+        "supported_expected_fields_correct": 2,
+        "supported_expected_fields_total": 3,
+        "supported_expected_fields_missing": [
+          "expiryDate"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "certificate_blur",
+      "kind": "genericDocument",
+      "variant": "raw",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 2,
+      "important_fields_total": 2,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 394.31880007032305,
+      "warm_latency_ms": [
+        393.56019999831915,
+        419.1440000431612,
+        421.57140001654625
+      ],
+      "cold_peak_rss_mb": 75.0546875,
+      "warm_peak_rss_mb": [
+        74.3359375,
+        75.6484375,
+        73.95703125
+      ],
+      "cold_cpu_ms": 359.375,
+      "warm_cpu_ms": [
+        390.625,
+        406.25,
+        406.25
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+          "confidence": 0.9538844416666666
+        },
+        {
+          "text": "CERTIFICATE OF DEMONSTRATION",
+          "confidence": 0.95815989
+        },
+        {
+          "text": "THIS CERTIFIES THAT",
+          "confidence": 0.9253276066666666
+        },
+        {
+          "text": "SAMPLE PERSON",
+          "confidence": 0.9620923600000001
+        },
+        {
+          "text": "COMPLETED THE DOCUMENT RECOGNITION EXERCISE",
+          "confidence": 0.962887222
+        },
+        {
+          "text": "REFERENCE: FIXTURE-CERT-2026-11",
+          "confidence": 0.9179227449999999
+        },
+        {
+          "text": "ISSUED: 2026-03-15",
+          "confidence": 0.9561052699999999
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE\nCERTIFICATE OF DEMONSTRATION\nTHIS CERTIFIES THAT\nSAMPLE PERSON\nCOMPLETED THE DOCUMENT RECOGNITION EXERCISE\nREFERENCE: FIXTURE-CERT-2026-11\nISSUED: 2026-03-15",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "reference",
+          "issued"
+        ]
+      }
+    },
+    {
+      "fixture_id": "certificate_blur",
+      "kind": "genericDocument",
+      "variant": "preprocessed",
+      "cer": 0.0,
+      "wer": 0.0,
+      "important_fields_correct": 2,
+      "important_fields_total": 2,
+      "preprocessing_ms": 33.38240005541593,
+      "cold_latency_ms": 402.1506999852136,
+      "warm_latency_ms": [
+        397.5916000781581,
+        399.4545000605285,
+        382.35870003700256
+      ],
+      "cold_peak_rss_mb": 68.125,
+      "warm_peak_rss_mb": [
+        69.76171875,
+        68.2265625,
+        68.3203125
+      ],
+      "cold_cpu_ms": 359.375,
+      "warm_cpu_ms": [
+        406.25,
+        375.0,
+        421.875
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+          "confidence": 0.9462522383333334
+        },
+        {
+          "text": "CERTIFICATE OF DEMONSTRATION",
+          "confidence": 0.9633682
+        },
+        {
+          "text": "THIS CERTIFIES THAT",
+          "confidence": 0.9384164666666668
+        },
+        {
+          "text": "SAMPLE PERSON",
+          "confidence": 0.96340309
+        },
+        {
+          "text": "COMPLETED THE DOCUMENT RECOGNITION EXERCISE",
+          "confidence": 0.9634691019999999
+        },
+        {
+          "text": "REFERENCE: FIXTURE-CERT-2026-11",
+          "confidence": 0.928071135
+        },
+        {
+          "text": "ISSUED: 2026-03-15",
+          "confidence": 0.9454474999999999
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE\nCERTIFICATE OF DEMONSTRATION\nTHIS CERTIFIES THAT\nSAMPLE PERSON\nCOMPLETED THE DOCUMENT RECOGNITION EXERCISE\nREFERENCE: FIXTURE-CERT-2026-11\nISSUED: 2026-03-15",
+      "project_pipeline": {
+        "classification": "genericDocument",
+        "classification_expected": "genericDocument",
+        "classification_correct": true,
+        "title": "SYNTHETIC TEST FIXTURE - INVALID CERTIFICATE",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 0,
+        "supported_expected_fields_missing": [],
+        "important_fields_not_currently_extracted": [
+          "reference",
+          "issued"
+        ]
+      }
+    },
+    {
+      "fixture_id": "small_text_blur",
+      "kind": "product",
+      "variant": "raw",
+      "cer": 0.032520325203252036,
+      "wer": 0.23529411764705882,
+      "important_fields_correct": 0,
+      "important_fields_total": 2,
+      "preprocessing_ms": 0.0,
+      "cold_latency_ms": 235.08989997208118,
+      "warm_latency_ms": [
+        238.68579999543726,
+        289.4363000523299,
+        258.43419996090233
+      ],
+      "cold_peak_rss_mb": 67.515625,
+      "warm_peak_rss_mb": [
+        66.578125,
+        66.5078125,
+        65.29296875
+      ],
+      "cold_cpu_ms": 281.25,
+      "warm_cpu_ms": [
+        234.375,
+        250.0,
+        234.375
+      ],
+      "lines": [
+        {
+          "text": "SYNTHETIC TEST FIXTURE",
+          "confidence": 0.8841268633333335
+        },
+        {
+          "text": "PRODUCT TEST SENSOR",
+          "confidence": 0.9253784166666666
+        },
+        {
+          "text": "MODEL QX-178",
+          "confidence": 0.597667655
+        },
+        {
+          "text": "SIN FOXTURE-QX17-00991",
+          "confidence": 0.068452375
+        },
+        {
+          "text": "RATING SV 400mA",
+          "confidence": 0.73247668
+        },
+        {
+          "text": "ASSEMBLED FOR BENCHMARK ONLY",
+          "confidence": 0.9278734575
+        }
+      ],
+      "recognized_text": "SYNTHETIC TEST FIXTURE\nPRODUCT TEST SENSOR\nMODEL QX-178\nSIN FOXTURE-QX17-00991\nRATING SV 400mA\nASSEMBLED FOR BENCHMARK ONLY",
+      "project_pipeline": {
+        "classification": "product",
+        "classification_expected": "product",
+        "classification_correct": true,
+        "title": "QX-178",
+        "fields": {
+          "model": "QX-178"
+        },
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 2,
+        "supported_expected_fields_missing": [
+          "serialNumber"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    },
+    {
+      "fixture_id": "small_text_blur",
+      "kind": "product",
+      "variant": "preprocessed",
+      "cer": 1.0,
+      "wer": 1.0,
+      "important_fields_correct": 0,
+      "important_fields_total": 2,
+      "preprocessing_ms": 20.114999962970614,
+      "cold_latency_ms": 250.18370000179857,
+      "warm_latency_ms": [
+        236.0429000109434,
+        260.8370999805629,
+        269.24649998545647
+      ],
+      "cold_peak_rss_mb": 69.25,
+      "warm_peak_rss_mb": [
+        68.04296875,
+        68.09765625,
+        66.0234375
+      ],
+      "cold_cpu_ms": 218.75,
+      "warm_cpu_ms": [
+        234.375,
+        296.875,
+        250.0
+      ],
+      "lines": [],
+      "recognized_text": "",
+      "project_pipeline": {
+        "classification": "unknown",
+        "classification_expected": "product",
+        "classification_correct": false,
+        "title": "Scanned document",
+        "fields": {},
+        "supported_expected_fields_correct": 0,
+        "supported_expected_fields_total": 2,
+        "supported_expected_fields_missing": [
+          "model",
+          "serialNumber"
+        ],
+        "important_fields_not_currently_extracted": []
+      }
+    }
+  ],
+  "project_pipeline_summary": {
+    "records": 38,
+    "classifications_correct": 28,
+    "classification_accuracy": 0.7368421052631579,
+    "supported_extraction_fields_correct": 51,
+    "supported_extraction_fields_total": 72,
+    "supported_extraction_field_accuracy": 0.7083333333333334,
+    "note": "Unsupported fixture fields are reported per record and are not counted as OCR errors or silently treated as extraction successes."
+  }
+}
