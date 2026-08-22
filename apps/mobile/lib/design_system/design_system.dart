@@ -6,6 +6,7 @@ export 'components/content/app_section_header.dart';
 export 'components/feedback/app_badge.dart';
 export 'components/feedback/app_state_views.dart';
 export 'components/inputs/app_chip.dart';
+export 'components/inputs/app_dropdown_field.dart';
 export 'components/inputs/app_search_field.dart';
 export 'components/inputs/app_text_field.dart';
 export 'components/layout/app_scaffold.dart';

@@ -62,11 +62,44 @@ void main() {
     );
 
     expect(find.byTooltip('Clear search'), findsOneWidget);
+    final inputDecorator = tester.widget<InputDecorator>(
+      find.byType(InputDecorator),
+    );
+    expect(inputDecorator.decoration.labelText, isNull);
     await tester.tap(find.byTooltip('Clear search'));
     await tester.pump();
 
     expect(controller.text, isEmpty);
     expect(changedValue, isEmpty);
+  });
+
+  testWidgets('AppDropdownField uses the AppIcons indicator boundary', (
+    tester,
+  ) async {
+    String? selected;
+    await tester.pumpWidget(
+      _TestApp(
+        child: AppDropdownField<String>(
+          initialValue: 'daily',
+          label: 'Frequency',
+          items: const [
+            DropdownMenuItem(value: 'daily', child: Text('Daily')),
+            DropdownMenuItem(value: 'weekly', child: Text('Weekly')),
+          ],
+          onChanged: (value) => selected = value,
+        ),
+      ),
+    );
+
+    final dropdown = tester.widget<DropdownButton<String>>(
+      find.byType(DropdownButton<String>),
+    );
+    expect(dropdown.icon, isA<AppIcon>());
+    await tester.tap(find.text('Daily'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Weekly').last);
+    await tester.pumpAndSettle();
+    expect(selected, 'weekly');
   });
 
   testWidgets(

@@ -57,7 +57,6 @@ final class _AppSearchFieldState extends State<AppSearchField> {
       controller: widget.controller,
       enabled: widget.enabled,
       hintText: widget.hintText,
-      label: widget.semanticLabel,
       leadingIcon: AppIcons.search,
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,

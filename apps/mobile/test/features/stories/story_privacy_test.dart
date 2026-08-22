@@ -81,6 +81,73 @@ void main() {
     expect(result.includedMedia, isEmpty);
   });
 
+  test('default photo selection follows the template media shape', () {
+    final photos = List.generate(
+      3,
+      (index) => StoryMedia(
+        id: 'photo-$index',
+        label: 'Photo ${index + 1}',
+        kind: StoryMediaKind.image,
+        localPath: 'photo-$index.jpg',
+        privacyClassification: PrivacyClassification.shareSafe,
+        suggestedByDefault: true,
+      ),
+    );
+    final ordinary = StorySource(
+      id: 'event:photos',
+      sourceType: StorySourceType.event,
+      title: 'Photos',
+      sourceRecordIds: const ['photos'],
+      media: photos,
+    );
+    final paired = StorySource(
+      id: 'then-now:photos',
+      sourceType: StorySourceType.thenNow,
+      title: 'Then & Now',
+      sourceRecordIds: const ['then', 'now'],
+      media: photos,
+    );
+
+    expect(StoryPrivacySelection.defaultsFor(ordinary).includedMediaIds, {
+      'photo-0',
+    });
+    expect(StoryPrivacySelection.defaultsFor(paired).includedMediaIds, {
+      'photo-0',
+      'photo-1',
+    });
+  });
+
+  test('ordinary composition never renders more than one selected photo', () {
+    final photos = List.generate(
+      3,
+      (index) => StoryMedia(
+        id: 'photo-$index',
+        label: 'Photo ${index + 1}',
+        kind: StoryMediaKind.image,
+        localPath: 'photo-$index.jpg',
+        privacyClassification: PrivacyClassification.personal,
+      ),
+    );
+    final photoSource = StorySource(
+      id: 'event:photos',
+      sourceType: StorySourceType.event,
+      title: 'Photos',
+      sourceRecordIds: const ['photos'],
+      media: photos,
+    );
+    final composition = const DefaultStoryComposer(sanitizer).compose(
+      source: photoSource,
+      selection: StoryPrivacySelection(
+        includedMediaIds: {'photo-0', 'photo-1', 'photo-2'},
+      ),
+      templateId: StoryTemplateId.photo,
+      themeVariant: StoryThemeVariant.paper,
+      branding: const StoryBrandingConfig(),
+    );
+
+    expect(composition.media.map((media) => media.id), ['photo-0']);
+  });
+
   test('personal and sensitive fields require explicit selection', () {
     final result = sanitizer.sanitize(
       source,

@@ -58,4 +58,6 @@ dev_dependencies:
     sdk: flutter
 
 flutter:
-  uses-material-design: false
+  # Flutter's own date/time pickers still use the Material icon font
+  # internally. Product-owned icons remain routed through AppIcons.
+  uses-material-design: true

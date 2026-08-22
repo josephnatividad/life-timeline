@@ -32,6 +32,7 @@ abstract final class AppIcons {
   static const intelligence = HugeIcons.strokeRoundedSparkles;
   static const success = HugeIcons.strokeRoundedCheckmarkCircle02;
   static const next = HugeIcons.strokeRoundedArrowRight01;
+  static const expand = HugeIcons.strokeRoundedArrowDown01;
   static const time = HugeIcons.strokeRoundedClock01;
   static const reminder = time;
   static const image = HugeIcons.strokeRoundedImage01;

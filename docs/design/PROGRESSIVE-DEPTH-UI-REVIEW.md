@@ -182,16 +182,72 @@ and Reduced Motion retains a non-animated loading fallback.
 
 ## Screenshots and device session
 
-The Android 17 Pixel 7 Pro emulator launched and the debug APK installed. Its
-persisted application state was protected by an unknown existing PIN, so the
-review did not clear app data or bypass the lock merely to obtain module
-screenshots. The captured light-mode lock gate is retained as
-[`device-lock-gate-light.png`](screenshots/device-lock-gate-light.png).
+The Android 17 Pixel 7 Pro emulator remained protected by an unknown existing
+PIN; its light-mode gate is retained as
+[`device-lock-gate-light.png`](screenshots/device-lock-gate-light.png). The
+follow-up authenticated walkthrough completed on a physical Samsung SM-G955F
+running Android 9 at system font scale 1.1. The validated debug APK was
+update-installed with app data preserved. No timeline data was cleared, no
+security control was bypassed, and no backup or restore operation was started.
 
-Gallery, Reminders, Timeline, Explore, Stories, light/dark themes, text scaling,
-and Reduced Motion remain verified through focused widget and scale tests. A
-future authenticated device QA session should capture module screenshots
-without destructively resetting user-owned test data.
+The physical-device walkthrough covered Timeline, Memory Detail, Explore,
+Stories, Capture, private-OCR unavailable/manual capture, Memory Inbox, Search
+no-results, Reminders, Storage, Archived originals, Archive, Trash, Security &
+recovery, and Restore entry. Timeline, Memory Detail, Stories, and Archived
+originals contained user-owned titles, photos, or filenames; they were
+inspected but no unredacted screenshots were retained in the repository.
+
+Privacy-safe evidence includes:
+
+- [`device-explore-light.png`](screenshots/device-explore-light.png)
+- [`device-capture-sheet-light.png`](screenshots/device-capture-sheet-light.png)
+- [`device-private-ocr-unavailable-light.png`](screenshots/device-private-ocr-unavailable-light.png)
+- [`device-memory-inbox-light.png`](screenshots/device-memory-inbox-light.png)
+- [`device-search-no-results-light.png`](screenshots/device-search-no-results-light.png)
+- [`device-reminders-light.png`](screenshots/device-reminders-light.png)
+- [`device-storage-light.png`](screenshots/device-storage-light.png)
+- [`device-storage-management-light.png`](screenshots/device-storage-management-light.png)
+- [`device-you-light.png`](screenshots/device-you-light.png)
+- [`device-you-lifecycle-light.png`](screenshots/device-you-lifecycle-light.png)
+- [`device-archive-empty-light.png`](screenshots/device-archive-empty-light.png)
+- [`device-trash-empty-light.png`](screenshots/device-trash-empty-light.png)
+- [`device-security-backup-light.png`](screenshots/device-security-backup-light.png)
+- [`device-restore-entry-light.png`](screenshots/device-restore-entry-light.png)
+
+Real-device findings:
+
+- Memory Detail remained approximately constant in complexity: absent Photos,
+  Evidence, and Reminders sections were silent while Create Story and Add photo
+  stayed visible.
+- Explore showed only its meaningful Years browse path; empty insight and other
+  browse placeholders did not appear.
+- Stories rendered three recent-memory rows despite a count of eight.
+- Archived originals rendered lazily and omitted its empty Archived section.
+- Back controls and shallow navigation were present on every pushed route
+  inspected.
+- Early captures taken during route/inset transitions showed temporarily
+  clipped leading content. Settled recaptures were complete, confirming a
+  capture-timing artifact rather than a layout defect.
+- Resolved 2026-08-23: the disabled Material `DropdownButtonFormField`
+  indicator and the date/time-picker navigation controls rendered as invalid
+  glyphs on Android 9 because `uses-material-design` was false while Flutter's
+  framework controls still relied on the Material Icons font. The framework
+  font is now bundled, and app-owned dropdown indicators use the reusable
+  `AppDropdownField` with Hugeicons through `AppIcons`.
+- Resolved 2026-08-23: the Search leading magnifier crowded the floating outline
+  label at font scale 1.1. Search now uses one visual hint plus an explicit
+  text-field semantic label instead of duplicating the label in the outline.
+- Resolved 2026-08-23: an ordinary one-image Story exposed every eligible
+  Memory Media item as a repeated independent switch. The editor now presents
+  one selected-photo summary and a focused single-choice photo sheet; choosing
+  another image replaces the previous choice. Duplicate generic captions are
+  numbered only in the chooser. Then & Now remains the intentional bounded
+  two-photo exception with role-labelled Then and Now controls.
+
+This Android 9 build did not accept the shell night-mode override, so no device
+theme setting was changed. Dark mode, 2x text scaling, screen-reader semantics,
+and Reduced Motion remain covered by focused widget tests rather than being
+claimed as physical-device observations.
 
 ## Hardening validation
 
@@ -209,3 +265,24 @@ Validated on 2026-08-22 with the project-pinned FVM Flutter 3.44.9 stable SDK:
 - Android still reports the known future Built-in Kotlin migration warning for
   `file_picker`, `flutter_timezone`, `package_info_plus`, `share_plus`, and
   `workmanager_android`; it does not block the current debug build.
+
+### UI defect follow-up validation
+
+Validated on 2026-08-23 with the project-pinned FVM Flutter 3.44.9 stable SDK:
+
+- Dart formatting completed across `lib/` and `test/` with no changes needed.
+- `flutter analyze --no-pub` completed with no issues.
+- The complete Flutter suite passed: 267 tests.
+- Android debug assembled successfully at
+  `build/app/outputs/flutter-apk/app-debug.apk`.
+- APK inspection confirms
+  `assets/flutter_assets/fonts/MaterialIcons-Regular.otf` is bundled for
+  Flutter's framework-owned date/time-picker glyphs. Product-owned icons remain
+  behind `AppIcons`.
+- Story regression coverage verifies one-photo defaults for ordinary Stories,
+  two-photo defaults for Then & Now, replacement selection in the editor, and
+  a one-photo composer limit even for a forged multi-ID selection.
+- A final physical-device recapture remains pending because no authorized
+  Android device was visible to `adb` during this validation run. The prior
+  Android 9 observation remains the reproduction evidence; no claim of a
+  post-fix physical-device walkthrough is made.

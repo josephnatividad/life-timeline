@@ -51,15 +51,13 @@ final class _TemporalInputState extends State<TemporalInput> {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      DropdownButtonFormField<TemporalPrecision>(
+      AppDropdownField<TemporalPrecision>(
         key: const Key('temporal-precision'),
         initialValue: _precision,
-        decoration: InputDecoration(
-          labelText: 'When did it happen?',
-          errorText: widget.showError && _currentValue() == null
-              ? 'Choose a date precision and value.'
-              : null,
-        ),
+        label: 'When did it happen?',
+        errorText: widget.showError && _currentValue() == null
+            ? 'Choose a date precision and value.'
+            : null,
         items: [
           for (final precision in TemporalPrecision.values)
             DropdownMenuItem(

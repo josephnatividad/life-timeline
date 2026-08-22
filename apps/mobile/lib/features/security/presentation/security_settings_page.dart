@@ -74,10 +74,10 @@ final class SecuritySettingsPage extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.xl),
                   const AppSectionHeader(title: 'Auto-lock'),
                   const SizedBox(height: AppSpacing.sm),
-                  DropdownButtonFormField<AutoLockPreference>(
+                  AppDropdownField<AutoLockPreference>(
                     key: const Key('auto-lock-preference'),
                     initialValue: value.settings.autoLock,
-                    decoration: const InputDecoration(labelText: 'Lock timing'),
+                    label: 'Lock timing',
                     items: [
                       for (final option in AutoLockPreference.values)
                         DropdownMenuItem(

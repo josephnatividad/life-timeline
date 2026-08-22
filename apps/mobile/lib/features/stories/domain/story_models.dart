@@ -135,21 +135,28 @@ final class StoryPrivacySelection {
   }) : includedFieldIds = Set.unmodifiable(includedFieldIds),
        includedMediaIds = Set.unmodifiable(includedMediaIds);
 
-  factory StoryPrivacySelection.defaultsFor(StorySource source) =>
-      StoryPrivacySelection(
-        includedFieldIds: {
-          for (final field in source.fields)
-            if (field.suggestedByDefault &&
-                field.privacyClassification == PrivacyClassification.shareSafe)
-              field.id,
-        },
-        includedMediaIds: {
-          for (final media in source.media)
-            if (media.suggestedByDefault &&
-                media.privacyClassification == PrivacyClassification.shareSafe)
-              media.id,
-        },
-      );
+  factory StoryPrivacySelection.defaultsFor(StorySource source) {
+    final maximumSuggestedMedia = source.sourceType == StorySourceType.thenNow
+        ? 2
+        : 1;
+    return StoryPrivacySelection(
+      includedFieldIds: {
+        for (final field in source.fields)
+          if (field.suggestedByDefault &&
+              field.privacyClassification == PrivacyClassification.shareSafe)
+            field.id,
+      },
+      includedMediaIds: source.media
+          .where(
+            (media) =>
+                media.suggestedByDefault &&
+                media.privacyClassification == PrivacyClassification.shareSafe,
+          )
+          .take(maximumSuggestedMedia)
+          .map((media) => media.id)
+          .toSet(),
+    );
+  }
 
   final Set<String> includedFieldIds;
   final Set<String> includedMediaIds;

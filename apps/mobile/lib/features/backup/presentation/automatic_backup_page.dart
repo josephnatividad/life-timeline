@@ -144,9 +144,9 @@ final class _AutomaticBackupPageState
                             },
                     ),
                     const AppDivider(),
-                    DropdownButtonFormField<AutomaticBackupFrequency>(
+                    AppDropdownField<AutomaticBackupFrequency>(
                       initialValue: value.settings.frequency,
-                      decoration: const InputDecoration(labelText: 'Frequency'),
+                      label: 'Frequency',
                       items: const [
                         DropdownMenuItem(
                           value: AutomaticBackupFrequency.daily,
@@ -172,9 +172,9 @@ final class _AutomaticBackupPageState
                             },
                     ),
                     const SizedBox(height: AppSpacing.md),
-                    DropdownButtonFormField<AutomaticBackupNetworkPolicy>(
+                    AppDropdownField<AutomaticBackupNetworkPolicy>(
                       initialValue: value.settings.networkPolicy,
-                      decoration: const InputDecoration(labelText: 'Network'),
+                      label: 'Network',
                       items: const [
                         DropdownMenuItem(
                           value: AutomaticBackupNetworkPolicy.wifiOnly,

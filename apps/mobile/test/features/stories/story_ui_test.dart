@@ -136,6 +136,49 @@ void main() {
     },
   );
 
+  testWidgets(
+    'ordinary Story keeps photo selection bounded and replaces the choice',
+    (tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: _TestApp(
+            dark: true,
+            reducedMotion: true,
+            textScaler: const TextScaler.linear(1.6),
+            child: StoryEditorPage(source: _sourceWithPhotos()),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      await _reveal(tester, find.byKey(const Key('choose-story-photo')));
+      expect(
+        find.byKey(const Key('story-selected-photo-photo-a')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('story-media-photo-a')), findsNothing);
+      expect(find.byKey(const Key('story-media-photo-b')), findsNothing);
+
+      await tester.tap(find.byKey(const Key('choose-story-photo')));
+      await tester.pumpAndSettle();
+      expect(find.text('Memory photo 1'), findsWidgets);
+      expect(find.text('Memory photo 2'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('story-photo-option-photo-b')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.byKey(const Key('story-selected-photo-photo-b')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('story-selected-photo-photo-a')),
+        findsNothing,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('preview renders, reviews privacy, shares, and cleans locally', (
     tester,
   ) async {
@@ -292,6 +335,32 @@ StorySource _source() => StorySource(
       value: 'BOOKING-SECRET',
       kind: StoryFieldKind.detail,
       privacyClassification: PrivacyClassification.neverShare,
+    ),
+  ],
+);
+
+StorySource _sourceWithPhotos() => StorySource(
+  id: 'event:event-with-photos',
+  sourceType: StorySourceType.event,
+  title: 'Local title',
+  sourceRecordIds: const ['event-with-photos'],
+  fields: _source().fields,
+  media: [
+    StoryMedia(
+      id: 'photo-a',
+      label: 'Memory photo',
+      kind: StoryMediaKind.image,
+      localPath: 'missing-a.jpg',
+      privacyClassification: PrivacyClassification.shareSafe,
+      suggestedByDefault: true,
+    ),
+    StoryMedia(
+      id: 'photo-b',
+      label: 'Memory photo',
+      kind: StoryMediaKind.image,
+      localPath: 'missing-b.jpg',
+      privacyClassification: PrivacyClassification.shareSafe,
+      suggestedByDefault: true,
     ),
   ],
 );

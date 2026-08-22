@@ -130,19 +130,28 @@ final class _StoryEditorPageState extends ConsumerState<StoryEditorPage> {
               ),
               const SizedBox(height: AppSpacing.md),
             ],
-            AppButton(
-              key: const Key('choose-story-photo'),
-              label: 'Choose another photo',
-              icon: AppIcons.image,
+            AppSectionHeader(
+              title: _source.sourceType == StorySourceType.thenNow
+                  ? 'Photos'
+                  : 'Photo',
+              supportingText: _source.sourceType == StorySourceType.thenNow
+                  ? 'Then & Now can use one role-labelled photo from each memory.'
+                  : 'Optional. One photo can appear in this Story.',
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            StoryMediaSelector(
+              maximumMedia: StoryTemplateCatalog.byId(_template).maximumMedia,
+              onChanged: (value) => setState(() => _selection = value),
+              onChooseFromDevice: _chooseMedia,
+              selection: _selection,
+              source: _source,
               loading: _choosingMedia,
-              onPressed: _choosingMedia ? null : _chooseMedia,
-              variant: AppButtonVariant.secondary,
             ),
             const SizedBox(height: AppSpacing.xxl),
             const AppSectionHeader(
               title: 'What may appear',
               supportingText:
-                  'Private and sensitive fields start off. Protected fields cannot be enabled.',
+                  'Choose details deliberately. Private and sensitive fields start off; protected fields cannot be enabled.',
             ),
             const SizedBox(height: AppSpacing.sm),
             StoryPrivacySelector(
@@ -209,7 +218,6 @@ final class _StoryEditorPageState extends ConsumerState<StoryEditorPage> {
     try {
       final media = await ref.read(storyMediaPickerProvider).chooseImage();
       if (media == null || !mounted) return;
-      final mediaIds = {..._selection.includedMediaIds, media.id};
       setState(() {
         _source = StorySource(
           id: _source.id,
@@ -217,11 +225,15 @@ final class _StoryEditorPageState extends ConsumerState<StoryEditorPage> {
           title: _source.title,
           sourceRecordIds: _source.sourceRecordIds,
           fields: _source.fields,
-          media: [..._source.media, media],
+          media: [
+            for (final existing in _source.media)
+              if (!existing.id.startsWith('story-photo:')) existing,
+            media,
+          ],
           unavailableMedia: _source.unavailableMedia,
           temporalPrecision: _source.temporalPrecision,
         );
-        _selection = _selection.copyWith(includedMediaIds: mediaIds);
+        _selection = _selection.copyWith(includedMediaIds: {media.id});
       });
     } finally {
       if (mounted) setState(() => _choosingMedia = false);

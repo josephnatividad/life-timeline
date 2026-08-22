@@ -4,7 +4,6 @@ import 'package:life_timeline/design_system/tokens/app_icon_size.dart';
 
 final class AppTextField extends StatelessWidget {
   const AppTextField({
-    required this.label,
     this.autofillHints,
     this.controller,
     this.enabled = true,
@@ -12,6 +11,7 @@ final class AppTextField extends StatelessWidget {
     this.helperText,
     this.hintText,
     this.keyboardType,
+    this.label,
     this.leadingIcon,
     this.maxLines = 1,
     this.minLines,
@@ -37,7 +37,7 @@ final class AppTextField extends StatelessWidget {
   final ValueChanged<String>? onSubmitted;
   final bool obscureText;
   final Widget? suffix;
-  final String label;
+  final String? label;
   final TextInputAction? textInputAction;
 
   @override
