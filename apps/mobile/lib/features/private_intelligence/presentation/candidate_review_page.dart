@@ -32,7 +32,7 @@ final class CandidateReviewPage extends ConsumerWidget {
         ),
         data: (value) => value == null
             ? const Center(
-                child: AppEmptyState(
+                child: AppUnavailableState(
                   title: 'Suggestion not found',
                   message: 'It may already have been resolved.',
                 ),
@@ -93,7 +93,7 @@ final class _CandidateReviewFormState
   Widget build(BuildContext context) {
     if (_ignored) {
       return Center(
-        child: AppEmptyState(
+        child: AppCompletedState(
           title: 'Suggestion ignored',
           message: 'It will stay out of your timeline.',
           actionLabel: 'Undo',

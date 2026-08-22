@@ -116,14 +116,14 @@ final class _AddPhotosPageState extends ConsumerState<AddPhotosPage> {
         ],
         const SizedBox(height: AppSpacing.xxl),
         media.when(
-          loading: () => const AppLoadingState(label: 'Loading photos'),
+          loading: () => const SizedBox.shrink(),
           error: (error, stackTrace) => const SizedBox.shrink(),
-          data: (values) => Text(
-            values.isEmpty
-                ? 'No photos added yet.'
-                : '${values.length} ${values.length == 1 ? 'photo' : 'photos'} in this memory.',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
+          data: (values) => values.isEmpty
+              ? const SizedBox.shrink()
+              : Text(
+                  '${values.length} ${values.length == 1 ? 'photo' : 'photos'} in this memory.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
         ),
         const SizedBox(height: AppSpacing.xl),
         AppButton(

@@ -42,7 +42,7 @@ final class RemindersPage extends ConsumerWidget {
           if (items.isEmpty) {
             return Center(
               child: ScreenContainer(
-                child: AppEmptyState(
+                child: AppCompletedState(
                   title: 'Nothing needs your attention',
                   message: memoryId == null
                       ? 'Create a reminder when a future date matters.'
@@ -63,17 +63,26 @@ final class RemindersPage extends ConsumerWidget {
           final past = items
               .where((item) => item.status != ReminderStatus.scheduled)
               .toList(growable: false);
-          return ListView(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-            children: [
-              const _NotificationPermissionSurface(),
+          return CustomScrollView(
+            key: const Key('reminders-scroll'),
+            slivers: [
+              const SliverPadding(
+                padding: EdgeInsets.only(top: AppSpacing.lg),
+                sliver: SliverToBoxAdapter(
+                  child: _NotificationPermissionSurface(),
+                ),
+              ),
               if (upcoming.isNotEmpty)
-                _ReminderGroup(title: 'Upcoming', reminders: upcoming),
+                ..._reminderGroupSlivers('Upcoming', upcoming),
               if (past.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.xl),
-                _ReminderGroup(title: 'Past / inactive', reminders: past),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: AppSpacing.xl),
+                ),
+                ..._reminderGroupSlivers('Past / inactive', past),
               ],
-              const SizedBox(height: AppSpacing.xxl),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: AppSpacing.xxxl),
+              ),
             ],
           );
         },
@@ -98,11 +107,12 @@ final class _NotificationPermissionSurface extends ConsumerWidget {
                 AppSpacing.xl,
                 AppSpacing.xl,
               ),
-              child: IntelligenceCard(
+              child: AppPermissionRequiredState(
                 title: 'Notifications are off',
-                body:
+                message:
                     'Your reminders are still saved. Enable device notifications when you want local nudges.',
                 actionLabel: 'Enable notifications',
+                variant: AppEmptyStateVariant.section,
                 onAction: () async {
                   await ref.read(reminderSchedulerProvider).requestPermission();
                   ref.invalidate(notificationPermissionProvider);
@@ -114,25 +124,20 @@ final class _NotificationPermissionSurface extends ConsumerWidget {
   }
 }
 
-final class _ReminderGroup extends StatelessWidget {
-  const _ReminderGroup({required this.title, required this.reminders});
-
-  final List<Reminder> reminders;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) => ScreenContainer(
+List<Widget> _reminderGroupSlivers(String title, List<Reminder> reminders) => [
+  SliverPadding(
     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        AppSectionHeader(title: title),
-        const SizedBox(height: AppSpacing.sm),
-        for (final reminder in reminders) _ReminderRow(reminder: reminder),
-      ],
+    sliver: SliverToBoxAdapter(child: AppSectionHeader(title: title)),
+  ),
+  const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.sm)),
+  SliverPadding(
+    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+    sliver: SliverList.builder(
+      itemCount: reminders.length,
+      itemBuilder: (context, index) => _ReminderRow(reminder: reminders[index]),
     ),
-  );
-}
+  ),
+];
 
 final class _ReminderRow extends StatelessWidget {
   const _ReminderRow({required this.reminder});

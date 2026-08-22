@@ -16,7 +16,7 @@ final class MemoryEvidencePreview extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final evidence = ref.watch(memoryEvidencePreviewProvider(memoryId));
     return evidence.when(
-      loading: () => const AppLoadingState(label: 'Loading evidence preview'),
+      loading: () => const SizedBox.shrink(),
       error: (error, stackTrace) => const SizedBox.shrink(),
       data: (value) {
         if (value.totalCount == 0) return const SizedBox.shrink();
@@ -67,8 +67,8 @@ final class MemoryEvidencePage extends ConsumerWidget {
             ? const Center(
                 child: ScreenContainer(
                   child: AppEmptyState(
-                    title: 'No evidence attached',
-                    message: 'Supporting documents will appear here.',
+                    title: 'No supporting evidence',
+                    message: 'This memory has no attached documents.',
                     icon: AppIcons.database,
                   ),
                 ),

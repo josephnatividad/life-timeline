@@ -12,6 +12,7 @@ import 'package:life_timeline/features/timeline/presentation/memory_detail_page.
 import 'package:life_timeline/features/timeline/presentation/timeline_home_page.dart';
 import 'package:life_timeline/features/timeline/presentation/widgets/memory_editor.dart';
 import 'package:life_timeline/features/timeline/presentation/widgets/temporal_input.dart';
+import 'package:life_timeline/features/timeline/presentation/widgets/timeline_event_tile.dart';
 import 'package:life_timeline/shared/database/app_database.dart'
     hide Category, Event;
 import 'package:life_timeline/shared/database/app_database_provider.dart';
@@ -51,6 +52,45 @@ void main() {
 
     expect(find.text('Your story starts here.'), findsOneWidget);
     expect(find.text('Add memory'), findsOneWidget);
+  });
+
+  testWidgets('10,000-memory timeline builds only visible rows', (
+    tester,
+  ) async {
+    final database = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(database.close);
+    final memories = [
+      for (var index = 0; index < 10000; index++) _scaleMemory(index),
+    ];
+    final stopwatch = Stopwatch()..start();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(database),
+          timelineMemoriesProvider.overrideWith(
+            (ref) => Stream.value(memories),
+          ),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: Builder(
+            builder: (context) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(disableAnimations: true),
+              child: const TimelineHomePage(),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    stopwatch.stop();
+
+    expect(find.byKey(const Key('timeline-list')), findsOneWidget);
+    expect(find.byType(TimelineEventTile).evaluate().length, lessThan(100));
+    expect(stopwatch.elapsed, lessThan(const Duration(seconds: 10)));
+    expect(tester.takeException(), isNull);
+    await _unmountProviderTree(tester);
   });
 
   testWidgets('TemporalInput exposes every supported precision', (
@@ -369,5 +409,22 @@ TimelineMemory _memory() {
       temporalValue: TemporalValue.approximate(TemporalPoint(year: 2019)),
     ),
     category: Category(metadata: metadata('category-1'), name: 'Travel'),
+  );
+}
+
+TimelineMemory _scaleMemory(int index) {
+  final at = DateTime.utc(2026, 8, 10);
+  return TimelineMemory(
+    event: Event(
+      metadata: RecordMetadata(
+        id: 'scale-memory-$index',
+        privacyClassification: PrivacyClassification.personal,
+        lifecycle: RecordLifecycle.confirmed,
+        createdAt: at,
+        updatedAt: at,
+      ),
+      title: 'Scale memory $index',
+      temporalValue: TemporalValue.year(1900 + (index % 126)),
+    ),
   );
 }

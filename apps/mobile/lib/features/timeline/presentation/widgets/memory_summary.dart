@@ -81,16 +81,13 @@ final class MemorySummary extends StatelessWidget {
               subtitle: Text(entity.entityType),
             ),
           ],
-        if (showSecondary) ...[
+        if (showSecondary && evidenceSection != null) ...[
           const SizedBox(height: AppSpacing.xl),
           AppSectionHeader(title: 'Evidence'),
           const SizedBox(height: AppSpacing.sm),
-          evidenceSection ??
-              const AppEmptyState(
-                title: 'No evidence attached',
-                message: 'Receipts and supporting documents will appear here.',
-                icon: AppIcons.database,
-              ),
+          evidenceSection!,
+        ],
+        if (showSecondary) ...[
           const SizedBox(height: AppSpacing.xl),
           AppSectionHeader(title: 'Timeline history'),
           const SizedBox(height: AppSpacing.sm),

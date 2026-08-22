@@ -134,6 +134,58 @@ void main() {
     expect(find.text('Try again'), findsOneWidget);
   });
 
+  testWidgets(
+    'empty, no-result, unavailable, permission, and completed states stay distinct',
+    (tester) async {
+      final semantics = tester.ensureSemantics();
+      var secondaryPressed = false;
+      await tester.pumpWidget(
+        _TestApp(
+          dark: true,
+          reducedMotion: true,
+          textScaler: const TextScaler.linear(2),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                AppEmptyState(
+                  title: 'Your story starts here',
+                  actionLabel: 'Add memory',
+                  onAction: () {},
+                  secondaryActionLabel: 'Restore timeline',
+                  onSecondaryAction: () => secondaryPressed = true,
+                ),
+                AppNoResultsState(
+                  title: 'No memories matched your search',
+                  actionLabel: 'Clear search',
+                  onAction: () {},
+                ),
+                const AppUnavailableState(
+                  title: "Private text extraction isn't available yet",
+                ),
+                AppPermissionRequiredState(
+                  title: 'Notifications are off',
+                  actionLabel: 'Enable notifications',
+                  onAction: () {},
+                ),
+                const AppCompletedState(title: "You're all caught up"),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      expect(find.bySemanticsLabel('No results'), findsOneWidget);
+      expect(find.bySemanticsLabel('Unavailable'), findsOneWidget);
+      expect(find.bySemanticsLabel('Permission required'), findsOneWidget);
+      expect(find.bySemanticsLabel('Complete'), findsOneWidget);
+      await tester.ensureVisible(find.text('Restore timeline'));
+      await tester.tap(find.text('Restore timeline'));
+      expect(secondaryPressed, isTrue);
+      expect(tester.takeException(), isNull);
+      semantics.dispose();
+    },
+  );
+
   testWidgets('MemoryCard stacks lifecycle actions at large text scale', (
     tester,
   ) async {
@@ -202,17 +254,26 @@ void main() {
 }
 
 final class _TestApp extends StatelessWidget {
-  const _TestApp({required this.child, this.textScaler});
+  const _TestApp({
+    required this.child,
+    this.dark = false,
+    this.reducedMotion = false,
+    this.textScaler,
+  });
 
   final Widget child;
+  final bool dark;
+  final bool reducedMotion;
   final TextScaler? textScaler;
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-    theme: AppTheme.light(),
+    theme: dark ? AppTheme.dark() : AppTheme.light(),
     home: Builder(
       builder: (context) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+        data: MediaQuery.of(
+          context,
+        ).copyWith(disableAnimations: reducedMotion, textScaler: textScaler),
         child: Scaffold(body: SafeArea(child: child)),
       ),
     ),

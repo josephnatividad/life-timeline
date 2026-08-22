@@ -108,7 +108,7 @@ final class BackupProgressPage extends ConsumerWidget {
       return AppScaffold(
         appBar: AppBar(title: const Text('Backup verified')),
         body: Center(
-          child: AppEmptyState(
+          child: AppCompletedState(
             title: 'Backup complete',
             message: 'The encrypted backup was saved and verified.',
             icon: AppIcons.success,
@@ -122,9 +122,10 @@ final class BackupProgressPage extends ConsumerWidget {
       return AppScaffold(
         appBar: AppBar(title: const Text('Backup canceled')),
         body: Center(
-          child: AppEmptyState(
+          child: AppCompletedState(
             title: 'No backup was saved',
             message: 'Your timeline was not changed.',
+            icon: AppIcons.information,
             actionLabel: 'Done',
             onAction: () => context.pop(),
           ),
@@ -178,7 +179,7 @@ final class BackupCompletePage extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const AppEmptyState(
+                    const AppCompletedState(
                       title: 'Your backup is protected',
                       message:
                           'The encrypted file is stored only at the destination you selected.',

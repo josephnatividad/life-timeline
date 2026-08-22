@@ -106,6 +106,36 @@ void main() {
     );
   });
 
+  test('10,000-memory milestone scan remains bounded for local use', () {
+    final memories = [
+      for (var index = 0; index < 10000; index++)
+        _memory(
+          'scale-event-$index',
+          TemporalValue.year(1900 + (index % 126)),
+          entity: index < 100
+              ? _entity('device-$index', 'Device $index', 'phone')
+              : null,
+          eventType: index < 100 ? 'Purchased' : 'Milestone',
+        ),
+    ];
+    final stopwatch = Stopwatch()..start();
+
+    final milestones = engine.detect(memories, now: now);
+    stopwatch.stop();
+
+    expect(
+      milestones,
+      contains(
+        isA<MilestoneCandidate>().having(
+          (item) => item.type,
+          'type',
+          MilestoneType.hundredthMemory,
+        ),
+      ),
+    );
+    expect(stopwatch.elapsed, lessThan(const Duration(seconds: 5)));
+  });
+
   test('Then & Now rejects the same source and supports missing media', () {
     final factory = LocalStorySourceFactory(
       _UnusedTimelineRepository(),

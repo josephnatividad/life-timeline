@@ -74,12 +74,11 @@ final class _MemorySearchPageState extends ConsumerState<MemorySearchPage> {
       ),
       data: (values) {
         if (values.isEmpty) {
-          return AppEmptyState(
+          return AppNoResultsState(
             title: 'No memories matched your search',
             message: 'Try another word or clear the search.',
             actionLabel: 'Clear search',
             onAction: _clearSearch,
-            icon: AppIcons.search,
           );
         }
         return ListView.separated(

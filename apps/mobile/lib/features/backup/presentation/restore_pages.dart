@@ -100,11 +100,10 @@ final class _DriveBackupsPageState extends ConsumerState<DriveBackupsPage> {
           )
         : _status?.isReady != true
         ? Center(
-            child: AppEmptyState(
+            child: AppPermissionRequiredState(
               title: 'Connect Google Drive',
               message:
                   'Life Timeline requests access only to its hidden app backup folder. Timeline content is encrypted locally before transfer.',
-              icon: AppIcons.privacy,
               actionLabel: 'Connect Google Drive',
               onAction: _connect,
             ),
@@ -470,7 +469,7 @@ final class RestoreProgressPage extends ConsumerWidget {
       return AppScaffold(
         appBar: AppBar(title: const Text('Backup verified')),
         body: Center(
-          child: AppEmptyState(
+          child: AppCompletedState(
             title: 'Ready to restore',
             message: 'Review the backup summary before changing local data.',
             icon: AppIcons.success,
@@ -484,7 +483,7 @@ final class RestoreProgressPage extends ConsumerWidget {
       return AppScaffold(
         appBar: AppBar(title: const Text('Restore complete')),
         body: Center(
-          child: AppEmptyState(
+          child: AppCompletedState(
             title: 'Timeline restored',
             message: 'The restored data passed final integrity checks.',
             icon: AppIcons.success,
@@ -509,7 +508,7 @@ final class RestoreResultPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) => AppScaffold(
     appBar: AppBar(title: const Text('Restore result')),
     body: Center(
-      child: AppEmptyState(
+      child: AppCompletedState(
         title: 'Your timeline is ready',
         message:
             'The backup was authenticated, migrated where required, and restored locally.',

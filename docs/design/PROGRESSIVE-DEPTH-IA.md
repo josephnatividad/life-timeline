@@ -17,8 +17,10 @@ owner.
 
 PDD documents, accepted ADRs, and `AGENTS.md` remain authoritative. This IA
 does not change privacy, domain, backup, monetization, or intelligence rules.
-In particular, Stories remain ephemeral in V1 under ADR-0008, so this work does
-not invent a persisted Story library or drafts screen.
+In particular, Stories remain ephemeral under the implemented Stories V1
+product boundary and ADR-0007's sanitized local-export decision, so this work
+does not invent a persisted Story library or drafts screen. ADR-0008 governs
+one-time Pro monetization, not Story persistence.
 
 ## Module hierarchy
 
@@ -106,11 +108,17 @@ and Preview remain task steps.
 - Storage renders archive counts on its overview; attachment selection belongs
   to Archived originals.
 
-Timeline itself remains a lazy-rendered authoritative list, but its repository
-currently materializes the confirmed-memory read model. Cursor-based temporal
-pagination is explicit remaining architecture debt because it must preserve
-unknown/approximate/range ordering and scroll restoration; it is not safely
-solved by a presentation-only limit.
+Timeline itself remains a lazy-rendered authoritative list, while its
+repository materializes the confirmed-memory read model. Repository and widget
+checks pass at 10,000 memories and build only viewport-visible event tiles, so
+cursor pagination is not currently justified. If representative device
+profiling later exceeds the performance budget, pagination must preserve
+unknown/approximate/range ordering and scroll restoration; it must not be
+improvised as a presentation-only limit.
+
+Dedicated Gallery and Reminders collections use lazy slivers. Their collection
+owners may read the complete local collection, while construction and image
+work remain viewport-bounded.
 
 ## Future extension strategy
 

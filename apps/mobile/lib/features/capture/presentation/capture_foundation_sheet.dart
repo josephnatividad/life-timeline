@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:life_timeline/design_system/components/feedback/app_badge.dart';
+import 'package:life_timeline/design_system/components/feedback/app_state_views.dart';
 import 'package:life_timeline/design_system/components/overlays/app_bottom_sheet.dart';
 import 'package:life_timeline/design_system/icons/app_icons.dart';
 import 'package:life_timeline/design_system/tokens/app_icon_size.dart';
@@ -71,6 +72,15 @@ final class _CaptureFoundationSheetState
             const SizedBox(height: AppSpacing.sm),
             Semantics(liveRegion: true, child: Text(stage)),
           ] else if (_showScanSources) ...[
+            if (!capabilities.textRecognitionAvailable) ...[
+              const AppUnavailableState(
+                title: "Private text extraction isn't available yet",
+                message: 'Manual document capture remains available.',
+                icon: AppIcons.lock,
+                variant: AppEmptyStateVariant.section,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
             _action(
               key: const Key('scan-document-camera'),
               icon: AppIcons.camera,

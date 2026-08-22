@@ -28,11 +28,13 @@ final class StoryMemorySourcesPage extends ConsumerWidget {
           ),
         ),
         data: (values) => values.isEmpty
-            ? const Center(
+            ? Center(
                 child: AppEmptyState(
                   title: 'No memories to choose from',
                   message: 'Confirm a memory before creating a Story.',
+                  actionLabel: 'Add memory',
                   icon: AppIcons.stories,
+                  onAction: () => context.pushNamed(AppRoute.addMemory.name),
                 ),
               )
             : ListView.separated(

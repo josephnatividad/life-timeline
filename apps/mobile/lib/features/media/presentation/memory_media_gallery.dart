@@ -195,121 +195,147 @@ final class _MemoryMediaContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final hero = _hero;
     final gallery = media.where((item) => !item.isHero).toList();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (showHero && hero != null) ...[
-          Semantics(
-            button: true,
-            label: 'Open hero photo. ${hero.link.caption ?? ''}',
-            child: InkWell(
-              borderRadius: BorderRadius.circular(AppRadius.largeCard),
-              onTap: () => _openViewer(context, hero),
-              onLongPress: () => _actions(context, ref, hero),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(AppRadius.largeCard),
-                child: AspectRatio(
-                  aspectRatio: AppMediaRatio.hero,
-                  child: MemoryMediaHero(
-                    media: hero,
-                    child: ManagedMemoryImage(
-                      media: hero,
-                      preferThumbnail:
-                          hero.attachment.storageState ==
-                          AttachmentStorageState.archived,
-                      semanticLabel: hero.link.caption ?? 'Hero photo',
-                    ),
-                  ),
-                ),
-              ),
-            ),
+    return CustomScrollView(
+      key: const Key('memory-gallery-scroll'),
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            AppSpacing.lg,
+            AppSpacing.xl,
+            0,
           ),
-          if (hero.link.caption case final caption?) ...[
-            const SizedBox(height: AppSpacing.sm),
-            Text(caption, style: Theme.of(context).textTheme.bodyMedium),
-          ],
-          const SizedBox(height: AppSpacing.xxl),
-        ],
-        AppSectionHeader(
-          title: 'Photos',
-          supportingText: media.isEmpty
-              ? 'Add a curated view of this memory.'
-              : '${media.length} ${media.length == 1 ? 'photo' : 'photos'}',
-          action: media.length > 1
-              ? AppIconButton(
-                  icon: AppIcons.reorder,
-                  label: 'Reorder photos',
-                  onPressed: () => context.pushNamed(
-                    AppRoute.reorderMedia.name,
-                    pathParameters: {'memoryId': memoryId},
-                  ),
-                )
-              : null,
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        if (gallery.isNotEmpty)
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final columns = constraints.maxWidth >= 720
-                  ? 4
-                  : constraints.maxWidth >= 440
-                  ? 3
-                  : 2;
-              return GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: gallery.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: columns,
-                  crossAxisSpacing: AppSpacing.sm,
-                  mainAxisSpacing: AppSpacing.sm,
-                  childAspectRatio: AppMediaRatio.galleryThumbnail,
-                ),
-                itemBuilder: (context, index) {
-                  final item = gallery[index];
-                  return Semantics(
-                    button: true,
-                    label:
-                        'Photo ${index + 1} of ${gallery.length}. ${item.link.caption ?? ''}',
-                    child: InkWell(
-                      onTap: () => _openViewer(context, item),
-                      onLongPress: () => _actions(context, ref, item),
-                      borderRadius: BorderRadius.circular(AppRadius.card),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(AppRadius.card),
+          sliver: SliverList.list(
+            children: [
+              if (showHero && hero != null) ...[
+                Semantics(
+                  button: true,
+                  label: 'Open hero photo. ${hero.link.caption ?? ''}',
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(AppRadius.largeCard),
+                    onTap: () => _openViewer(context, hero),
+                    onLongPress: () => _actions(context, ref, hero),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(AppRadius.largeCard),
+                      child: AspectRatio(
+                        aspectRatio: AppMediaRatio.hero,
                         child: MemoryMediaHero(
-                          media: item,
+                          media: hero,
                           child: ManagedMemoryImage(
-                            media: item,
-                            semanticLabel: item.link.caption ?? 'Memory photo',
-                            cacheWidth: 512,
+                            media: hero,
+                            preferThumbnail:
+                                hero.attachment.storageState ==
+                                AttachmentStorageState.archived,
+                            semanticLabel: hero.link.caption ?? 'Hero photo',
                           ),
                         ),
                       ),
                     ),
-                  );
-                },
+                  ),
+                ),
+                if (hero.link.caption case final caption?) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(caption, style: Theme.of(context).textTheme.bodyMedium),
+                ],
+                const SizedBox(height: AppSpacing.xxl),
+              ],
+              AppSectionHeader(
+                title: 'Photos',
+                supportingText: media.isEmpty
+                    ? 'Add a curated view of this memory.'
+                    : '${media.length} ${media.length == 1 ? 'photo' : 'photos'}',
+                action: media.length > 1
+                    ? AppIconButton(
+                        icon: AppIcons.reorder,
+                        label: 'Reorder photos',
+                        onPressed: () => context.pushNamed(
+                          AppRoute.reorderMedia.name,
+                          pathParameters: {'memoryId': memoryId},
+                        ),
+                      )
+                    : null,
+              ),
+              if (gallery.isNotEmpty) const SizedBox(height: AppSpacing.sm),
+            ],
+          ),
+        ),
+        if (gallery.isNotEmpty)
+          SliverLayoutBuilder(
+            builder: (context, constraints) {
+              final columns = constraints.crossAxisExtent >= 720
+                  ? 4
+                  : constraints.crossAxisExtent >= 440
+                  ? 3
+                  : 2;
+              return SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                sliver: SliverGrid.builder(
+                  key: const Key('memory-gallery-grid'),
+                  itemCount: gallery.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: columns,
+                    crossAxisSpacing: AppSpacing.sm,
+                    mainAxisSpacing: AppSpacing.sm,
+                    childAspectRatio: AppMediaRatio.galleryThumbnail,
+                  ),
+                  itemBuilder: (context, index) {
+                    final item = gallery[index];
+                    return Semantics(
+                      button: true,
+                      label:
+                          'Photo ${index + 1} of ${gallery.length}. ${item.link.caption ?? ''}',
+                      child: InkWell(
+                        onTap: () => _openViewer(context, item),
+                        onLongPress: () => _actions(context, ref, item),
+                        borderRadius: BorderRadius.circular(AppRadius.card),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(AppRadius.card),
+                          child: MemoryMediaHero(
+                            media: item,
+                            child: ManagedMemoryImage(
+                              media: item,
+                              semanticLabel:
+                                  item.link.caption ?? 'Memory photo',
+                              cacheWidth: 512,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
               );
             },
           ),
-        if (gallery.isNotEmpty) const SizedBox(height: AppSpacing.md),
-        AppButton(
-          key: const Key('memory-add-photo'),
-          label: 'Add photo',
-          icon: AppIcons.image,
-          variant: AppButtonVariant.secondary,
-          onPressed: () => context.pushNamed(
-            AppRoute.memoryPhotos.name,
-            pathParameters: {'memoryId': memoryId},
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.xl,
+            AppSpacing.md,
+            AppSpacing.xl,
+            AppSpacing.xxxl,
+          ),
+          sliver: SliverList.list(
+            children: [
+              AppButton(
+                key: const Key('memory-add-photo'),
+                label: 'Add photo',
+                icon: AppIcons.image,
+                variant: AppButtonVariant.secondary,
+                onPressed: () => context.pushNamed(
+                  AppRoute.memoryPhotos.name,
+                  pathParameters: {'memoryId': memoryId},
+                ),
+              ),
+              if (media.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  'Open a photo for controls. Every action is also available without gestures.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ],
           ),
         ),
-        if (media.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            'Open a photo for controls. Every action is also available without gestures.',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ],
       ],
     );
   }

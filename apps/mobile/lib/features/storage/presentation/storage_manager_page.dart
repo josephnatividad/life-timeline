@@ -226,20 +226,20 @@ final class _StorageArchiveContent extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xl),
               ],
-              const AppSectionHeader(
-                title: 'Available originals',
-                supportingText:
-                    'Selected originals are encrypted and verified through the system picker.',
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              if (available.isEmpty)
+              if (available.isEmpty && archived.isEmpty)
                 const AppEmptyState(
-                  title: 'No originals are ready to archive',
-                  message: '',
+                  title: 'No originals to manage',
+                  message:
+                      'App-managed photo and document originals can be archived from here.',
                   icon: AppIcons.archive,
-                  variant: AppEmptyStateVariant.compact,
                 )
-              else ...[
+              else if (available.isNotEmpty) ...[
+                const AppSectionHeader(
+                  title: 'Available originals',
+                  supportingText:
+                      'Selected originals are encrypted and verified through the system picker.',
+                ),
+                const SizedBox(height: AppSpacing.sm),
                 for (final stored in available)
                   StorageAttachmentTile(
                     key: Key(
@@ -267,21 +267,15 @@ final class _StorageArchiveContent extends StatelessWidget {
                       : onArchive,
                 ),
               ],
-              const SizedBox(height: AppSpacing.xxxl),
-              const AppSectionHeader(
-                title: 'Archived originals',
-                supportingText:
-                    'Previews and timeline metadata remain on this device.',
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              if (archived.isEmpty)
-                const AppEmptyState(
-                  title: 'No originals are archived',
-                  message: '',
-                  icon: AppIcons.archive,
-                  variant: AppEmptyStateVariant.compact,
-                )
-              else
+              if (archived.isNotEmpty) ...[
+                if (available.isNotEmpty)
+                  const SizedBox(height: AppSpacing.xxxl),
+                const AppSectionHeader(
+                  title: 'Archived originals',
+                  supportingText:
+                      'Previews and timeline metadata remain on this device.',
+                ),
+                const SizedBox(height: AppSpacing.sm),
                 for (final stored in archived)
                   StorageAttachmentTile(
                     key: Key(
@@ -293,6 +287,7 @@ final class _StorageArchiveContent extends StatelessWidget {
                         ? null
                         : () => onRetrieve(stored.attachment.metadata.id),
                   ),
+              ],
             ],
           ),
         ),

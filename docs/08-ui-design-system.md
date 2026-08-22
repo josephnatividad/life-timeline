@@ -221,6 +221,36 @@ filtered empty, completed/clear, unavailable, permission required, and error
 are distinct meanings and must use contextual language. Loading failures never
 masquerade as empty data.
 
+State meaning determines both the copy and the component:
+
+-   **First use** explains the module's value and offers its first meaningful
+    action. Use one hero state for the empty module.
+-   **Empty** states that a real collection currently has zero items. Important
+    collection sections may use a section state; optional sections remain
+    silent.
+-   **No results** means content exists but the current search matched none.
+    Use `AppNoResultsState` and offer Clear search when it preserves context.
+-   **Filtered empty** means active filters exclude the content. Name the
+    filters and offer Clear filters. Do not describe the underlying collection
+    as empty.
+-   **Completed/clear** treats zero as a successful condition, such as an empty
+    Trash or resolved Memory Inbox. Use `AppCompletedState`.
+-   **Unavailable** means a capability or requested resource cannot currently
+    be used. Use `AppUnavailableState` and name any safe local fallback.
+-   **Permission required** means the capability exists but needs user-granted
+    access. Use `AppPermissionRequiredState` with a contextual permission
+    action.
+-   **Error** means loading or an operation failed. Use `AppErrorState`, retain
+    the user's current context, and offer retry or recovery when safe.
+
+Ordinary states use Hugeicons through `AppIcons`. Custom illustrations are
+reserved for a small number of meaningful first-use experiences. Avoid
+oversized cards, decorative animation, technical storage/database language,
+and repeated paragraphs. A parent detail screen must not stack empty Photos,
+Evidence, Stories, Relationships, Reminders, and Insights sections. Their
+actions remain discoverable through the primary action area or contextual
+menus, and the sections appear as the user's data grows.
+
 ### Cards, tabs, and visual separation
 
 Cards communicate meaningful grouping or interaction. They are appropriate

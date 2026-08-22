@@ -10,9 +10,6 @@ final class MemoryGalleryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AppScaffold(
     appBar: AppBar(title: const Text('Photos')),
-    body: SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-      child: ScreenContainer(child: MemoryMediaGallery(memoryId: memoryId)),
-    ),
+    body: MemoryMediaGallery(memoryId: memoryId),
   );
 }

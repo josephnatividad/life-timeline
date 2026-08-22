@@ -61,8 +61,8 @@ final class _MemoryMediaViewerPageState
             backgroundColor: Colors.black,
             appBar: _appBar(context, values, null),
             body: const Center(
-              child: AppEmptyState(
-                title: 'No photos',
+              child: AppUnavailableState(
+                title: 'Photo no longer available',
                 message: 'This photo is no longer linked to the memory.',
                 icon: AppIcons.image,
               ),

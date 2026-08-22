@@ -107,6 +107,7 @@ void main() {
     expect(find.text('Memory 2'), findsOneWidget);
     expect(find.text('Memory 3'), findsNothing);
     expect(find.text('Choose another memory'), findsOneWidget);
+    expect(find.text('For you'), findsNothing);
   });
 
   testWidgets(

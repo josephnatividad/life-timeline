@@ -33,7 +33,7 @@ final class _TrashPageState extends ConsumerState<TrashPage> {
         ),
         data: (values) => values.isEmpty
             ? const Center(
-                child: AppEmptyState(
+                child: AppCompletedState(
                   title: 'Trash is empty',
                   message:
                       'Memories moved to Trash stay recoverable until you permanently delete them.',

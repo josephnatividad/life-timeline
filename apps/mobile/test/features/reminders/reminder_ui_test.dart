@@ -42,6 +42,36 @@ void main() {
     expect(find.textContaining('Notifications off'), findsOneWidget);
   });
 
+  testWidgets('large reminder history uses a lazy sliver collection', (
+    tester,
+  ) async {
+    final repository = _UiReminderRepository([
+      for (var index = 0; index < 500; index++)
+        _reminder('past-$index', ReminderStatus.disabled),
+    ]);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          reminderStoreProvider.overrideWithValue(repository),
+          localNotificationServiceProvider.overrideWithValue(
+            TestLocalNotificationService(),
+          ),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          home: const RemindersPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('reminders-scroll')), findsOneWidget);
+    expect(find.byType(SliverList), findsOneWidget);
+    expect(find.byType(ListTile).evaluate().length, lessThan(500));
+    expect(find.text('Past / inactive'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('editor presets remain usable in dark mode and large text', (
     tester,
   ) async {

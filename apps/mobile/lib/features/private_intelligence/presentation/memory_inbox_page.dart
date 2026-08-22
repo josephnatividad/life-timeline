@@ -26,11 +26,10 @@ final class MemoryInboxPage extends ConsumerWidget {
         ),
         data: (items) => items.isEmpty
             ? const Center(
-                child: AppEmptyState(
+                child: AppCompletedState(
                   title: "You're all caught up",
                   message:
                       'There are no private capture suggestions to review.',
-                  icon: AppIcons.database,
                 ),
               )
             : ListView.separated(

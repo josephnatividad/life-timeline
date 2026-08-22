@@ -129,6 +129,40 @@ void main() {
     );
   });
 
+  testWidgets('Explore consolidates zero data into one first-use state', (
+    tester,
+  ) async {
+    final overview = ExploreOverview(
+      categories: const [],
+      insights: const [],
+      places: const [],
+      things: const [],
+      years: const [],
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          exploreOverviewProvider.overrideWith((ref) async => overview),
+        ],
+        child: const _TestApp(
+          dark: true,
+          reducedMotion: true,
+          textScaler: TextScaler.linear(1.8),
+          child: ExploreFoundationPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AppEmptyState), findsOneWidget);
+    expect(find.text('Your patterns are still taking shape'), findsOneWidget);
+    expect(find.text('Add memory'), findsOneWidget);
+    expect(find.text('For you'), findsNothing);
+    expect(find.text('Browse your life'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets(
     'Explore uses editorial sections in dark mode and Reduced Motion',
     (tester) async {

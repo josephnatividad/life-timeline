@@ -30,7 +30,7 @@ final class ArchivePage extends ConsumerWidget {
         data: (values) => values.isEmpty
             ? const Center(
                 child: AppEmptyState(
-                  title: 'No archived memories',
+                  title: 'Archive is empty',
                   message:
                       'Memories you archive remain preserved and available here.',
                   icon: AppIcons.archive,

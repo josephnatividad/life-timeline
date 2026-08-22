@@ -90,6 +90,14 @@ void main() {
       findsOneWidget,
     );
     expect(
+      find.text("Private text extraction isn't available yet"),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Manual document capture remains available.'),
+      findsOneWidget,
+    );
+    expect(
       find.text('Attach it privately, then enter the details yourself.'),
       findsOneWidget,
     );

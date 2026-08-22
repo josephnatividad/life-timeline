@@ -126,35 +126,32 @@ final class _StoriesContent extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.xxxl),
-          const AppSectionHeader(
-            title: 'For you',
-            supportingText:
-                'Only dates and counts with enough evidence become candidates.',
-          ),
-          const SizedBox(height: AppSpacing.md),
           milestones.when(
-            loading: () => const AppLoadingState(
-              label: 'Checking local milestone candidates',
-            ),
-            error: (error, stackTrace) => const Text(
-              'Milestones are unavailable, but you can still create a Story.',
-            ),
+            loading: () => const SizedBox.shrink(),
+            error: (error, stackTrace) => const SizedBox.shrink(),
             data: (value) => value.isEmpty
-                ? const Text(
-                    'Milestones will appear as your confirmed timeline grows.',
-                  )
-                : Column(
-                    children: [
-                      for (final milestone in value.take(2)) ...[
-                        StoryMilestoneCard(
-                          milestone: milestone,
-                          onCreateStory: () =>
-                              _openMilestone(context, ref, milestone),
+                ? const SizedBox.shrink()
+                : Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.xxxl),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const AppSectionHeader(
+                          title: 'For you',
+                          supportingText:
+                              'Only dates and counts with enough evidence become candidates.',
                         ),
-                        const SizedBox(height: AppSpacing.sm),
+                        const SizedBox(height: AppSpacing.md),
+                        for (final milestone in value.take(2)) ...[
+                          StoryMilestoneCard(
+                            milestone: milestone,
+                            onCreateStory: () =>
+                                _openMilestone(context, ref, milestone),
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
           ),
           const SizedBox(height: AppSpacing.xxxl),

@@ -291,6 +291,40 @@ void main() {
       },
     );
 
+    test('500 managed files inventory remains bounded and complete', () async {
+      final photoDirectory = Directory(
+        p.join(paths.attachmentRoot, 'scale-photos'),
+      );
+      await photoDirectory.create(recursive: true);
+      final stored = <StoredAttachment>[];
+      for (var index = 0; index < 500; index++) {
+        final relativePath = p.join('scale-photos', '$index.jpg');
+        final file = File(p.join(paths.attachmentRoot, relativePath));
+        await file.writeAsString('non-personal-fixture-$index');
+        stored.add(
+          StoredAttachment(
+            attachment: _attachment(
+              id: 'scale-attachment-$index',
+              relativePath: relativePath,
+              byteSize: await file.length(),
+            ),
+          ),
+        );
+      }
+      final stopwatch = Stopwatch()..start();
+
+      final inventory = await FileSystemStorageInventoryService(
+        _ListStorageRepository(stored),
+        paths,
+      ).analyze();
+      stopwatch.stop();
+
+      expect(inventory.managedFiles, hasLength(500));
+      expect(inventory.missingManagedFileCount, 0);
+      expect(inventory.breakdown.photosBytes, greaterThan(0));
+      expect(stopwatch.elapsed, lessThan(const Duration(seconds: 10)));
+    });
+
     test(
       'cleanup removes only stale files in the explicit allowlist',
       () async {

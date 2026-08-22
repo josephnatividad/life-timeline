@@ -22,17 +22,16 @@ void main() {
     await tester.pumpWidget(
       _app(
         media: media,
-        child: const SingleChildScrollView(
-          child: MemoryMediaGallery(memoryId: 'event-1'),
-        ),
+        child: const MemoryMediaGallery(memoryId: 'event-1'),
       ),
     );
     await tester.pumpAndSettle();
 
     expect(find.text('3 photos'), findsOneWidget);
-    expect(find.byKey(const Key('memory-add-photo')), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp('Open hero photo')), findsOneWidget);
-    expect(find.byType(GridView), findsOneWidget);
+    await _revealGallery(tester, find.byKey(const Key('memory-add-photo')));
+    expect(find.byKey(const Key('memory-add-photo')), findsOneWidget);
+    expect(find.byType(SliverGrid), findsOneWidget);
   });
 
   testWidgets('gallery supports dark mode, large text, and Reduced Motion', (
@@ -44,9 +43,7 @@ void main() {
         dark: true,
         textScale: 2,
         reducedMotion: true,
-        child: const SingleChildScrollView(
-          child: MemoryMediaGallery(memoryId: 'event-1'),
-        ),
+        child: const MemoryMediaGallery(memoryId: 'event-1'),
       ),
     );
     await tester.pumpAndSettle();
@@ -169,17 +166,32 @@ void main() {
     await tester.pumpWidget(
       _app(
         media: largeGallery,
-        child: const SingleChildScrollView(
-          child: MemoryMediaGallery(memoryId: 'event-1'),
-        ),
+        child: const MemoryMediaGallery(memoryId: 'event-1'),
       ),
     );
     await tester.pumpAndSettle();
 
     expect(find.text('50 photos'), findsOneWidget);
-    expect(find.byType(GridView), findsOneWidget);
+    await tester.drag(
+      find.byKey(const Key('memory-gallery-scroll')),
+      const Offset(0, -700),
+    );
+    await tester.pump();
+    expect(find.byType(SliverGrid), findsOneWidget);
+    expect(find.byType(ManagedMemoryImage).evaluate().length, lessThan(50));
+    expect(find.byKey(const Key('memory-gallery-scroll')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+}
+
+Future<void> _revealGallery(WidgetTester tester, Finder target) async {
+  for (var attempt = 0; attempt < 12 && target.evaluate().isEmpty; attempt++) {
+    await tester.drag(
+      find.byKey(const Key('memory-gallery-scroll')),
+      const Offset(0, -300),
+    );
+    await tester.pump();
+  }
 }
 
 Widget _app({

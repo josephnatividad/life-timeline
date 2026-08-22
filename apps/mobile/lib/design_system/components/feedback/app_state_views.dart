@@ -9,19 +9,23 @@ enum AppEmptyStateVariant { hero, section, compact }
 
 final class AppEmptyState extends StatelessWidget {
   const AppEmptyState({
-    required this.message,
     required this.title,
     this.actionLabel,
     this.icon = AppIcons.information,
+    this.message,
     this.onAction,
+    this.onSecondaryAction,
+    this.secondaryActionLabel,
     this.variant = AppEmptyStateVariant.hero,
     super.key,
   });
 
   final String? actionLabel;
   final AppIconData icon;
-  final String message;
+  final String? message;
   final VoidCallback? onAction;
+  final VoidCallback? onSecondaryAction;
+  final String? secondaryActionLabel;
   final String title;
   final AppEmptyStateVariant variant;
 
@@ -31,8 +35,143 @@ final class AppEmptyState extends StatelessWidget {
     icon: icon,
     message: message,
     onAction: onAction,
+    onSecondaryAction: onSecondaryAction,
+    secondaryActionLabel: secondaryActionLabel,
     title: title,
     variant: variant,
+  );
+}
+
+/// A query completed successfully, but its current query or filters matched
+/// no content. This is intentionally distinct from a genuinely empty source.
+final class AppNoResultsState extends StatelessWidget {
+  const AppNoResultsState({
+    required this.title,
+    this.actionLabel,
+    this.message,
+    this.onAction,
+    this.variant = AppEmptyStateVariant.hero,
+    super.key,
+  });
+
+  final String? actionLabel;
+  final String? message;
+  final VoidCallback? onAction;
+  final String title;
+  final AppEmptyStateVariant variant;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    label: 'No results',
+    child: AppEmptyState(
+      title: title,
+      message: message,
+      actionLabel: actionLabel,
+      icon: AppIcons.search,
+      onAction: onAction,
+      variant: variant,
+    ),
+  );
+}
+
+/// A capability or requested local resource is not currently available.
+final class AppUnavailableState extends StatelessWidget {
+  const AppUnavailableState({
+    required this.title,
+    this.actionLabel,
+    this.icon = AppIcons.information,
+    this.message,
+    this.onAction,
+    this.variant = AppEmptyStateVariant.hero,
+    super.key,
+  });
+
+  final String? actionLabel;
+  final AppIconData icon;
+  final String? message;
+  final VoidCallback? onAction;
+  final String title;
+  final AppEmptyStateVariant variant;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    label: 'Unavailable',
+    child: AppEmptyState(
+      title: title,
+      message: message,
+      actionLabel: actionLabel,
+      icon: icon,
+      onAction: onAction,
+      variant: variant,
+    ),
+  );
+}
+
+/// A capability exists, but the user must grant or establish access first.
+final class AppPermissionRequiredState extends StatelessWidget {
+  const AppPermissionRequiredState({
+    required this.title,
+    this.actionLabel,
+    this.message,
+    this.onAction,
+    this.variant = AppEmptyStateVariant.hero,
+    super.key,
+  });
+
+  final String? actionLabel;
+  final String? message;
+  final VoidCallback? onAction;
+  final String title;
+  final AppEmptyStateVariant variant;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    label: 'Permission required',
+    child: AppEmptyState(
+      title: title,
+      message: message,
+      actionLabel: actionLabel,
+      icon: AppIcons.privacy,
+      onAction: onAction,
+      variant: variant,
+    ),
+  );
+}
+
+/// A zero state that represents a successful, clear, or completed condition.
+final class AppCompletedState extends StatelessWidget {
+  const AppCompletedState({
+    required this.title,
+    this.actionLabel,
+    this.icon = AppIcons.success,
+    this.message,
+    this.onAction,
+    this.variant = AppEmptyStateVariant.hero,
+    super.key,
+  });
+
+  final String? actionLabel;
+  final AppIconData icon;
+  final String? message;
+  final VoidCallback? onAction;
+  final String title;
+  final AppEmptyStateVariant variant;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    label: 'Complete',
+    child: AppEmptyState(
+      title: title,
+      message: message,
+      actionLabel: actionLabel,
+      icon: icon,
+      onAction: onAction,
+      variant: variant,
+    ),
   );
 }
 
@@ -100,14 +239,18 @@ final class _AppStateLayout extends StatelessWidget {
     this.actionLabel,
     this.iconColor,
     this.onAction,
+    this.onSecondaryAction,
+    this.secondaryActionLabel,
     this.variant = AppEmptyStateVariant.hero,
   });
 
   final String? actionLabel;
   final AppIconData icon;
   final Color? iconColor;
-  final String message;
+  final String? message;
   final VoidCallback? onAction;
+  final VoidCallback? onSecondaryAction;
+  final String? secondaryActionLabel;
   final String title;
   final AppEmptyStateVariant variant;
 
@@ -152,7 +295,7 @@ final class _AppStateLayout extends StatelessWidget {
                   : Theme.of(context).textTheme.titleLarge,
               textAlign: textAlign,
             ),
-            if (message.isNotEmpty) ...[
+            if (message case final message? when message.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.xs),
               Text(
                 message,
@@ -170,6 +313,14 @@ final class _AppStateLayout extends StatelessWidget {
                 label: actionLabel!,
                 onPressed: onAction,
                 variant: AppButtonVariant.secondary,
+              ),
+            ],
+            if (secondaryActionLabel != null && onSecondaryAction != null) ...[
+              const SizedBox(height: AppSpacing.xs),
+              AppButton(
+                label: secondaryActionLabel!,
+                onPressed: onSecondaryAction,
+                variant: AppButtonVariant.tertiary,
               ),
             ],
           ],

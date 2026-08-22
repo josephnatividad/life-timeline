@@ -44,10 +44,13 @@ final class _ThenNowSelectionPageState
 
   Widget _content(List<TimelineMemory> memories) {
     if (memories.length < 2) {
-      return const Center(
+      return Center(
         child: AppEmptyState(
           title: 'Two memories are needed',
           message: 'Confirm another memory before creating a Then & Now Story.',
+          actionLabel: 'Add memory',
+          icon: AppIcons.stories,
+          onAction: () => context.pushNamed(AppRoute.addMemory.name),
         ),
       );
     }
